@@ -7,9 +7,9 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
     <div id={id} className={styles.menu}> {/* Применяем ID */}
       <div className={styles.menu__left}>
         <picture className={styles.menu__left__pic}>
-          <source srcSet={`/pics/char/${src}.avif`} type="image/avif" />
-          <source srcSet={`/pics/char/${src}.webp`} type="image/webp" />
-          <img src={`/pics/char/${src}.png`} alt={`icon-${name}`} />
+          <source srcSet={`./pics/char/${src}.avif`} type="image/avif" />
+          <source srcSet={`./pics/char/${src}.webp`} type="image/webp" />
+          <img src={`./pics/char/${src}.png`} alt={`icon-${name}`} />
         </picture>
       </div>
       <div className={styles.menu__right}>
