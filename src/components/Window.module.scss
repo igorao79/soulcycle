@@ -1,0 +1,38 @@
+.window {
+    width: 1500px;
+    height: 80vh;
+    position: relative;
+    background-color: white;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    transition: width 0.3s, height 0.3s;  // Анимация для размера, чтобы он не изменялся
+
+    &__message {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+    }
+
+    &__panel {
+        width: 80px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 50px;
+        border-right: 2px solid black;
+        z-index: 100;
+    }
+
+
+    &__message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+}
