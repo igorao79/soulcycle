@@ -17,6 +17,10 @@ button {
     cursor: pointer;
 }
 
+a {
+    text-decoration: none;
+}
+
 .page {
     max-width: 2000px;
     min-height: 100vh;
@@ -25,6 +29,7 @@ button {
     justify-content: center;
     margin: 0 auto;
     background-color: #333;
+    position: relative;
 }
 
 /* //////////////////////////////////////////////////////// */

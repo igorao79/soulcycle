@@ -11,8 +11,11 @@
 
     &__message {
         position: absolute;
-        left: 50%;
+        left: 30%;
         top: 50%;
+        font-family: 'graphb';
+        text-transform: uppercase;
+        font-size: 3rem;
     }
 
     &__panel {
