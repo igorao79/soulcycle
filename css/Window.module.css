@@ -4,42 +4,30 @@
   position: relative;
   background-color: white;
   border-radius: 5px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  overflow: hidden;
-  -webkit-transition: width 0.3s, height 0.3s;
-  transition: width 0.3s, height 0.3s;
-}
-.window__message {
-  position: absolute;
-  left: 50%;
-  top: 50%;
 }
 .window__panel {
   width: 80px;
   height: 100%;
+  background-color: red;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
   gap: 50px;
   border-right: 2px solid black;
-  z-index: 100;
 }
-.window__message {
+.window__icon {
+  max-width: 90px;
+  padding: 10px 22px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -49,4 +37,7 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  height: 50px;
+  background-color: blue;
+  border-bottom: 2px solid black;
 }/*# sourceMappingURL=Window.module.css.map */
