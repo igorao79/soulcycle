@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'; // Добавьте mot
 import styles from './Window.module.scss';
 import Icon from './Icon';
 import CharMenu from './CharMenu'; // Импортируем компонент CharMenu
+import Tgbtn from './Tgbtn';
 import AnimatedCard from '../utils/AnimatedCard'; // Импортируем компонент AnimatedCard
 import characters from '../data/characters';
 
@@ -19,6 +20,7 @@ function Window() {
 
   return (
     <div className={styles.window}>
+      <Tgbtn/>
       <div className={styles.window__panel}>
         {icons.map((icon, index) => (
           <Icon
