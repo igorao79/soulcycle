@@ -19,8 +19,9 @@
     }
 
     &__panel {
-        width: 80px;
-        height: 100%;
+        position: absolute;
+        min-height: 80vh;
+        max-width: 200px !important;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -28,6 +29,7 @@
         gap: 50px;
         border-right: 2px solid black;
         z-index: 100;
+        background-color: white;
     }
 
 
@@ -38,4 +40,28 @@
     }
 
 
+}
+
+
+@media only screen and (max-width: 760px) {
+    .window {
+        top: -20px;
+        flex-direction: column;
+        max-width: 93%;
+        height: 85vh;
+
+        &__panel {
+            position: absolute;
+            rotate: 90deg;
+            gap: 20px;
+            top: -42.5%;
+
+        }
+
+        &__message {
+            left: 5%;
+            font-size: 2.5rem;
+        }
+
+    }
 }

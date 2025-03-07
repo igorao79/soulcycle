@@ -29,3 +29,12 @@ hr {
     height: 3px;
     background-color: black;
 }
+
+@media only screen and (max-width: 760px) {
+    .btn {
+        rotate: 270deg;
+    }
+
+    
+
+}

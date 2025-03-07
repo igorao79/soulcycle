@@ -16,12 +16,16 @@
 }
 .window__message {
   position: absolute;
-  left: 50%;
+  left: 30%;
   top: 50%;
+  font-family: "graphb";
+  text-transform: uppercase;
+  font-size: 3rem;
 }
 .window__panel {
-  width: 80px;
-  height: 100%;
+  position: absolute;
+  min-height: 80vh;
+  max-width: 200px !important;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -38,6 +42,7 @@
   gap: 50px;
   border-right: 2px solid black;
   z-index: 100;
+  background-color: white;
 }
 .window__message {
   display: -webkit-box;
@@ -49,4 +54,26 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+}
+
+@media only screen and (max-width: 760px) {
+  .window {
+    top: -20px;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    max-width: 93%;
+    height: 85vh;
+  }
+  .window__panel {
+    position: absolute;
+    rotate: 90deg;
+    gap: 20px;
+    top: -42.5%;
+  }
+  .window__message {
+    left: 5%;
+    font-size: 2.5rem;
+  }
 }/*# sourceMappingURL=Window.module.css.map */

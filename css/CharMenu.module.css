@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .menu {
   width: 100%;
   height: 100%;
@@ -105,6 +106,19 @@
 .menu__right__lore {
   font-family: "graphr";
   font-size: 1.6rem;
+}
+
+.menu[id=faust]::before {
+  content: "";
+  position: absolute;
+  top: 0; /* Установите верхнюю границу */
+  left: 0; /* Установите левую границу */
+  width: 100%;
+  height: 100%;
+  background-image: url("/public/pics/char/faustb.svg"); /* Убедитесь, что путь правильный */
+  z-index: -1; /* Убедитесь, что z-index достаточный */
+  -webkit-filter: blur(2.5px);
+          filter: blur(2.5px);
 }
 
 .menu[id=lonarius]::before {
