@@ -16,9 +16,9 @@
     padding-left: 2.8em;
     padding-right: 0.92em;
     position: absolute;
-    bottom: 2%;
+    top: 2%;
     left: 9%;
-    z-index: 999;
+    z-index: 10;
   }
 
   .button .icon {

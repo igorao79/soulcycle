@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './CharMenu.module.scss';
 import { getAgeWord } from '../utils/checkage';
 import SplitText from './SplitText';
+import LoreButton from './LoreButton';
 
 function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lore = '...' }) {
   const handleAnimationComplete = () => {
@@ -14,7 +15,7 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
         <picture className={styles.menu__left__pic}>
           <source srcSet={`./pics/char/${src}.avif`} type="image/avif" />
           <source srcSet={`./pics/char/${src}.webp`} type="image/webp" />
-          <img src={`./pics/char/${src}.png`} alt={`icon-${name}`} />
+          <img src={`./pics/char/${src}.png`} alt={`icon-${name}`} loading="lazy"/>
         </picture>
       </div>
       <div className={styles.menu__right}>
@@ -51,13 +52,7 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
             </span>
           </div>
         </div>
-        <div className={styles.menu__right__lore}> {/* Изменено с <p> на <div> */}
-          <SplitText
-            text={lore}
-            className={styles.menu__right__lore}
-            delay={100}
-          />
-        </div>
+        <LoreButton id={id}></LoreButton>
       </div>
     </div>
   );
