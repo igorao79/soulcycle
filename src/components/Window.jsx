@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'; // Добавьте motion и AnimatePresence
 import styles from './Window.module.scss';
-import Icon from './Icon';
+import Icon from './window/Icon';
 import CharMenu from './CharMenu'; // Импортируем компонент CharMenu
-import Tgbtn from './Tgbtn';
+import Tgbtn from './window/Tgbtn';
 import AnimatedCard from '../utils/AnimatedCard'; // Импортируем компонент AnimatedCard
 import characters from '../data/characters';
 

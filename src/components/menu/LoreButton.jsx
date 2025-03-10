@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './LoreButton.module.scss';
-import SplitText from './SplitText';
-import Modal from './Modal'; // Импортируем компонент модального окна
+import SplitText from '../SplitText';
+import Modal from '../Modal'; // Импортируем компонент модального окна
 
 const LoreButton = ({ id }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

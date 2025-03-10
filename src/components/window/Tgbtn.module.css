@@ -1,6 +1,6 @@
 .button {
     font-family: 'graphb';
-    background: #2CA0D9;
+    background: black;
     color: white;
     padding: 0.35em 0;
     font-size: 20px;
@@ -37,7 +37,7 @@
   .icon svg {
     margin-left: 0.1em;
     transition: all 0.5s;
-    color: #2CA0D9;
+    color: black;
     width: 2.5rem;
     height: 2.5rem;
     position: absolute;

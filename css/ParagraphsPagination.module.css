@@ -1,0 +1,56 @@
+.paragraphsPagination__navigation {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+}
+.paragraphsPagination__arrowRight, .paragraphsPagination__arrowLeft {
+  font-size: 3rem;
+  background: none;
+}
+.paragraphsPagination__arrowRight {
+  position: absolute;
+  bottom: 2%;
+  right: 2%;
+}
+.paragraphsPagination__arrowLeft {
+  position: absolute;
+  bottom: 2%;
+  left: 2%;
+}
+.paragraphsPagination__textBlock {
+  min-height: 500px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.paragraphsPagination__textBlock div {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 10px;
+}
+.paragraphsPagination__textBlock div p {
+  font-family: "graphr";
+  font-size: 1.6rem;
+  margin: 0;
+}
+.paragraphsPagination__textBlock div p .blur {
+  -webkit-filter: blur(4px);
+          filter: blur(4px);
+}
+.paragraphsPagination__pageIndicator {
+  font-size: 1.5rem;
+  font-family: "graphb";
+}/*# sourceMappingURL=ParagraphsPagination.module.css.map */

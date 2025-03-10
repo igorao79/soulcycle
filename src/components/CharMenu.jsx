@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './CharMenu.module.scss';
 import { getAgeWord } from '../utils/checkage';
 import SplitText from './SplitText';
-import LoreButton from './LoreButton';
+import LoreButton from './menu/LoreButton';
 
 function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lore = '...' }) {
   const handleAnimationComplete = () => {
@@ -45,7 +45,7 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
             </span>
             <span className={styles.menu__right__titleblock__maininfo__bd}>
               <SplitText
-                text={`ДР: ${bd}`}
+                text={`День рождения: ${bd}`}
                 className={styles.menu__right__titleblock__maininfo__bd}
                 delay={50}
               />
