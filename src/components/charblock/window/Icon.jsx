@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Icon.module.scss';
+import styles from '../../../styles/charblock/Icon.module.scss';
 
 function Icon({ src, index, onClick }) { // Добавляем пропс onClick
   return (

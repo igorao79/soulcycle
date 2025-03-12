@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -28,9 +27,14 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  border: 2px solid black;
 }
 .modalOverlay__closeButton {
   position: absolute;
@@ -45,7 +49,7 @@
 .modalOverlay__closeButton:hover {
   fill: red;
 }
-.modalOverlay__textСontent {
+.modalOverlay__textContent {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -108,7 +112,7 @@
 .modalOverlay__textBlock {
   min-height: 500px;
 }
-.modalOverlay__textBlock div {
+.modalOverlay__textBlock__textCont {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -116,16 +120,17 @@
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  gap: 10px;
-}
-.modalOverlay__textBlock div p {
+  gap: 20px;
+  font-size: 1.65rem;
+  line-height: 110%;
   font-family: "graphr";
-  font-size: 1.6rem;
-  margin: 0;
 }
-.modalOverlay__textBlock div p .blur {
+.modalOverlay__textBlock__textCont span {
   -webkit-filter: blur(4px);
           filter: blur(4px);
+}
+.modalOverlay__textBlock__textCont blockquote p {
+  color: lightseagreen;
 }
 .modalOverlay__pageIndicator {
   font-size: 1.5rem;
@@ -145,6 +150,15 @@
             transform: scaleX(1);
   }
 }
-.blur {
-  color: red; /* Убираем размытие */
+.modalOverlay__textBlock__textCont {
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fadeIn {
+  opacity: 1;
+}
+
+.fadeOut {
+  opacity: 0;
 }/*# sourceMappingURL=Modal.module.css.map */

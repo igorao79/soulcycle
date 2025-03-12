@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './App.module.css'
-import Window from './components/Window';
+import Window from './components/charblock/Window';
 
 function App() {
   return (

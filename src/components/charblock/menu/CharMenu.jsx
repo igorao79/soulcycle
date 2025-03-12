@@ -1,13 +1,10 @@
 import React from 'react';
-import styles from './CharMenu.module.scss';
-import { getAgeWord } from '../utils/checkage';
-import SplitText from './SplitText';
-import LoreButton from './menu/LoreButton';
+import styles from '../../../styles/charblock/CharMenu.module.scss';
+import { getAgeWord } from '../../../utils/charblock/checkage';
+import SplitText from '../SplitText';
+import LoreButton from './LoreButton';
 
-function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lore = '...' }) {
-  const handleAnimationComplete = () => {
-    console.log('All letters have animated!');
-  };
+function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?' }) {
 
   return (
     <div id={id} className={styles.menu}>
@@ -25,7 +22,6 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
               text={`${name} ${surname}`}
               className="text-2xl font-semibold text-center"
               delay={20}
-              onLetterAnimationComplete={handleAnimationComplete}
             />
           </h2>
           <div className={styles.menu__right__titleblock__maininfo}>

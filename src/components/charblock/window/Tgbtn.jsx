@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Tgbtn.module.css'
+import styles from '../../../styles/charblock/Tgbtn.module.css'
 
 const Tgbtn = () => {
     return (
