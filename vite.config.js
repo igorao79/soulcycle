@@ -5,4 +5,8 @@ export default defineConfig({
   plugins: [react()],
   
   base: '/soulcycle/', // Укажите имя вашего репозитория
+
+  server: {
+    open: true, // Автоматически открывает браузер
+  }
 });

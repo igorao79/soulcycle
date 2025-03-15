@@ -3,8 +3,8 @@ export const lorefilter = (characters, id) => {
 };
 
 export const splitLoreIntoPages = (lore) => {
-  const paragraphs = lore.split(/<\/?p>/).filter(p => p.trim() !== '');
-  const quote = paragraphs.pop();
+  const paragraphs = lore.match(/<p>(.*?)<\/p>/g)?.map(p => p.replace(/<\/?p>/g, '')) || [];
+  const quote = paragraphs.length > 0 ? paragraphs.pop() : null;
 
   const pages = [];
   let currentPageContent = '';
@@ -27,7 +27,6 @@ export const splitLoreIntoPages = (lore) => {
   const maxHeight = isMobile && screenHeight > 400 ? 600 : 800;
   const maxChars = isMobile ? 500 : Infinity;
 
-  // Если есть хотя бы один абзац, добавляем его сразу
   if (paragraphs.length > 0) {
     const firstParagraph = paragraphs.shift().trim();
     currentPageContent = `<p>${firstParagraph}</p>`;
@@ -55,8 +54,13 @@ export const splitLoreIntoPages = (lore) => {
     pages.push(currentPageContent);
   }
 
-  if (quote) {
-    pages[pages.length - 1] += `<blockquote>${quote.trim()}</blockquote>`;
+  // Добавляем quote, только если он не пустой
+  if (quote && quote.trim()) {
+    if (pages.length === 0) {
+      pages.push(`<blockquote>${quote.trim()}</blockquote>`); // Если нет страниц, создаем первую
+    } else {
+      pages[pages.length - 1] += `<blockquote>${quote.trim()}</blockquote>`;
+    }
   }
 
   document.body.removeChild(tempDiv);

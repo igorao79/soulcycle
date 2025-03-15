@@ -11,7 +11,7 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  gap: 100px;
+  gap: 7%;
   background-color: #FFFEFE;
   position: relative;
   z-index: 1;
@@ -36,7 +36,7 @@
           justify-content: center;
 }
 .menu__left__pic {
-  max-width: 570px;
+  max-width: 450px;
   min-height: 70px;
 }
 .menu__left__pic img {
@@ -147,4 +147,46 @@
   z-index: -1;
   -webkit-filter: blur(1.5px);
           filter: blur(1.5px);
+}
+
+@media only screen and (max-width: 760px) {
+  .menu {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .menu__left {
+    max-width: 220px !important;
+    padding-top: 40px;
+  }
+  .menu__right {
+    max-width: 300px !important;
+    padding: 20px 20px;
+    gap: 20px;
+  }
+  .menu__right__titleblock {
+    gap: 20px;
+  }
+}
+@media (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
+  .menu {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .menu__left {
+    max-width: 500px !important;
+    padding-top: 40px;
+    padding-left: 3%;
+  }
+  .menu__right {
+    max-width: 350px !important;
+    padding: 20px 40px;
+    gap: 20px;
+  }
+  .menu__right__titleblock {
+    gap: 20px;
+  }
 }/*# sourceMappingURL=CharMenu.module.css.map */

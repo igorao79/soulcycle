@@ -1,0 +1,35 @@
+.main {
+    width: 1500px;
+    min-height: 100vh;
+    background-color: lightgray;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 2% 6%;
+
+    &__title {
+        font-size: 4rem;
+        font-family: 'graphb';
+    }
+
+
+    &__nav {
+        display: flex;
+
+        &__perexod {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            font-size: 3rem;
+            font-family: 'graphb';
+        }
+    }
+
+}
+
+.characters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}

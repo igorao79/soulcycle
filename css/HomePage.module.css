@@ -1,0 +1,45 @@
+.main {
+  width: 1500px;
+  min-height: 100vh;
+  background-color: lightgray;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 30px;
+  padding: 2% 6%;
+}
+.main__title {
+  font-size: 4rem;
+  font-family: "graphb";
+}
+.main__nav {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.main__nav__perexod {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  font-size: 3rem;
+  font-family: "graphb";
+}
+
+.characters {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+}/*# sourceMappingURL=HomePage.module.css.map */

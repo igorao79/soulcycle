@@ -1,6 +1,6 @@
 .window {
   width: 1500px;
-  height: 80vh;
+  height: 75vh;
   position: relative;
   background-color: white;
   border-radius: 5px;
@@ -39,10 +39,37 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  gap: 50px;
   border-right: 2px solid black;
   z-index: 100;
   background-color: white;
+}
+.window__panel__iconWrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 50px;
+}
+.window__panel__navButtons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 20px;
+}
+.window__panel__navButtons__navButton {
+  background: none;
+  border: none;
+}
+.window__panel__navButtons__navButton__arrow {
+  background: none;
+  border: none;
 }
 .window__message {
   display: -webkit-box;
@@ -54,6 +81,12 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+}
+
+.disabled {
+  fill: darkgray;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 @media only screen and (max-width: 760px) {
@@ -71,6 +104,12 @@
     rotate: 90deg;
     gap: 20px;
     top: -42.5%;
+  }
+  .window__panel__iconWrapper {
+    gap: 10px;
+  }
+  .window__panel__navButtons {
+    gap: 10px;
   }
   .window__message {
     left: 5%;

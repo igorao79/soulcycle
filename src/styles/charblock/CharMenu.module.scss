@@ -4,7 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 100px;
+    gap: 7%;
     background-color: #FFFEFE;
     position: relative;
     z-index: 1;
@@ -20,7 +20,7 @@
         justify-content: center;
 
         &__pic {
-            max-width: 570px;
+            max-width: 450px;
             min-height: 70px;
     
 
@@ -129,8 +129,49 @@
 
 
 @media only screen and (max-width: 760px) {
-    // .menu {
-    //     flex-direction: column;
-    //     background-color: red; /* Добавьте это для теста */
-    // }
+    .menu {
+        flex-direction: column;
+        // gap: 50px;
+
+        &__left {
+            max-width: 220px !important;
+            padding-top: 40px;
+        }
+
+        &__right {
+            max-width: 300px !important;
+            padding: 20px 20px;
+            gap: 20px;
+
+            &__titleblock {
+                gap: 20px;
+            }
+
+        }
+
+    }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
+    .menu {
+        flex-direction: column;
+
+        &__left {
+            max-width: 500px !important;
+            padding-top: 40px;
+            padding-left: 3%;
+        }
+
+        &__right {
+            max-width: 350px !important;
+            padding: 20px 40px;
+            gap: 20px;
+
+            &__titleblock {
+                gap: 20px;
+            }
+
+        }
+
+    }
 }

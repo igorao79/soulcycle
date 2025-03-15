@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -15,6 +16,7 @@
       -ms-flex-align: center;
           align-items: center;
   z-index: 1000;
+  padding: 5px; /* Добавьте отступы для создания пространства */
 }
 .modalOverlay__content {
   background-color: white;
@@ -124,17 +126,21 @@
   font-size: 1.65rem;
   line-height: 110%;
   font-family: "graphr";
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 .modalOverlay__textBlock__textCont span {
   -webkit-filter: blur(4px);
           filter: blur(4px);
 }
-.modalOverlay__textBlock__textCont blockquote p {
+.modalOverlay__textBlock__textCont blockquote {
   color: lightseagreen;
 }
 .modalOverlay__pageIndicator {
   font-size: 1.5rem;
   font-family: "graphb";
+  position: absolute;
+  bottom: 3%;
 }
 
 @-webkit-keyframes appear {
@@ -150,15 +156,22 @@
             transform: scaleX(1);
   }
 }
-.modalOverlay__textBlock__textCont {
-  -webkit-transition: opacity 0.3s ease-in-out;
-  transition: opacity 0.3s ease-in-out;
-}
-
 .fadeIn {
   opacity: 1;
 }
 
 .fadeOut {
   opacity: 0;
+}
+
+.disabled {
+  fill: darkgray;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@media only screen and (max-width: 760px) {
+  .modalOverlay__textContent {
+    min-height: 650px;
+  }
 }/*# sourceMappingURL=Modal.module.css.map */

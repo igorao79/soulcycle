@@ -1,6 +1,6 @@
 .window {
     width: 1500px;
-    height: 80vh;
+    height: 75vh;
     position: relative;
     background-color: white;
     border-radius: 5px;
@@ -26,10 +26,36 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 50px;
         border-right: 2px solid black;
         z-index: 100;
         background-color: white;
+
+        &__iconWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+
+        }
+
+        &__navButtons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            
+            &__navButton {
+                background: none;
+                border: none;
+
+                &__arrow {
+                    background: none;
+                    border: none;
+                }
+    
+            }
+
+            
+        }
+
     }
 
 
@@ -40,6 +66,12 @@
     }
 
 
+}
+
+.disabled {
+    fill: darkgray;
+    opacity: 0.5;
+    pointer-events: none; 
 }
 
 
@@ -55,6 +87,20 @@
             rotate: 90deg;
             gap: 20px;
             top: -42.5%;
+
+
+            &__iconWrapper {
+
+                gap: 10px;
+    
+            }
+    
+            &__navButtons {
+                gap: 10px;
+                
+                
+            }
+
 
         }
 
