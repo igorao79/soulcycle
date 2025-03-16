@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/soulcycle/lonarius.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SoulCycle</title>
+    <script>
+      // Проверка, если это не корневой путь и страница не найдена
+      const path = window.location.pathname;
+
+      // Если текущий путь не существует (например, если это не индексная страница),
+      // перенаправляем на путь с добавлением /index.html
+      if (path !== '/' && !document.querySelector(`#root`)) {
+        window.location.href = path;  // перенаправление на тот же путь
+      }
+    </script>
     <script type="module" crossorigin src="/soulcycle/assets/index-C_81zA63.js"></script>
     <link rel="stylesheet" crossorigin href="/soulcycle/assets/index-ePR7MzxN.css">
   </head>
