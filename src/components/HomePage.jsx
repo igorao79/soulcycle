@@ -1,12 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Window from './charblock/Window';
 import styles from '../styles/hp/HomePage.module.scss';
 
 function HomePage() {
   return (
-    <Router basename="/soulcycle">
+    <Router>
       <div className={styles.main}>
         <h1 className={styles.main__title}>Soul Cycle</h1>
         <nav className={styles.main__nav}>
