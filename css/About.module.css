@@ -1,0 +1,170 @@
+@charset "UTF-8";
+.aboutblock {
+  max-width: 100%;
+  min-height: 500px;
+  background-color: var(--background-color); /* Используем переменную */
+  color: var(--text-color); /* Цвет текста */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 10%;
+  border-radius: 5px;
+  padding: 2% 0;
+}
+.aboutblock__header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  gap: 20px;
+}
+.aboutblock__header__htitle {
+  font-family: "graphb";
+  font-size: 2.8rem;
+  color: var(--text-color); /* Цвет заголовка */
+}
+.aboutblock__header__textblock {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 10px;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  font-family: "graphr";
+  font-size: 1.8rem;
+  position: relative;
+  color: var(--text-color); /* Цвет текста */
+}
+.aboutblock__header__textblock__text {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  gap: 5px;
+}
+.aboutblock__header__textblock__text__icon {
+  -webkit-transform: translateY(-5px);
+      -ms-transform: translateY(-5px);
+          transform: translateY(-5px);
+}
+.aboutblock__header__textblock__text__icon__main {
+  -webkit-animation: wiggle 1.5s infinite ease-in-out;
+          animation: wiggle 1.5s infinite ease-in-out;
+  -webkit-transform-origin: center;
+      -ms-transform-origin: center;
+          transform-origin: center;
+}
+.aboutblock__header__textblock__text__icon__small {
+  -webkit-animation: float 2s infinite ease-in-out;
+          animation: float 2s infinite ease-in-out;
+  -webkit-transform-origin: center;
+      -ms-transform-origin: center;
+          transform-origin: center;
+}
+.aboutblock__main {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  gap: 20px;
+}
+.aboutblock__main__btitle, .aboutblock__main__dtitle {
+  font-family: "graphb";
+  font-size: 2.8rem;
+  color: var(--text-color); /* Цвет заголовков */
+}
+.aboutblock__main__authors, .aboutblock__main__developers {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 120px;
+  border: 1px solid var(--border-color); /* Используем переменную для границы */
+  background-color: var(--background-color); /* Фон для блоков */
+  color: var(--text-color); /* Цвет текста */
+}
+
+/* Анимации остаются без изменений */
+@-webkit-keyframes float {
+  0%, 100% {
+    -webkit-transform: translate(0px, 0px);
+            transform: translate(0px, 0px);
+  }
+  50% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  } /* Двигаем звезду */
+}
+@keyframes float {
+  0%, 100% {
+    -webkit-transform: translate(0px, 0px);
+            transform: translate(0px, 0px);
+  }
+  50% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  } /* Двигаем звезду */
+}
+@-webkit-keyframes wiggle {
+  0%, 100% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  50% {
+    -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+  } /* Подергивание фигуры */
+}
+@keyframes wiggle {
+  0%, 100% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  50% {
+    -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+  } /* Подергивание фигуры */
+}/*# sourceMappingURL=About.module.css.map */

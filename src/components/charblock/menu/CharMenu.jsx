@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
-import { getAgeWord } from '../../../utils/charblock/checkage';
+import { getAgeWord } from '../../../utils/charblock/checkage.ts';
 import SplitText from '../SplitText';
 import LoreButton from './LoreButton';
 
@@ -10,9 +10,9 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?' }) 
     <div id={id} className={styles.menu}>
       <div className={styles.menu__left}>
         <picture className={styles.menu__left__pic}>
-          <source srcSet={`./pics/char/${src}.avif`} type="image/avif" />
-          <source srcSet={`./pics/char/${src}.webp`} type="image/webp" />
-          <img src={`./pics/char/${src}.png`} alt={`icon-${name}`} loading="lazy"/>
+          <source srcSet={`./pics/char/picsfull/${src}.avif`} type="image/avif" />
+          <source srcSet={`./pics/char/picsfull/${src}.webp`} type="image/webp" />
+          <img src={`./pics/char/picsfull/${src}.png`} alt={`icon-${name}`} loading="lazy"/>
         </picture>
       </div>
       <div className={styles.menu__right}>

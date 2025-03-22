@@ -2,12 +2,12 @@
     width: 1500px;
     height: 75vh;
     position: relative;
-    background-color: white;
+    background-color: var(--background-color); /* Используем переменную */
     border-radius: 5px;
     display: flex;
     align-items: center;
     overflow: hidden;
-    transition: width 0.3s, height 0.3s;  // Анимация для размера, чтобы он не изменялся
+    transition: width 0.3s, height 0.3s; /* Анимация для размера */
 
     &__message {
         position: absolute;
@@ -16,6 +16,7 @@
         font-family: 'graphb';
         text-transform: uppercase;
         font-size: 3rem;
+        color: var(--text-color); /* Цвет текста */
     }
 
     &__panel {
@@ -26,54 +27,47 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border-right: 2px solid black;
+        border-right: 2px solid var(--border-color); /* Используем переменную */
         z-index: 100;
-        background-color: white;
+        background-color: var(--background-color); /* Фон панели */
 
         &__iconWrapper {
             display: flex;
             flex-direction: column;
             gap: 50px;
-
         }
 
         &__navButtons {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            
+
             &__navButton {
                 background: none;
                 border: none;
+                color: var(--text-color); /* Цвет текста кнопок */
 
                 &__arrow {
                     background: none;
                     border: none;
+                    fill: var(--text-color);
                 }
-    
             }
-
-            
         }
-
     }
-
 
     &__message {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
-
 }
 
 .disabled {
     fill: darkgray;
     opacity: 0.5;
-    pointer-events: none; 
+    pointer-events: none;
 }
-
 
 @media only screen and (max-width: 760px) {
     .window {
@@ -88,26 +82,18 @@
             gap: 20px;
             top: -42.5%;
 
-
             &__iconWrapper {
-
                 gap: 10px;
-    
             }
-    
+
             &__navButtons {
                 gap: 10px;
-                
-                
             }
-
-
         }
 
         &__message {
             left: 5%;
             font-size: 2.5rem;
         }
-
     }
 }

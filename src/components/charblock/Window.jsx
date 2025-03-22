@@ -6,7 +6,7 @@ import CharMenu from './menu/CharMenu'; // Импортируем компоне
 import IconCarousel from '../charblock/window/IconCarousel'; // Импортируем новый компонент
 import characters from '../../data/characters';
 
-const icons = ['faust', 'lonarius', 'vivian', 'character4', 'character5', 'character6']; // Пример списка иконок
+const icons = ['faust', 'lonarius', 'vivian', 'akito', 'character5', 'character6']; // Пример списка иконок
 
 function Window() {
   const [selectedIcon, setSelectedIcon] = useState(null);

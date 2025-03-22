@@ -1,0 +1,104 @@
+@charset "UTF-8";
+.member {
+  position: relative; /* Обеспечивает правильное позиционирование */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 15px;
+  border: 1px solid transparent; /* Убираем стандартную рамку */
+  border-radius: 10px;
+  max-width: 400px;
+  min-height: 100px;
+  overflow: hidden; /* Скрыть лишние части */
+  background-color: #f9f9f9; /* Цвет фона для основного контента */
+}
+.member__imageWrapper {
+  margin-right: 20px;
+}
+.member__image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.member__info {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  gap: 10px;
+}
+.member__info__details {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 5px;
+}
+.member__info__details__name {
+  font-size: 1.8rem;
+  font-family: "Graphb", sans-serif;
+  margin: 0;
+}
+.member__info__details__role {
+  font-size: 1.4rem;
+  color: #666;
+  font-family: "Graphr", sans-serif;
+  margin: 0;
+}
+.member__info__bio {
+  font-size: 1.4rem;
+  color: #999;
+  font-family: "Graphr", sans-serif;
+  margin-top: 10px;
+}
+
+/* Убеждаемся, что Igor остается стандартным */
+#member--igor {
+  width: 200px;
+  background-color: #e0f7fa;
+  -webkit-clip-path: none;
+          clip-path: none;
+  -webkit-mask: none;
+  mask: none;
+}
+
+div#member--lesya {
+  position: relative;
+  max-width: 270px;
+  min-height: 250px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  text-align: center;
+  background: black;
+  /* Форма сердца */
+  -webkit-mask-box-image: radial-gradient(#000 69%, rgba(0, 0, 0, 0) 70%) 84.5%/50%;
+  mask-border: radial-gradient(#000 69%, rgba(0, 0, 0, 0) 70%) 84.5%/50%;
+  -webkit-clip-path: polygon(-41% 0, 50% 91%, 141% 0);
+          clip-path: polygon(-41% 0, 50% 91%, 141% 0);
+}/*# sourceMappingURL=Member.module.css.map */

@@ -30,6 +30,9 @@
   font-size: 3rem;
   font-family: "graphb";
 }
+.main__nav__perexod__link a {
+  color: var(--text-color);
+}
 
 .characters {
   display: -webkit-box;

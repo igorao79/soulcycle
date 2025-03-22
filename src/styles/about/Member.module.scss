@@ -1,0 +1,92 @@
+.member {
+    position: relative; /* Обеспечивает правильное позиционирование */
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid transparent; /* Убираем стандартную рамку */
+    border-radius: 10px;
+    max-width: 400px;
+    min-height: 100px;
+    overflow: hidden; /* Скрыть лишние части */
+    background-color: #f9f9f9; /* Цвет фона для основного контента */
+  
+    &__imageWrapper {
+      margin-right: 20px;
+    }
+  
+    &__image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+  
+    &__info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 10px;
+  
+      &__details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+  
+        &__name {
+          font-size: 1.8rem;
+          font-family: 'Graphb', sans-serif;
+          margin: 0;
+        }
+  
+        &__role {
+          font-size: 1.4rem;
+          color: #666;
+          font-family: 'Graphr', sans-serif;
+          margin: 0;
+        }
+      }
+  
+      &__bio {
+        font-size: 1.4rem;
+        color: #999;
+        font-family: 'Graphr', sans-serif;
+        margin-top: 10px;
+      }
+    }
+  
+
+      
+    
+      
+    
+}
+
+
+
+  
+  /* Убеждаемся, что Igor остается стандартным */
+  #member--igor {
+    width: 200px;
+    background-color: #e0f7fa;
+    clip-path: none;
+    -webkit-mask: none;
+    mask: none;
+  }
+
+  div#member--lesya {
+    position: relative;
+    max-width: 270px;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: black;
+  
+    /* Форма сердца */
+    -webkit-mask-box-image: radial-gradient(#000 69%, #0000 70%) 84.5%/50%;
+    mask-border: radial-gradient(#000 69%, #0000 70%) 84.5%/50%;
+    clip-path: polygon(-41% 0, 50% 91%, 141% 0);
+}
+

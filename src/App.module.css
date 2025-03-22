@@ -1,3 +1,27 @@
+:root {
+    /* Светлая тема */
+    --text-color: #000; /* Черный текст */
+    --background-color: #fff; /* Белый фон */
+    --overlay-color: rgba(0, 0, 0, 0.5); /* Цвет оверлея */
+    --border-color: #000; /* Черная граница */
+    --accent-color: lightseagreen; /* Акцентный цвет */
+    --page-background-image: url(/pics/background.jpeg); /* Новое фоновое изображение */
+    --svg-color: %23000000;
+}
+
+[data-theme="dark"] {
+    /* Темная тема */
+    --text-color: #a3a3a3; /* Светло-серый текст */
+    --background-color: #1e1e1e; /* Темно-серый фон */
+    --overlay-color: rgba(255, 255, 255, 0.5); /* Полупрозрачный белый оверлей */
+    --border-color: #444; /* Темно-серая граница */
+    --page-background-image: url(/pics/backgroundblack.jpg); /* Новое фоновое изображение */
+    --accent-color: #bb86fc; /* Фиолетовый акцентный цвет */
+    --svg-color: %23ffffff;
+}
+
+
+
 *, *::after, *::before {
     padding: 0;
     margin: 0;
@@ -6,7 +30,26 @@
 
 html {
     font-size: 10px;
+    color: var(--text-color); /* Используем переменную для текста */
+    background-color: var(--background-color); /* Используем переменную для фона */
 }
+
+.page {
+    max-width: 2000px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    background-color: var(--background-color); /* Используем переменную для фона */
+    background-image: var(--page-background-image); /* Используем переменную для фонового изображения */
+    background-size: contain; /* Масштабируем изображение */
+    position: relative;
+    transition: background-color 0.5s ease;
+    overflow: hidden;
+}
+
+
 
 img {
     vertical-align: top;
@@ -21,7 +64,7 @@ a {
     text-decoration: none;
 }
 
-.page {
+/* .page {
     max-width: 2000px;
     min-height: 100vh;
     display: flex;
@@ -32,7 +75,7 @@ a {
     position: relative;
     background-image: url(/pics/background.jpeg);
     background-size: contain;
-}
+} */
 
 
 

@@ -1,8 +1,9 @@
+@charset "UTF-8";
 .window {
   width: 1500px;
   height: 75vh;
   position: relative;
-  background-color: white;
+  background-color: var(--background-color); /* Используем переменную */
   border-radius: 5px;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -12,7 +13,7 @@
           align-items: center;
   overflow: hidden;
   -webkit-transition: width 0.3s, height 0.3s;
-  transition: width 0.3s, height 0.3s;
+  transition: width 0.3s, height 0.3s; /* Анимация для размера */
 }
 .window__message {
   position: absolute;
@@ -21,6 +22,7 @@
   font-family: "graphb";
   text-transform: uppercase;
   font-size: 3rem;
+  color: var(--text-color); /* Цвет текста */
 }
 .window__panel {
   position: absolute;
@@ -39,9 +41,9 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  border-right: 2px solid black;
+  border-right: 2px solid var(--border-color); /* Используем переменную */
   z-index: 100;
-  background-color: white;
+  background-color: var(--background-color); /* Фон панели */
 }
 .window__panel__iconWrapper {
   display: -webkit-box;
@@ -66,10 +68,12 @@
 .window__panel__navButtons__navButton {
   background: none;
   border: none;
+  color: var(--text-color); /* Цвет текста кнопок */
 }
 .window__panel__navButtons__navButton__arrow {
   background: none;
   border: none;
+  fill: var(--text-color);
 }
 .window__message {
   display: -webkit-box;

@@ -1,0 +1,25 @@
+.themeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 10px;
+    background: black; /* Прозрачный фон */
+    border-radius: 35px;
+    cursor: pointer;
+    transition: transform 0.3s ease; /* Плавная анимация при наведении */
+
+    
+}
+
+[data-theme="dark"] .themeButton{
+    background: white;
+}
+
+.themeButton:hover {
+    transform: scale(1.1); /* Увеличиваем кнопку при наведении */
+}
+
+.themeButton:focus {
+    outline: none; /* Убираем фокусное выделение */
+}

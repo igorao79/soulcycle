@@ -1,6 +1,6 @@
 .button {
     font-family: 'graphb';
-    background: black;
+    background: var(--text-color);
     color: white;
     padding: 0.35em 0;
     font-size: 20px;
@@ -19,6 +19,7 @@
     top: 2%;
     left: 9%;
     z-index: 10;
+    color: white;
   }
 
   .button .icon {
@@ -37,7 +38,7 @@
   .icon svg {
     margin-left: 0.1em;
     transition: all 0.5s;
-    color: black;
+    color: var(--text-color);
     width: 2.5rem;
     height: 2.5rem;
     position: absolute;
@@ -54,9 +55,6 @@
     border-radius: 0.5em;
   }
 
-  a {
-    color: white;
-  }
 
   @media only screen and (max-width: 760px) {
     .button {
