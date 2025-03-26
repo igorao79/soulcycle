@@ -14,19 +14,24 @@ const Modal = ({ isOpen, onClose, id }) => {
 
   const { currentPage, nextPage, prevPage } = usePagination();
 
-  useEffect(() => {
-    if (!isOpen) return; // Запрашиваем данные только если модальное окно открыто
-  }, [isOpen]);
-
   // Пока идет загрузка, показываем спиннер или сообщение об ошибке
   if (loading) return <div className={styles.modalOverlay}>Loading...</div>;
 
   if (error) return <div className={styles.modalOverlay}>Error: {error}</div>;
 
   const character = characters ? lorefilter(characters, id) : null;
-  const pages = character?.lore ? splitLoreIntoPages(character.lore) : [];
 
-  if (!isOpen || !character) return null;  // Закрываем модальное окно, если нет данных
+  // Если персонаж не найден, закрываем модальное окно
+  if (!character) {
+    console.warn(`Персонаж с ID "${id}" не найден`);
+    onClose();
+    return null;
+  }
+
+  // Проверяем, что поле lore существует и не пустое
+  const pages = character?.lore && character.lore.trim() !== '' ? splitLoreIntoPages(character.lore) : [];
+
+  if (!isOpen || pages.length === 0) return null; // Закрываем модальное окно, если нет данных
 
   const handleNextPage = () => {
     setFade(true);
@@ -75,12 +80,12 @@ const Modal = ({ isOpen, onClose, id }) => {
           </div>
           <h2 className={styles.modalOverlay__title}>Лор {getSkilledName(character)}</h2>
           <div className={styles.modalOverlay__textBlock}>
-          <div
-            className={`${styles.modalOverlay__textBlock__textCont} ${
-              fade ? styles.fadeOut : styles.fadeIn
-            }`}
-            dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}  // Используем пустую строку по умолчанию
-          />
+            <div
+              className={`${styles.modalOverlay__textBlock__textCont} ${
+                fade ? styles.fadeOut : styles.fadeIn
+              }`}
+              dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}
+            />
           </div>
           <div className={styles.modalOverlay__pageIndicator}>
             Страница {currentPage + 1} из {pages.length}
