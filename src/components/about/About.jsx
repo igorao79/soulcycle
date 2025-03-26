@@ -10,7 +10,7 @@ function About() {
                 <h2 className={styles.aboutblock__header__htitle}>О нашей книге</h2>
                 <div className={styles.aboutblock__header__textblock}>
                     <div className={styles.aboutblock__header__textblock__text}>
-                    <svg
+                        <svg
                         className={styles.aboutblock__header__textblock__text__icon}
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 122.9 108.7"
@@ -25,7 +25,7 @@ function About() {
                           className={styles.aboutblock__header__textblock__text__icon__small}
                           d="M62 50h-.3a.4.4 0 0 1-.4-.4 6 6 0 0 0-.5-2.4 7.2 7.2 0 0 0-1.7-2.2 7.2 7.2 0 0 0-2.2-1.8 6 6 0 0 0-2.4-.4.4.4 0 0 1-.4-.4V42a.4.4 0 0 1 .4-.4 6 6 0 0 0 2.4-.5 7.2 7.2 0 0 0 2.2-1.7 7.2 7.2 0 0 0 1.7-2.2 6 6 0 0 0 .5-2.4.4.4 0 0 1 .4-.4h.3a.4.4 0 0 1 .4.4 6 6 0 0 0 .5 2.4 7.2 7.2 0 0 0 1.7 2.2 7.2 7.2 0 0 0 2.2 1.7 6 6 0 0 0 2.4.5.4.4 0 0 1 .4.4v.3a.4.4 0 0 1-.4.4 6 6 0 0 0-2.4.5 7.2 7.2 0 0 0-2.2 1.7 7.2 7.2 0 0 0-1.7 2.2 6 6 0 0 0-.5 2.4.4.4 0 0 1-.4.4Z"
                         />
-                    </svg>
+                        </svg>
                         <p>Основной жанр нашей книги - фэнтэзи с элементами дарк фэнтэзи, романтики и приключений</p>
                     </div>
                     <div className={styles.aboutblock__header__textblock__text}>
