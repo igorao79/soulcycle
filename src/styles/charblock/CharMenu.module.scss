@@ -18,21 +18,26 @@
         gap: 100px;
         align-items: center;
         justify-content: center;
-
+        
+        // Добавляем aspect-ratio для стабильных размеров
+        aspect-ratio: 1 / 1;  // Например, если предполагаемые пропорции таковы
+    
         &__pic {
-            max-width: 450px;
+            max-width: 500px;
             min-height: 70px;
     
-
+            // Устанавливаем явные размеры или aspect-ratio для стабильности
+            aspect-ratio: 1 / 1;
+    
             & img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
+                display: block;  // Убирает возможные отступы от inline-элемента
             }
-
         }
-
     }
+    
 
     &__right {
         max-width: 500px;
@@ -61,7 +66,6 @@
             justify-content: center;
 
             &__fullname {
-                font-family: 'graphb';
                 font-size: 2rem;
             }
 
@@ -70,7 +74,6 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                font-family: 'graphr';
                 font-size: 1.8rem;
                 gap: 10px;
             }
@@ -78,7 +81,6 @@
         }
 
         &__lore {
-            font-family: 'graphr';
             font-size: 1.6rem;
             max-width: 120px;
             min-height: 30px;
@@ -183,10 +185,11 @@
 @media only screen and (max-width: 760px) {
     .menu {
         flex-direction: column;
-        // gap: 50px;
+        gap: 50px;
+        // background-color: red;
 
         &__left {
-            max-width: 220px !important;
+            max-width: 320px !important;
             padding-top: 40px;
         }
 

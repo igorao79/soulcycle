@@ -6,9 +6,10 @@
     border: 1px solid transparent; /* Убираем стандартную рамку */
     border-radius: 10px;
     max-width: 400px;
+    width: 100%;
     min-height: 100px;
     overflow: hidden; /* Скрыть лишние части */
-    background-color: #f9f9f9; /* Цвет фона для основного контента */
+    background-color: var(--background-color2); 
   
     &__imageWrapper {
       margin-right: 20px;
@@ -34,23 +35,18 @@
   
         &__name {
           font-size: 1.8rem;
-          font-family: 'Graphb', sans-serif;
           margin: 0;
         }
   
         &__role {
           font-size: 1.4rem;
-          color: #666;
-          font-family: 'Graphr', sans-serif;
-          margin: 0;
+          color: var(--text-color);
         }
       }
   
       &__bio {
         font-size: 1.4rem;
-        color: #999;
-        font-family: 'Graphr', sans-serif;
-        margin-top: 10px;
+        color: var(--text-color)
       }
     }
   

@@ -1,31 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from '../../styles/charblock/Window.module.scss';
 import Tgbtn from '../charblock/window/Tgbtn';
-import AnimatedContent from '../../utils/charblock/AnimatedContent'; // Импортируем объединённый компонент
-import CharMenu from './menu/CharMenu'; // Импортируем компонент CharMenu
-import IconCarousel from '../charblock/window/IconCarousel'; // Импортируем новый компонент
-import characters from '../../data/characters';
+import AnimatedContent from '../../utils/charblock/AnimatedContent';
+import CharMenu from './menu/CharMenu';
+import IconCarousel from '../charblock/window/IconCarousel';
+import { useFetchData } from '../hooks/UseFetchData'; // Используем хук
 
-const icons = ['faust', 'lonarius', 'vivian', 'akito', 'character5', 'character6']; // Пример списка иконок
+const icons = ['faust', 'lonarius', 'vivian', 'akito'];
 
 function Window() {
   const [selectedIcon, setSelectedIcon] = useState(null);
-  const [direction, setDirection] = useState(1); // 1 - вперед, -1 - назад
+  const [direction, setDirection] = useState(1);
+  const [isSwitching, setIsSwitching] = useState(false);
 
-  // Обработчик клика по иконке
-  const handleIconClick = (icon) => {
+  // Используем хук вместо useEffect
+  const { data: characters, loading, error } = useFetchData(
+    'https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/24a8ba7d250a00e594387072aa0fc47641c6b8a6/chlore.json'
+  );
+
+  const handleIconClick = useCallback((icon) => {
+    if (isSwitching) return; // Игнорируем повторные клики
+
+    setIsSwitching(true);
     setDirection(selectedIcon ? (icons.indexOf(icon) > icons.indexOf(selectedIcon) ? 1 : -1) : 1);
-    setSelectedIcon(icon); // При клике устанавливаем название иконки
-  };
+    setSelectedIcon(icon);
+
+    setTimeout(() => setIsSwitching(false), 300); // Разблокируем через 300 мс
+  }, [isSwitching, selectedIcon]);
+
+  // Лоадер
+  if (loading) return <div className={styles.loading}>Loading...</div>;
+
+  // Ошибка
+  if (error) return <div className={styles.error}>Error: {error}</div>;
 
   return (
     <div className={styles.window}>
       <Tgbtn />
-      
-      {/* Используем компонент IconCarousel */}
       <IconCarousel icons={icons} onIconClick={handleIconClick} />
-
-      {/* Используем объединённый компонент AnimatedContent */}
       <AnimatedContent selectedIcon={selectedIcon} direction={direction}>
         {selectedIcon && characters[selectedIcon] && (
           <CharMenu

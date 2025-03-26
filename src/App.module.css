@@ -2,20 +2,32 @@
     /* Светлая тема */
     --text-color: #000; /* Черный текст */
     --background-color: #fff; /* Белый фон */
+    --background-color2: lightgray;
     --overlay-color: rgba(0, 0, 0, 0.5); /* Цвет оверлея */
     --border-color: #000; /* Черная граница */
     --accent-color: lightseagreen; /* Акцентный цвет */
-    --page-background-image: url(/pics/background.jpeg); /* Новое фоновое изображение */
+    --page-background-image: image-set(
+        url('/pics/background.avif') type('image/avif'),
+        url('/pics/background.webp') type('image/webp'),
+        url('/pics/background.jpeg') type('image/jpeg')
+    ); /* Поддержка нескольких форматов */
     --svg-color: %23000000;
+    --font-base: 'graphr', sans-serif;
+    --font-bold: 'graphb', sans-serif;
 }
 
 [data-theme="dark"] {
     /* Темная тема */
     --text-color: #a3a3a3; /* Светло-серый текст */
     --background-color: #1e1e1e; /* Темно-серый фон */
+    --background-color2: rgb(59, 59, 59);
     --overlay-color: rgba(255, 255, 255, 0.5); /* Полупрозрачный белый оверлей */
     --border-color: #444; /* Темно-серая граница */
-    --page-background-image: url(/pics/backgroundblack.jpg); /* Новое фоновое изображение */
+    --page-background-image: image-set(
+        url('/pics/backgroundblack.avif') type('image/avif'),
+        url('/pics/backgroundblack.webp') type('image/webp'),
+        url('/pics/backgroundblack.jpg') type('image/jpeg')
+    ); /* Поддержка нескольких форматов */
     --accent-color: #bb86fc; /* Фиолетовый акцентный цвет */
     --svg-color: %23ffffff;
 }
@@ -28,10 +40,15 @@
     box-sizing: border-box;
 }
 
-html {
+html, body {
     font-size: 10px;
     color: var(--text-color); /* Используем переменную для текста */
     background-color: var(--background-color); /* Используем переменную для фона */
+    font-family: var(--font-base);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-bold);
 }
 
 .page {
@@ -64,19 +81,6 @@ a {
     text-decoration: none;
 }
 
-/* .page {
-    max-width: 2000px;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    background-color: #333;
-    position: relative;
-    background-image: url(/pics/background.jpeg);
-    background-size: contain;
-} */
-
 
 
 
@@ -84,8 +88,7 @@ a {
 
 @font-face {
     font-family: 'graphb';
-    src: url('/src/fonts/GraphikLCG-Bold.woff2') format('woff2'),
-         url('/src/fonts/GraphikLCG-Bold.woff') format('woff');
+    src: url('/src/fonts/GraphikLCG-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -93,9 +96,32 @@ a {
 
 @font-face {
    font-family: 'graphr';
-   src: url('/src/fonts/GraphikLCG-Regular.woff2') format('woff2'),
-        url('/src/fonts/GraphikLCG-Regular.woff') format('woff');
+   src: url('/src/fonts/GraphikLCG-Regular.woff2') format('woff2');
    font-weight: 400;
    font-style: normal;
    font-display: swap;
 }
+
+/* /////////////////////////////////////////////// */
+
+.text-animation {
+    display: inline-block;
+  }
+  
+  .text-animation span {
+    display: inline-block;
+    opacity: 0; /* Начальная прозрачность */
+    transform: translateY(20px); /* Сдвигаем буквы вниз */
+    animation: fadeIn 0.5s ease forwards; /* Анимация появления */
+  }
+
+  .text-animation-slow span {
+    animation: fadeIn 1.2s ease forwards; /* Увеличиваем длительность до 1 секунды */
+  }
+  
+  @keyframes fadeIn {
+    to {
+      opacity: 1; /* Полная видимость */
+      transform: translateY(0); /* Возвращаем на место */
+    }
+  }

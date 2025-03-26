@@ -12,6 +12,7 @@
       -ms-flex-pack: center;
           justify-content: center;
   background-color: var(--background-color); /* Используем переменную */
+  aspect-ratio: 1;
 }
 .btn__pic {
   width: 100%;
@@ -26,11 +27,20 @@
      object-fit: contain;
   -ms-flex-negative: 0;
       flex-shrink: 0;
+  display: block;
 }
 
 hr {
   height: 3px;
   background-color: var(--border-color); /* Используем переменную */
+}
+
+.icon img {
+  content: attr(data-light); /* По умолчанию используется светлая тема */
+}
+
+[data-theme=dark] .icon img {
+  content: attr(data-dark); /* Для темной темы */
 }
 
 @media only screen and (max-width: 760px) {

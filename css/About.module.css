@@ -19,7 +19,7 @@
           flex-direction: column;
   gap: 10%;
   border-radius: 5px;
-  padding: 2% 0;
+  padding: 1% 0;
 }
 .aboutblock__header {
   display: -webkit-box;
@@ -35,7 +35,7 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  gap: 20px;
+  gap: 10px;
 }
 .aboutblock__header__htitle {
   font-family: "graphb";
@@ -58,7 +58,6 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  font-family: "graphr";
   font-size: 1.8rem;
   position: relative;
   color: var(--text-color); /* Цвет текста */

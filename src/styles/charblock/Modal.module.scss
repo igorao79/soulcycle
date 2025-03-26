@@ -74,7 +74,6 @@
 
   &__title {
       text-transform: uppercase;
-      font-family: 'graphb';
       font-size: 2rem;
       color: var(--text-color); /* Цвет заголовка */
       position: relative;
@@ -103,7 +102,6 @@
           gap: 20px;
           font-size: 1.65rem;
           line-height: 110%;
-          font-family: 'graphr';
           color: var(--text-color); /* Цвет текста */
           transition: opacity 0.3s ease-in-out;
 
@@ -119,7 +117,6 @@
 
   &__pageIndicator {
       font-size: 1.5rem;
-      font-family: 'graphb';
       color: var(--text-color); /* Цвет индикатора страницы */
       position: absolute;
       bottom: 3%;

@@ -1,5 +1,6 @@
 .main {
-  width: 1500px;
+  max-width: 1500px;
+  width: 100%;
   min-height: 100vh;
   background-color: lightgray;
   display: -webkit-box;
@@ -9,12 +10,36 @@
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  gap: 30px;
-  padding: 2% 6%;
+  gap: 20px;
+  padding: 1% 6%;
 }
-.main__title {
-  font-size: 4rem;
-  font-family: "graphb";
+[data-theme=dark] .main {
+  background-color: rgb(20, 18, 18);
+  border: 1px solid white;
+}
+.main__pic {
+  max-width: 80px;
+  min-height: 80px;
+  aspect-ratio: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.main__pic img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+  -webkit-transform: translateY(-20%);
+      -ms-transform: translateY(-20%);
+          transform: translateY(-20%);
 }
 .main__nav {
   display: -webkit-box;
@@ -28,7 +53,7 @@
   gap: 20px;
   list-style: none;
   font-size: 3rem;
-  font-family: "graphb";
+  font-family: var(--font-bold);
 }
 .main__nav__perexod__link a {
   color: var(--text-color);

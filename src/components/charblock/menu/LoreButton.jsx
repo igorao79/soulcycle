@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styles from '../../../styles/charblock/LoreButton.module.scss';
+import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
 import SplitText from '../SplitText';
-import Modal from '../modal/Modal'; // Импортируем компонент модального окна
+import Modal from '../modal/Modal';
 
 const LoreButton = ({ id }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,14 +15,12 @@ const LoreButton = ({ id }) => {
     setIsModalOpen(false);
   };
 
-  // Обработчик для закрытия модального окна по клавише Escape
   const handleKeyDown = (event) => {
     if (event.key === 'Escape') {
       closeModal();
     }
   };
 
-  // Используем эффект для добавления обработчика клавиатуры
   React.useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -33,7 +32,10 @@ const LoreButton = ({ id }) => {
     <>
       <div className={styles.wrapper}>
         <button className={styles.button} onClick={openModal}>
-          <SplitText text="Читать лор" />
+          {/* Применяем замедленную анимацию */}
+          <span className={`${appStyles['text-animation']} ${appStyles['text-animation-slow']}`}>
+            <SplitText text="Читать лор" />
+          </span>
           <svg fill="currentColor" viewBox="0 0 24 24" className={styles.icon}>
             <path 
               clipRule="evenodd" 
@@ -46,6 +48,6 @@ const LoreButton = ({ id }) => {
       <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />
     </>
   );
-}
+};
 
 export default LoreButton;

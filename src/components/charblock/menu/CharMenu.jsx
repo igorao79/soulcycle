@@ -1,50 +1,37 @@
 import React from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
+import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
 import { getAgeWord } from '../../../utils/charblock/checkage.ts';
-import SplitText from '../SplitText';
 import LoreButton from './LoreButton';
+import SplitText from '../SplitText';
 
 function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?' }) {
-
   return (
     <div id={id} className={styles.menu}>
       <div className={styles.menu__left}>
         <picture className={styles.menu__left__pic}>
-          <source srcSet={`./pics/char/picsfull/${src}.avif`} type="image/avif" />
-          <source srcSet={`./pics/char/picsfull/${src}.webp`} type="image/webp" />
-          <img src={`./pics/char/picsfull/${src}.png`} alt={`icon-${name}`} loading="lazy"/>
+          <source srcSet={`/pics/char/picsfull/${src}.avif`} type="image/avif" />
+          <source srcSet={`/pics/char/picsfull/${src}.webp`} type="image/webp" />
+          <img src={`/pics/char/picsfull/${src}.png`} alt={`icon-${name}`} loading="lazy" />
         </picture>
       </div>
       <div className={styles.menu__right}>
         <div className={styles.menu__right__titleblock}>
-          <h2 className={styles.menu__right__titleblock__fullname}>
-            <SplitText
-              text={`${name} ${surname}`}
-              className="text-2xl font-semibold text-center"
-              delay={20}
-            />
+          {/* Имя и фамилия */}
+          <h2 className={`${styles.menu__right__titleblock__fullname} ${appStyles['text-animation']}`}>
+            <SplitText text={`${name} ${surname}`} />
           </h2>
+
+          {/* Основная информация */}
           <div className={styles.menu__right__titleblock__maininfo}>
-            <span className={styles.menu__right__titleblock__maininfo__age}>
-              <SplitText
-                text={`Возраст: ${age} ${age !== '?' && getAgeWord(age)}`}
-                className={styles.menu__right__titleblock__maininfo__age}
-                delay={30}
-              />
+            <span className={`${styles.menu__right__titleblock__maininfo__age} ${appStyles['text-animation']}`}>
+              <SplitText text={`Возраст: ${age} ${age !== '?' && getAgeWord(age)}`} />
             </span>
-            <span className={styles.menu__right__titleblock__maininfo__height}>
-              <SplitText
-                text={`Рост: ${height} см`}
-                className={styles.menu__right__titleblock__maininfo__height}
-                delay={40}
-              />
+            <span className={`${styles.menu__right__titleblock__maininfo__height} ${appStyles['text-animation']}`}>
+              <SplitText text={`Рост: ${height} см`} />
             </span>
-            <span className={styles.menu__right__titleblock__maininfo__bd}>
-              <SplitText
-                text={`День рождения: ${bd}`}
-                className={styles.menu__right__titleblock__maininfo__bd}
-                delay={50}
-              />
+            <span className={`${styles.menu__right__titleblock__maininfo__bd} ${appStyles['text-animation']}`}>
+              <SplitText text={`День рождения: ${bd}`} />
             </span>
           </div>
         </div>

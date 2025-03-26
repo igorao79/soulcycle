@@ -1,32 +1,36 @@
 import React, { useContext } from 'react';
+import { ImageMap } from './ImageMap';
 import styles from '../../../styles/charblock/Icon.module.scss';
-import { ThemeContext } from '../../../ThemeContext'; // Импортируйте контекст
+import { ThemeContext } from '../../theme/ThemeContext';
 
-function Icon({ src, index, onClick }) {
-  // Получаем текущую тему из контекста
+const Icon = React.memo(({ src, index, onClick }) => {
   const { theme } = useContext(ThemeContext);
 
-  // Формируем путь к изображению с учетом темы
-  const getSrcWithTheme = (baseSrc) => {
-    const extension = theme === 'dark' ? 'black' : ''; // Если темная тема, добавляем "black"
-    return extension ? `${baseSrc}-${extension}` : baseSrc; // Добавляем приписку, если нужно
-  };
+  const finalSrc = `${src}-${theme === 'dark' ? 'dark' : 'light'}`;
+  const image = ImageMap[finalSrc];
 
-  const finalSrc = getSrcWithTheme(src);
+  if (!image) {
+    console.warn(`Image not found for source: ${finalSrc}`);
+    return null;
+  }
 
   return (
     <div>
       <hr />
       <button className={styles.btn} onClick={onClick}>
         <picture className={styles.btn__pic}>
-          <source srcSet={`./pics/icons/${finalSrc}.avif`} type="image/avif" />
-          <source srcSet={`./pics/icons/${finalSrc}.webp`} type="image/webp" />
-          <img src={`./pics/icons/${finalSrc}.png`} alt={`icon-${index}`} />
+          <source srcSet={image.avif} type="image/avif" />
+          <source srcSet={image.webp} type="image/webp" />
+          <img
+            src={image.png}
+            alt={`icon-${index}`}
+            loading="lazy"
+          />
         </picture>
       </button>
       <hr />
     </div>
   );
-}
+});
 
 export default Icon;

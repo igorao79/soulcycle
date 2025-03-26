@@ -1,26 +1,54 @@
 import React from 'react';
 import styles from '../../styles/about/Member.module.scss';
-import team from '../../data/team'; // Импортируем объект team
+import team from '../../data/team';
 
+// Динамический импорт изображений
+const imageModules = import.meta.glob('/src/pics2/team/*.{jpeg,jpg,png,avif,webp}', { 
+  eager: true,
+  query: { as: 'url' } // Это обеспечит строки с путями
+});
 
-const BookMember = ({ memberId }) => {
-  const member = team[memberId]; // Получаем данные о члене команды
+// Создаем карту изображений
+export const ImageMap = Object.fromEntries(
+  Object.entries(imageModules).map(([path, module]) => {
+    const fileName = path.split('/').pop().replace(/\.[^/.]+$/, '');
+    return [fileName, {
+      avif: path.replace(/\.[^/.]+$/, '.avif'),
+      webp: path.replace(/\.[^/.]+$/, '.webp'),
+      jpeg: path.replace(/\.[^/.]+$/, '.jpeg'),
+      default: module.default // Используем импортированный URL
+    }];
+  })
+);
+
+const BookMember = React.memo(({ memberId }) => {
+  const member = team[memberId];
 
   if (!member) {
     return <div className={styles.member__notfound}>Участник не найден.</div>;
   }
 
-  // Приводим id к корректному значению
-  const safeId = `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`;
+  const image = ImageMap[member.src];
 
-  // Получаем стили для данного id
+  if (!image) {
+    return <div className={styles.member__notfound}>Изображение не найдено.</div>;
+  }
+
+  const safeId = `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`;
 
   return (
     <div className={styles.member} id={safeId}>
       <div className={styles.member__imageWrapper}>
         <picture className={styles.member__imageContainer}>
-          <source srcSet={member.srcWebp} type="image/webp" />
-          <img src={member.src} alt={member.name} className={styles.member__image} />
+          <source srcSet={image.avif} type="image/avif" />
+          <source srcSet={image.webp} type="image/webp" />
+          <img 
+            src={image.default} 
+            alt={member.name} 
+            className={styles.member__image}
+            loading="lazy"
+            decoding="async"
+          />
         </picture>
       </div>
       <div className={styles.member__info}>
@@ -32,6 +60,6 @@ const BookMember = ({ memberId }) => {
       </div>
     </div>
   );
-};
+});
 
 export default BookMember;
