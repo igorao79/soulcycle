@@ -11,9 +11,9 @@ function HomePage() {
     <Router>
       <div className={styles.main}>
         <header className={styles.main__header}>
-          <a href="/" className={styles.main__header__link}>
-            <UseContext className={styles.main__header__pic}
-              src="/pics/sclogo" // Базовое имя файла
+          <a href="/">
+            <UseContext
+              src="./pics/logo/sclogo" // Базовое имя файла
               alt="Логотип"
             />
           </a>

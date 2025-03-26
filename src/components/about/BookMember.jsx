@@ -2,25 +2,6 @@ import React from 'react';
 import styles from '../../styles/about/Member.module.scss';
 import team from '../../data/team';
 
-// Динамический импорт изображений
-const imageModules = import.meta.glob('/src/pics2/team/*.{jpeg,jpg,png,avif,webp}', { 
-  eager: true,
-  query: { as: 'url' } // Это обеспечит строки с путями
-});
-
-// Создаем карту изображений
-export const ImageMap = Object.fromEntries(
-  Object.entries(imageModules).map(([path, module]) => {
-    const fileName = path.split('/').pop().replace(/\.[^/.]+$/, '');
-    return [fileName, {
-      avif: path.replace(/\.[^/.]+$/, '.avif'),
-      webp: path.replace(/\.[^/.]+$/, '.webp'),
-      jpeg: path.replace(/\.[^/.]+$/, '.jpeg'),
-      default: module.default // Используем импортированный URL
-    }];
-  })
-);
-
 const BookMember = React.memo(({ memberId }) => {
   const member = team[memberId];
 
@@ -28,9 +9,10 @@ const BookMember = React.memo(({ memberId }) => {
     return <div className={styles.member__notfound}>Участник не найден.</div>;
   }
 
-  const image = ImageMap[member.src];
+  // Путь к изображению (без зависимости от темы)
+  const imageSrc = `./pics/team/${member.src}`;
 
-  if (!image) {
+  if (!imageSrc) {
     return <div className={styles.member__notfound}>Изображение не найдено.</div>;
   }
 
@@ -40,11 +22,11 @@ const BookMember = React.memo(({ memberId }) => {
     <div className={styles.member} id={safeId}>
       <div className={styles.member__imageWrapper}>
         <picture className={styles.member__imageContainer}>
-          <source srcSet={image.avif} type="image/avif" />
-          <source srcSet={image.webp} type="image/webp" />
-          <img 
-            src={image.default} 
-            alt={member.name} 
+          <source srcSet={`${imageSrc}.avif`} type="image/avif" />
+          <source srcSet={`${imageSrc}.webp`} type="image/webp" />
+          <img
+            src={`${imageSrc}.png`}
+            alt={member.name}
             className={styles.member__image}
             loading="lazy"
             decoding="async"
