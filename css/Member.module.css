@@ -11,9 +11,10 @@
   border: 1px solid transparent; /* Убираем стандартную рамку */
   border-radius: 10px;
   max-width: 400px;
+  width: 100%;
   min-height: 100px;
   overflow: hidden; /* Скрыть лишние части */
-  background-color: #f9f9f9; /* Цвет фона для основного контента */
+  background-color: var(--background-color2);
 }
 .member__imageWrapper {
   margin-right: 20px;
@@ -52,16 +53,15 @@
 .member__info__details__name {
   font-size: 1.8rem;
   margin: 0;
+  color: red;
 }
 .member__info__details__role {
   font-size: 1.4rem;
-  color: #666;
-  margin: 0;
+  color: var(--text-color);
 }
 .member__info__bio {
   font-size: 1.4rem;
-  color: #999;
-  margin-top: 10px;
+  color: var(--text-color);
 }
 
 /* Убеждаемся, что Igor остается стандартным */
