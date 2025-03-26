@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styles from '../../../styles/charblock/Modal.module.scss';
-import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.js';
+import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.ts';
 import { usePagination } from './hooks/usePagination.js';
 import { useFetchData } from '../../hooks/UseFetchData.jsx';
 import { getSkilledName } from '../../../utils/charblock/getSkilledName.js';
