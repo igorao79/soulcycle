@@ -75,12 +75,12 @@ const Modal = ({ isOpen, onClose, id }) => {
           </div>
           <h2 className={styles.modalOverlay__title}>Лор {getSkilledName(character)}</h2>
           <div className={styles.modalOverlay__textBlock}>
-            <div
-              className={`${styles.modalOverlay__textBlock__textCont} ${
-                fade ? styles.fadeOut : styles.fadeIn
-              }`}
-              dangerouslySetInnerHTML={{ __html: pages[currentPage] }}
-            />
+          <div
+            className={`${styles.modalOverlay__textBlock__textCont} ${
+              fade ? styles.fadeOut : styles.fadeIn
+            }`}
+            dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}  // Используем пустую строку по умолчанию
+          />
           </div>
           <div className={styles.modalOverlay__pageIndicator}>
             Страница {currentPage + 1} из {pages.length}
