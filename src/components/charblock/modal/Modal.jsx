@@ -14,6 +14,11 @@ const Modal = ({ isOpen, onClose, id }) => {
 
   const { currentPage, nextPage, prevPage } = usePagination();
 
+  useEffect(() => {
+    if (!isOpen) return; // Запрашиваем данные только если модальное окно открыто
+  }, [isOpen]);
+
+  // Пока идет загрузка, показываем спиннер или сообщение об ошибке
   if (loading) return <div className={styles.modalOverlay}>Loading...</div>;
 
   if (error) return <div className={styles.modalOverlay}>Error: {error}</div>;
@@ -21,8 +26,7 @@ const Modal = ({ isOpen, onClose, id }) => {
   const character = characters ? lorefilter(characters, id) : null;
   const pages = character?.lore ? splitLoreIntoPages(character.lore) : [];
 
-  if (!isOpen) return null;
-  if (!character) return null;
+  if (!isOpen || !character) return null;  // Закрываем модальное окно, если нет данных
 
   const handleNextPage = () => {
     setFade(true);

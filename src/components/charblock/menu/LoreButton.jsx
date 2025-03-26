@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../../../styles/charblock/LoreButton.module.scss';
-import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
+import appStyles from '../../../App.module.css';
 import SplitText from '../SplitText';
 import Modal from '../modal/Modal';
 
@@ -21,18 +21,18 @@ const LoreButton = ({ id }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, []);  // Пустой массив означает, что обработчик сработает только при монтировании и размонтировании
 
   return (
     <>
       <div className={styles.wrapper}>
         <button className={styles.button} onClick={openModal}>
-          {/* Применяем замедленную анимацию */}
           <span className={`${appStyles['text-animation']} ${appStyles['text-animation-slow']}`}>
             <SplitText text="Читать лор" />
           </span>
@@ -45,7 +45,7 @@ const LoreButton = ({ id }) => {
           </svg>
         </button>
       </div>
-      <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />
+      {isModalOpen && <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />}
     </>
   );
 };
