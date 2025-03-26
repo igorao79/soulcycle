@@ -1,18 +1,5 @@
-// lorefilter.ts
-interface Character {
-  src: string;
-  name: string;
-  surname?: string;
-  age: number;
-  height: number;
-  bd: string;
-  lore: string;
-}
-
-export const lorefilter = (
-  characters: Record<string, Character>,
-  id: string
-): Character | undefined => {
+// lorefilter.js
+export const lorefilter = (characters, id) => {
   const character = characters[id];
   if (!character) {
     console.warn(`Character with id "${id}" not found.`);
@@ -27,8 +14,8 @@ export const lorefilter = (
   return character;
 };
 
-// splitLoreIntoPages.ts
-export const splitLoreIntoPages = (lore: string): string[] => {
+// splitLoreIntoPages.js
+export const splitLoreIntoPages = (lore) => {
   if (!lore || typeof lore !== 'string') {
     console.warn('Invalid lore format. Expected a non-empty string.');
     return [];
@@ -48,14 +35,14 @@ export const splitLoreIntoPages = (lore: string): string[] => {
   const paragraphs = lore.split('<p>').filter(Boolean).map(p => p.split('</p>')[0].trim());
   const quote = paragraphs.pop() || null;
 
-  const pages: string[] = [];
+  const pages = [];
   let currentPageContent = '';
   let charCount = 0;
 
   const isMobile = window.innerWidth <= 768;
   const screenHeight = window.innerHeight;
 
-  const tempDiv: HTMLDivElement = document.createElement('div');
+  const tempDiv = document.createElement('div');
   tempDiv.style.position = 'absolute';
   tempDiv.style.visibility = 'hidden';
   tempDiv.style.maxWidth = '600px';
@@ -71,7 +58,7 @@ export const splitLoreIntoPages = (lore: string): string[] => {
     const maxChars = isMobile ? 500 : Infinity;
 
     if (paragraphs.length > 0) {
-      const firstParagraph = paragraphs.shift()!.trim();
+      const firstParagraph = paragraphs.shift().trim();
       currentPageContent = `<p>${firstParagraph}</p>`;
       charCount = firstParagraph.length;
     }

@@ -1,4 +1,4 @@
-export function getAgeWord(age: number): string {
+export function getAgeWord(age) {
     if (!Number.isInteger(age) || age < 0) {
         throw new Error('Возраст должен быть неотрицательным целым числом');
     }

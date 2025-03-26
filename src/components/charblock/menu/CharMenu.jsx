@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
 import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
-import { getAgeWord } from '../../../utils/charblock/checkage.ts';
+import { getAgeWord } from '../../../utils/charblock/checkage.js';
 import LoreButton from './LoreButton';
 import SplitText from '../SplitText';
 
