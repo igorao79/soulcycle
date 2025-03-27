@@ -2,7 +2,7 @@
     max-width: 1500px;
     width: 100%;
     min-height: 100vh;
-    background-color: lightgray;
+    background-color: var(--background-color2);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -16,6 +16,7 @@
     &__header {
         max-width: 200px;
         display: flex;
+        gap: 10px;
         align-items: end;
 
         &__pic {
@@ -25,13 +26,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-    
-            & img {
+            transition: filter 0.3s ease;
+
+            img {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
-                display: block;
+                object-fit: contain;
             }
+
+            &.darkTheme {
+                filter: invert(0.8) brightness(1.5) hue-rotate(180deg);
+            }
+        }
+
+        &__title {
+            font-size: 2rem;
+            color: var(--text-color);
         }
     }
 
@@ -45,13 +55,11 @@
             font-size: 3rem;
             font-family: var(--font-bold);
 
-            &__link a{
+            &__link a {
                 color: var(--text-color);
             }
-
         }
     }
-
 }
 
 .characters {

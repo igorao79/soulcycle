@@ -5,26 +5,24 @@ import styles from '../../styles/hp/HomePage.module.scss';
 const UseContext = ({ src, alt }) => {
   const { theme } = useContext(ThemeContext); // Получаем текущую тему
 
-  // Динамическое формирование пути к изображению
-  const getImagePath = (baseSrc) => {
-    return theme === 'dark' ? `${baseSrc}-black` : baseSrc;
-  };
+  // Убираем суффикс -black из пути к изображению
+  const basePath = src.replace('-black', '');
 
   return (
-    <picture className={styles.main__header__pic}>
+    <picture className={`${styles.main__header__pic} ${theme === 'dark' ? styles.darkTheme : ''}`}>
       {/* AVIF */}
       <source
-        srcSet={`${getImagePath(src)}.avif`}
+        srcSet={`${basePath}.avif`}
         type="image/avif"
       />
       {/* WebP */}
       <source
-        srcSet={`${getImagePath(src)}.webp`}
+        srcSet={`${basePath}.webp`}
         type="image/webp"
       />
       {/* PNG */}
       <img
-        src={`${getImagePath(src)}.png`}
+        src={`${basePath}.png`}
         alt={alt}
         loading="lazy"
       />

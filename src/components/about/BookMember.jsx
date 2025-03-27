@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useMemo, useContext } from 'react';
+import { ThemeContext } from '../theme/ThemeContext';
 import styles from '../../styles/about/Member.module.scss';
 import team from '../../data/team';
 
 const BookMember = React.memo(({ memberId }) => {
-  const member = team[memberId];
+  const { theme } = useContext(ThemeContext);
+  
+  // Мемоизируем данные участника
+  const member = useMemo(() => team[memberId], [memberId]);
 
   if (!member) {
     return <div className={styles.member__notfound}>Участник не найден.</div>;
   }
 
-  // Путь к изображению (без зависимости от темы)
-  const imageSrc = `./pics/team/${member.src}`;
+  // Мемоизируем путь к изображению и ID
+  const { imageSrc, safeId } = useMemo(() => ({
+    imageSrc: `./pics/team/${member.src}`,
+    safeId: `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`
+  }), [member]);
 
   if (!imageSrc) {
     return <div className={styles.member__notfound}>Изображение не найдено.</div>;
   }
 
-  const safeId = `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`;
-
   return (
     <div className={styles.member} id={safeId}>
       <div className={styles.member__imageWrapper}>
-        <picture className={styles.member__imageContainer}>
+        <picture className={`${styles.member__imageContainer} ${theme === 'dark' ? styles.darkTheme : ''}`}>
           <source srcSet={`${imageSrc}.avif`} type="image/avif" />
           <source srcSet={`${imageSrc}.webp`} type="image/webp" />
           <img
@@ -43,5 +48,13 @@ const BookMember = React.memo(({ memberId }) => {
     </div>
   );
 });
+
+// Добавляем displayName для лучшей отладки
+BookMember.displayName = 'BookMember';
+
+// Добавляем проверку PropTypes если используете prop-types
+// BookMember.propTypes = {
+//   memberId: PropTypes.string.isRequired
+// };
 
 export default BookMember;

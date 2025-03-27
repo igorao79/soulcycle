@@ -1,24 +1,29 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { ThemeContext } from '../../theme/ThemeContext';
 import styles from '../../../styles/charblock/Icon.module.scss';
 
 const Icon = React.memo(({ src, index, onClick }) => {
   const { theme } = useContext(ThemeContext);
 
-  // Формирование пути к изображению в папке public
-  const finalSrc = `./pics/icons/${src}${theme === 'dark' ? '-black' : ''}`;
+  // Мемоизируем пути к изображениям
+  const imagePaths = useMemo(() => ({
+    avif: `./pics/icons/${src}.avif`,
+    webp: `./pics/icons/${src}.webp`,
+    png: `./pics/icons/${src}.png`
+  }), [src]);
 
   return (
     <div>
       <hr />
       <button className={styles.btn} onClick={onClick}>
-        <picture className={styles.btn__pic}>
-          <source srcSet={`${finalSrc}.avif`} type="image/avif" />
-          <source srcSet={`${finalSrc}.webp`} type="image/webp" />
+        <picture className={`${styles.btn__pic} ${theme === 'dark' ? styles.darkTheme : ''}`}>
+          <source srcSet={imagePaths.avif} type="image/avif" />
+          <source srcSet={imagePaths.webp} type="image/webp" />
           <img
-            src={`${finalSrc}.png`}
+            src={imagePaths.png}
             alt={`icon-${index}`}
-            loading="lazy"
+            loading="eager"
+            decoding="async"
           />
         </picture>
       </button>
@@ -26,5 +31,7 @@ const Icon = React.memo(({ src, index, onClick }) => {
     </div>
   );
 });
+
+Icon.displayName = 'Icon';
 
 export default Icon;

@@ -1,7 +1,7 @@
 .button {
     font-family: 'graphb';
     background: var(--text-color);
-    color: white;
+    color: var(--background-color);
     padding: 0.35em 0;
     font-size: 20px;
     border: none;
@@ -19,11 +19,10 @@
     top: 2%;
     left: 9%;
     z-index: 10;
-    color: white;
   }
 
   .button .icon {
-    background: #fff;
+    background: var(--background-color);
     height: 2em;
     width: 2em;
     border-radius: 2em;
@@ -54,7 +53,6 @@
     width: calc(100% - 1.5rem);
     border-radius: 0.5em;
   }
-
 
   @media only screen and (max-width: 760px) {
     .button {

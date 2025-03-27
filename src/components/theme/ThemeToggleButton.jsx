@@ -1,16 +1,23 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback, useMemo } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { Lottie } from 'react-lottie-lightweight';
 import sunAnimation from '../../animations/sun.json'; // Анимация для светлой темы
 import moonAnimation from '../../animations/moon.json'; // Анимация для темной темы
 import styles from '../../styles/theme/ThemeToggleButton.module.css';
 
-function ThemeToggleButton() {
+const ThemeToggleButton = React.memo(() => {
   const { theme, toggleTheme } = useContext(ThemeContext); // Получаем текущую тему и функцию переключения
   const [isCooldown, setIsCooldown] = useState(false); // Флаг для отслеживания задержки
 
-  // Обработчик клика с задержкой
-  const handleClick = () => {
+  // Мемоизируем конфигурацию анимации
+  const animationConfig = useMemo(() => ({
+    animationData: theme === 'dark' ? sunAnimation : moonAnimation,
+    loop: true,
+    autoplay: true,
+  }), [theme]);
+
+  // Мемоизируем обработчик клика
+  const handleClick = useCallback(() => {
     if (isCooldown) return; // Игнорируем клик, если задержка активна
 
     toggleTheme(); // Переключаем тему
@@ -20,7 +27,7 @@ function ThemeToggleButton() {
     setTimeout(() => {
       setIsCooldown(false);
     }, 3000);
-  };
+  }, [isCooldown, toggleTheme]);
 
   return (
     <button
@@ -31,16 +38,14 @@ function ThemeToggleButton() {
     >
       {/* Анимация для переключения темы */}
       <Lottie
-        config={{
-          animationData: theme === 'dark' ? sunAnimation : moonAnimation,
-          loop: true,
-          autoplay: true,
-        }}
+        config={animationConfig}
         speed={1}
         style={{ width: '35px', height: '35px', display: 'block' }}
       />
     </button>
   );
-}
+});
+
+ThemeToggleButton.displayName = 'ThemeToggleButton';
 
 export default ThemeToggleButton;

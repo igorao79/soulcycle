@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import styles from '../../../styles/charblock/Modal.module.scss';
 import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.ts';
@@ -14,24 +14,47 @@ const Modal = ({ isOpen, onClose, id }) => {
 
   const { currentPage, nextPage, prevPage } = usePagination();
 
-  // Пока идет загрузка, показываем спиннер или сообщение об ошибке
-  if (loading) return <div className={styles.modalOverlay}>Loading...</div>;
+  // Мемоизируем данные персонажа и страницы
+  const { character, pages } = useMemo(() => {
+    if (!characters || !id) {
+      return { character: null, pages: [] };
+    }
 
-  if (error) return <div className={styles.modalOverlay}>Error: {error}</div>;
+    const char = lorefilter(characters, id);
+    if (!char || !char.lore || char.lore.trim() === '') {
+      return { character: char, pages: [] };
+    }
 
-  const character = characters ? lorefilter(characters, id) : null;
+    return {
+      character: char,
+      pages: splitLoreIntoPages(char.lore)
+    };
+  }, [characters, id]);
 
-  // Если персонаж не найден, закрываем модальное окно
-  if (!character) {
-    console.warn(`Персонаж с ID "${id}" не найден`);
-    onClose();
+  // Если модальное окно закрыто или нет данных, не рендерим ничего
+  if (!isOpen || !character || pages.length === 0) {
     return null;
   }
 
-  // Проверяем, что поле lore существует и не пустое
-  const pages = character?.lore && character.lore.trim() !== '' ? splitLoreIntoPages(character.lore) : [];
+  // Если идет загрузка, показываем спиннер
+  if (loading) {
+    return ReactDOM.createPortal(
+      <div className={styles.modalOverlay}>
+        <div className={styles.loading}>Loading...</div>
+      </div>,
+      document.body
+    );
+  }
 
-  if (!isOpen || pages.length === 0) return null; // Закрываем модальное окно, если нет данных
+  // Если есть ошибка, показываем её
+  if (error) {
+    return ReactDOM.createPortal(
+      <div className={styles.modalOverlay}>
+        <div className={styles.error}>Error: {error}</div>
+      </div>,
+      document.body
+    );
+  }
 
   const handleNextPage = () => {
     setFade(true);
