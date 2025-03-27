@@ -120,7 +120,7 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  gap: 120px;
+  gap: 10%;
   border: 1px solid var(--border-color); /* Используем переменную для границы */
   background-color: var(--background-color); /* Фон для блоков */
   color: var(--text-color); /* Цвет текста */

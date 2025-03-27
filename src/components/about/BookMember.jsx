@@ -24,7 +24,7 @@ const BookMember = React.memo(({ memberId }) => {
   }
 
   return (
-    <div className={styles.member} id={safeId}>
+    <div className={`${styles.member} ${styles[`member--${member.id}`]}`} id={safeId}>
       <div className={styles.member__imageWrapper}>
         <picture className={`${styles.member__imageContainer} ${theme === 'dark' ? styles.darkTheme : ''}`}>
           <source srcSet={`${imageSrc}.avif`} type="image/avif" />
