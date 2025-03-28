@@ -5,6 +5,7 @@ import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefil
 import { usePagination } from './hooks/usePagination.js';
 import { useFetchData } from '../../hooks/UseFetchData.jsx';
 import { getSkilledName } from '../../../utils/charblock/getSkilledName.js';
+import HtmlContent from '../../common/HtmlContent';
 
 const Modal = ({ isOpen, onClose, id }) => {
   const [fade, setFade] = useState(false);
@@ -84,12 +85,6 @@ const Modal = ({ isOpen, onClose, id }) => {
     }, 300);
   };
 
-  // Создаем разметку для текущей страницы
-  const createMarkup = () => {
-    if (!pages[currentPage]) return { __html: '' };
-    return { __html: pages[currentPage] };
-  };
-
   return ReactDOM.createPortal(
     <div className={styles.modalOverlay}>
       <div className={styles.modalOverlay__content} onClick={(e) => e.stopPropagation()}>
@@ -121,10 +116,9 @@ const Modal = ({ isOpen, onClose, id }) => {
           </div>
           <h2 className={styles.modalOverlay__title}>Лор {getSkilledName(character)}</h2>
           <div className={styles.modalOverlay__textBlock}>
-            <div 
-              className={`${styles.modalOverlay__textBlock__textCont} ${fade ? styles.fadeOut : styles.fadeIn}`}
-              dangerouslySetInnerHTML={createMarkup()}
-            />
+            <div className={`${styles.modalOverlay__textBlock__textCont} ${fade ? styles.fadeOut : styles.fadeIn}`}>
+              <HtmlContent html={pages[currentPage]} />
+            </div>
           </div>
           <div className={styles.modalOverlay__pageIndicator}>
             Страница {currentPage + 1} из {pages.length}

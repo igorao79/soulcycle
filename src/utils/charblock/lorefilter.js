@@ -15,6 +15,7 @@ export const lorefilter = (characters, id) => {
 
 // Функция для замены class на className
 const replaceClassWithClassName = (html) => {
+  if (!html || typeof html !== 'string') return '';
   return html.replace(/class=/g, 'className=');
 };
 
