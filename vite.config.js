@@ -23,7 +23,7 @@ export default defineConfig({
     }),
   ],
 
-  base: '/reactbook/', // Добавляем базовый путь для GitHub Pages
+  base: '', // Убираем базовый путь
 
   server: {
     open: true,
@@ -42,6 +42,9 @@ export default defineConfig({
   },
 
   build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
     minify: 'terser', // Минификация с помощью Terser
     terserOptions: {
       compress: {
@@ -80,6 +83,5 @@ export default defineConfig({
     assetsInlineLimit: 8192, // Встраиваем маленькие файлы (например, SVG) как Base64
     cssCodeSplit: true, // Разделяем CSS для каждого компонента
     sourcemap: false, // Отключаем source maps для продакшн
-    emptyOutDir: true, // Очищаем выходную директорию перед каждой сборкой
   },
 });
