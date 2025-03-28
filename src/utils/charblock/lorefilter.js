@@ -1,5 +1,3 @@
-
-
 export const lorefilter = (characters, id) => {
   const character = characters[id];
   if (!character) {
@@ -15,7 +13,11 @@ export const lorefilter = (characters, id) => {
   return character;
 };
 
-// splitLoreIntoPages.ts
+// Функция для замены class на className
+const replaceClassWithClassName = (html) => {
+  return html.replace(/class=/g, 'className=');
+};
+
 export const splitLoreIntoPages = (lore) => {
   if (!lore || typeof lore !== 'string') {
     console.warn('Invalid lore format. Expected a non-empty string.');
@@ -52,6 +54,17 @@ export const splitLoreIntoPages = (lore) => {
   tempDiv.style.lineHeight = '1.5';
   tempDiv.style.padding = '10px';
   tempDiv.style.wordWrap = 'break-word';
+  
+  // Добавляем стили для размытых элементов
+  const style = document.createElement('style');
+  style.textContent = `
+    .blur {
+      filter: blur(4px);
+      display: inline-block;
+    }
+  `;
+  document.head.appendChild(style);
+  
   document.body.appendChild(tempDiv);
 
   try {
@@ -69,7 +82,7 @@ export const splitLoreIntoPages = (lore) => {
       const paragraphHtml = `<p>${trimmedParagraph}</p>`;
       const paragraphLength = trimmedParagraph.length;
 
-      tempDiv.innerHTML = currentPageContent + paragraphHtml;
+      tempDiv.innerHTML = replaceClassWithClassName(currentPageContent + paragraphHtml);
 
       if (tempDiv.scrollHeight > maxHeight || charCount + paragraphLength > maxChars) {
         pages.push(currentPageContent);
@@ -87,7 +100,7 @@ export const splitLoreIntoPages = (lore) => {
 
     if (quote && quote.trim()) {
       const quoteHtml = `<blockquote>${quote.trim()}</blockquote>`;
-      tempDiv.innerHTML = currentPageContent + quoteHtml;
+      tempDiv.innerHTML = replaceClassWithClassName(currentPageContent + quoteHtml);
 
       if (tempDiv.scrollHeight > maxHeight) {
         pages.push(currentPageContent);
@@ -98,6 +111,7 @@ export const splitLoreIntoPages = (lore) => {
     }
   } finally {
     document.body.removeChild(tempDiv);
+    document.head.removeChild(style);
   }
 
   return pages;

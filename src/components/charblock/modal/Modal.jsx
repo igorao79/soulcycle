@@ -9,6 +9,8 @@ import { getSkilledName } from '../../../utils/charblock/getSkilledName.js';
 const Modal = ({ isOpen, onClose, id }) => {
   const [fade, setFade] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [portalContainer, setPortalContainer] = useState(null);
+
   const { data: characters, loading, error } = useFetchData(
     'https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/24a8ba7d250a00e594387072aa0fc47641c6b8a6/chlore.json'
   );
@@ -17,7 +19,11 @@ const Modal = ({ isOpen, onClose, id }) => {
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    setPortalContainer(document.body);
+    return () => {
+      setMounted(false);
+      setPortalContainer(null);
+    };
   }, []);
 
   // Мемоизируем данные персонажа и страницы
@@ -38,28 +44,28 @@ const Modal = ({ isOpen, onClose, id }) => {
   }, [characters, id]);
 
   // Если модальное окно закрыто или нет данных, не рендерим ничего
-  if (!isOpen || !character || pages.length === 0 || !mounted) {
+  if (!isOpen || !character || pages.length === 0 || !mounted || !portalContainer) {
     return null;
   }
 
   // Если идет загрузка, показываем спиннер
   if (loading) {
-    return mounted ? ReactDOM.createPortal(
+    return ReactDOM.createPortal(
       <div className={styles.modalOverlay}>
         <div className={styles.loading}>Loading...</div>
       </div>,
-      document.body
-    ) : null;
+      portalContainer
+    );
   }
 
   // Если есть ошибка, показываем её
   if (error) {
-    return mounted ? ReactDOM.createPortal(
+    return ReactDOM.createPortal(
       <div className={styles.modalOverlay}>
         <div className={styles.error}>Error: {error}</div>
       </div>,
-      document.body
-    ) : null;
+      portalContainer
+    );
   }
 
   const handleNextPage = () => {
@@ -78,7 +84,13 @@ const Modal = ({ isOpen, onClose, id }) => {
     }, 300);
   };
 
-  return mounted ? ReactDOM.createPortal(
+  // Создаем разметку для текущей страницы
+  const createMarkup = () => {
+    if (!pages[currentPage]) return { __html: '' };
+    return { __html: pages[currentPage] };
+  };
+
+  return ReactDOM.createPortal(
     <div className={styles.modalOverlay}>
       <div className={styles.modalOverlay__content} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className={styles.modalOverlay__closeButton}>
@@ -109,11 +121,9 @@ const Modal = ({ isOpen, onClose, id }) => {
           </div>
           <h2 className={styles.modalOverlay__title}>Лор {getSkilledName(character)}</h2>
           <div className={styles.modalOverlay__textBlock}>
-            <div
-              className={`${styles.modalOverlay__textBlock__textCont} ${
-                fade ? styles.fadeOut : styles.fadeIn
-              }`}
-              dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}
+            <div 
+              className={`${styles.modalOverlay__textBlock__textCont} ${fade ? styles.fadeOut : styles.fadeIn}`}
+              dangerouslySetInnerHTML={createMarkup()}
             />
           </div>
           <div className={styles.modalOverlay__pageIndicator}>
@@ -122,8 +132,8 @@ const Modal = ({ isOpen, onClose, id }) => {
         </div>
       </div>
     </div>,
-    document.body
-  ) : null;
+    portalContainer
+  );
 };
 
 export default Modal;

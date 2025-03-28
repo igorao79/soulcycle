@@ -6,6 +6,12 @@ import Modal from '../modal/Modal';
 
 const LoreButton = ({ id }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -23,11 +29,14 @@ const LoreButton = ({ id }) => {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);  // Пустой массив означает, что обработчик сработает только при монтировании и размонтировании
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
@@ -45,7 +54,7 @@ const LoreButton = ({ id }) => {
           </svg>
         </button>
       </div>
-      {isModalOpen && <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />}
+      {mounted && isModalOpen && <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />}
     </>
   );
 };

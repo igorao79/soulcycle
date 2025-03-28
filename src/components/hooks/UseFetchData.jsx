@@ -3,6 +3,26 @@ import { useState, useEffect, useRef } from 'react';
 // Глобальный объект для кэширования данных
 const cache = {};
 
+// Функция для предварительной загрузки данных
+const preloadData = async (url) => {
+  if (cache[url]) {
+    return cache[url];
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const json = await response.json();
+    cache[url] = json;
+    return json;
+  } catch (err) {
+    console.error('Preload error:', err);
+    return null;
+  }
+};
+
 export function useFetchData(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,27 +33,26 @@ export function useFetchData(url) {
     isMounted.current = true;
 
     const fetchData = async () => {
-      if (cache[url]) {
-        // Если данные уже есть в кэше — используем их
-        setData(cache[url]);
-        setLoading(false);
-        return;
-      }
-
       try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to load data');
-        const json = await response.json();
+        const json = await preloadData(url);
+        
+        if (!isMounted.current) return;
 
-        // Сохраняем данные в кэш
-        cache[url] = json;
+        if (!json) {
+          throw new Error('Failed to load data');
+        }
 
-        if (isMounted.current) setData(json);
+        setData(json);
+        setError(null);
       } catch (err) {
-        if (isMounted.current) setError(err.message);
-        console.error('Fetch error:', err); // Логирование ошибки
+        if (isMounted.current) {
+          setError(err.message);
+          console.error('Fetch error:', err);
+        }
       } finally {
-        if (isMounted.current) setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
 

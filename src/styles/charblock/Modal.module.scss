@@ -112,6 +112,18 @@
           blockquote {
               color: var(--accent-color); /* Используем переменную */
           }
+
+          :global(.blur) {
+              filter: blur(4px);
+              display: inline-block;
+          }
+
+          :global(.citata) {
+              font-style: italic;
+              border-left: 2px solid #ffffff4d;
+              padding-left: 1rem;
+              margin: 1rem 0;
+          }
       }
   }
 

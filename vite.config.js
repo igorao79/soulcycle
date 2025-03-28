@@ -23,7 +23,7 @@ export default defineConfig({
     }),
   ],
 
-  base: '', // Убрали base для отладки
+  base: '/reactbook/', // Добавляем базовый путь для GitHub Pages
 
   server: {
     open: true,
