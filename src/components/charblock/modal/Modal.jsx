@@ -1,18 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import styles from '../../../styles/charblock/Modal.module.scss';
-import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.ts';
+import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.js';
 import { usePagination } from './hooks/usePagination.js';
 import { useFetchData } from '../../hooks/UseFetchData.jsx';
-import { getSkilledName } from '../../../utils/charblock/getSkilledName.ts';
+import { getSkilledName } from '../../../utils/charblock/getSkilledName.js';
 
 const Modal = ({ isOpen, onClose, id }) => {
   const [fade, setFade] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: characters, loading, error } = useFetchData(
     'https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/24a8ba7d250a00e594387072aa0fc47641c6b8a6/chlore.json'
   );
 
   const { currentPage, nextPage, prevPage } = usePagination();
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   // Мемоизируем данные персонажа и страницы
   const { character, pages } = useMemo(() => {
@@ -32,28 +38,28 @@ const Modal = ({ isOpen, onClose, id }) => {
   }, [characters, id]);
 
   // Если модальное окно закрыто или нет данных, не рендерим ничего
-  if (!isOpen || !character || pages.length === 0) {
+  if (!isOpen || !character || pages.length === 0 || !mounted) {
     return null;
   }
 
   // Если идет загрузка, показываем спиннер
   if (loading) {
-    return ReactDOM.createPortal(
+    return mounted ? ReactDOM.createPortal(
       <div className={styles.modalOverlay}>
         <div className={styles.loading}>Loading...</div>
       </div>,
       document.body
-    );
+    ) : null;
   }
 
   // Если есть ошибка, показываем её
   if (error) {
-    return ReactDOM.createPortal(
+    return mounted ? ReactDOM.createPortal(
       <div className={styles.modalOverlay}>
         <div className={styles.error}>Error: {error}</div>
       </div>,
       document.body
-    );
+    ) : null;
   }
 
   const handleNextPage = () => {
@@ -72,7 +78,7 @@ const Modal = ({ isOpen, onClose, id }) => {
     }, 300);
   };
 
-  return ReactDOM.createPortal(
+  return mounted ? ReactDOM.createPortal(
     <div className={styles.modalOverlay}>
       <div className={styles.modalOverlay__content} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className={styles.modalOverlay__closeButton}>
@@ -117,7 +123,7 @@ const Modal = ({ isOpen, onClose, id }) => {
       </div>
     </div>,
     document.body
-  );
+  ) : null;
 };
 
 export default Modal;
