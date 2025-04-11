@@ -23,7 +23,7 @@ export default defineConfig({
     }),
   ],
 
-  base: '', // Убираем базовый путь
+  base: '/soulcycle/', // Исправлено для GitHub Pages
 
   server: {
     open: true,
