@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import styles from '../../../styles/charblock/Modal.module.scss';
 import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.js';
@@ -11,6 +11,8 @@ const Modal = ({ isOpen, onClose, id }) => {
   const [fade, setFade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [portalContainer, setPortalContainer] = useState(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const textBlockRef = useRef(null);
 
   const { data: characters, loading, error } = useFetchData(
     'https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/24a8ba7d250a00e594387072aa0fc47641c6b8a6/chlore.json'
@@ -85,6 +87,10 @@ const Modal = ({ isOpen, onClose, id }) => {
     }, 300);
   };
 
+  const handleHeightChange = (height) => {
+    setContentHeight(height);
+  };
+
   return ReactDOM.createPortal(
     <div className={styles.modalOverlay}>
       <div className={styles.modalOverlay__content} onClick={(e) => e.stopPropagation()}>
@@ -115,9 +121,12 @@ const Modal = ({ isOpen, onClose, id }) => {
             </button>
           </div>
           <h2 className={styles.modalOverlay__title}>Лор {getSkilledName(character)}</h2>
-          <div className={styles.modalOverlay__textBlock}>
+          <div className={styles.modalOverlay__textBlock} ref={textBlockRef}>
             <div className={`${styles.modalOverlay__textBlock__textCont} ${fade ? styles.fadeOut : styles.fadeIn}`}>
-              <HtmlContent html={pages[currentPage]} />
+              <HtmlContent 
+                html={pages[currentPage]} 
+                onHeightChange={handleHeightChange}
+              />
             </div>
           </div>
           <div className={styles.modalOverlay__pageIndicator}>

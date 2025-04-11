@@ -1,0 +1,50 @@
+.user-name-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.user-name .privilege-icon {
+  font-size: 1.2em;
+  margin-right: 2px;
+}
+
+.user-name.loading {
+  opacity: 0.7;
+}
+
+/* Анимация при наведении */
+.user-name:hover .privilege-icon {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* Стили для разных типов имен */
+.admin-name .user-name {
+  font-weight: 700;
+  text-shadow: 0 0 1px rgba(255, 215, 0, 0.3);
+}
+
+.early-user-name .user-name {
+  font-weight: 600;
+  text-shadow: 0 0 1px rgba(255, 68, 68, 0.3);
+}
+
+.custom-title-name .user-name {
+  font-weight: 600;
+  text-shadow: 0 0 1px rgba(74, 144, 226, 0.3);
+}
+
+.default-name .user-name {
+  font-weight: 500;
+  color: #2c3e50;
+} 

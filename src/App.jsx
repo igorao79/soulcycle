@@ -1,16 +1,22 @@
 import React from 'react';
+import { HashRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import styles from './App.module.css';
-import HomePage from './components/HomePage'; // Добавляем HomePage
-import ThemeToggleButton from './components/theme/ThemeToggleButton'; // Новый компонент
+import HomePage from './components/HomePage';
+import ThemeToggleButton from './components/theme/ThemeToggleButton';
+import AuthForm from './components/Auth/AuthForm';
 
 function App() {
     return (
-        <div className={styles.page}>
-            {/* Кнопка переключения темы */}
-            <ThemeToggleButton />
-
-            <HomePage /> {/* Рендерим HomePage */}
-        </div>
+        <Router>
+            <AuthProvider>
+                <div className={styles.page}>
+                    <ThemeToggleButton />
+                    <AuthForm />
+                    <HomePage />
+                </div>
+            </AuthProvider>
+        </Router>
     );
 }
 

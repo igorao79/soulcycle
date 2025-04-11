@@ -1,5 +1,4 @@
 .window {
-    width: 1500px;
     height: 75vh;
     position: relative;
     background-color: var(--background-color); /* Используем переменную */
@@ -11,11 +10,15 @@
 
     &__message {
         position: absolute;
-        left: 30%;
+        left: 35%;
         top: 50%;
         text-transform: uppercase;
-        font-size: 3rem;
         color: var(--text-color); /* Цвет текста */
+
+        & h2 {
+            font-size: clamp(3rem, 3vw, 3rem);
+        }
+
     }
 
     &__panel {

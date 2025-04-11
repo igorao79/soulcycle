@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const HtmlContent = ({ html }) => {
+const HtmlContent = ({ html, onHeightChange }) => {
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    if (contentRef.current && onHeightChange) {
+      const height = contentRef.current.scrollHeight;
+      onHeightChange(height);
+    }
+  }, [html, onHeightChange]);
+
   if (!html || typeof html !== 'string') {
     return null;
   }
@@ -36,7 +45,11 @@ const HtmlContent = ({ html }) => {
     return null;
   };
 
-  return convertNodeToReact(tempDiv);
+  return (
+    <div ref={contentRef} className="html-content">
+      {convertNodeToReact(tempDiv)}
+    </div>
+  );
 };
 
 export default HtmlContent; 

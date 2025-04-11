@@ -1,6 +1,5 @@
 @charset "UTF-8";
 .window {
-  width: 1500px;
   height: 75vh;
   position: relative;
   background-color: var(--background-color); /* Используем переменную */
@@ -17,11 +16,13 @@
 }
 .window__message {
   position: absolute;
-  left: 30%;
+  left: 35%;
   top: 50%;
   text-transform: uppercase;
-  font-size: 3rem;
   color: var(--text-color); /* Цвет текста */
+}
+.window__message h2 {
+  font-size: clamp(3rem, 3vw, 3rem);
 }
 .window__panel {
   position: absolute;

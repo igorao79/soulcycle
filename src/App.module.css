@@ -45,6 +45,7 @@ html, body {
     color: var(--text-color); /* Используем переменную для текста */
     background-color: var(--background-color); /* Используем переменную для фона */
     font-family: var(--font-base);
+    
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -64,6 +65,7 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     transition: background-color 0.5s ease;
     overflow: hidden;
+    background-attachment: fixed;
 }
 
 

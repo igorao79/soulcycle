@@ -1,6 +1,6 @@
 .btn {
-    width: 78px;
-    height: 78px;
+    max-width: 78px;
+    min-height: 78px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -50,5 +50,7 @@ hr {
 @media only screen and (max-width: 760px) {
     .btn {
         rotate: 270deg;
+        max-width: 60px;
+        min-height: 60px;
     }
 }

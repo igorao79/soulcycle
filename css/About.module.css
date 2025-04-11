@@ -17,9 +17,9 @@
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  gap: 10%;
+  gap: 30px;
   border-radius: 5px;
-  padding: 1% 0;
+  padding: 2% 2%;
 }
 .aboutblock__header {
   display: -webkit-box;
@@ -39,7 +39,7 @@
 }
 .aboutblock__header__htitle {
   font-family: "graphb";
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 2vw, 3rem);
   color: var(--text-color); /* Цвет заголовка */
 }
 .aboutblock__header__textblock {
@@ -58,7 +58,7 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 0.9vw, 3rem);
   position: relative;
   color: var(--text-color); /* Цвет текста */
 }
@@ -112,7 +112,7 @@
 }
 .aboutblock__main__btitle, .aboutblock__main__dtitle {
   font-family: "graphb";
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 2vw, 3rem);
   color: var(--text-color); /* Цвет заголовков */
 }
 .aboutblock__main__authors, .aboutblock__main__developers {

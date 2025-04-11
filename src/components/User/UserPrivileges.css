@@ -1,0 +1,169 @@
+.user-privileges {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.user-privileges h3 {
+  color: #2c3e50;
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.privilege-description {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.privileges-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.privilege-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.privilege-item:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.privilege-item.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.privilege-icon {
+  font-size: 1.5rem;
+  margin-right: 16px;
+  min-width: 24px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c3e50;
+}
+
+/* Цвета для разных статусов */
+.privilege-item[data-id="admin"] .privilege-icon {
+  color: #FFD700;
+}
+
+.privilege-item[data-id="early-user"] .privilege-icon {
+  color: #FF4444;
+}
+
+.privilege-item[data-id="custom-title"] .privilege-icon {
+  color: #4A90E2;
+}
+
+.privilege-item[data-id="nickname"] .privilege-icon {
+  color: #2c3e50;
+}
+
+/* Стили для активного элемента */
+.privilege-item.active .privilege-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.privilege-item.active[data-id="admin"] .privilege-icon {
+  color: #FFD700;
+}
+
+.privilege-item.active[data-id="early-user"] .privilege-icon {
+  color: #FF4444;
+}
+
+.privilege-item.active[data-id="custom-title"] .privilege-icon {
+  color: #4A90E2;
+}
+
+.privilege-item.active[data-id="nickname"] .privilege-icon {
+  color: #2c3e50;
+}
+
+.privilege-name {
+  font-size: 1rem;
+  color: #2c3e50;
+  flex-grow: 1;
+  font-weight: 500;
+}
+
+.active-indicator {
+  background: #2196f3;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.privilege-display {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #eee;
+}
+
+.loading, .error, .no-data, .saving {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.saving {
+  color: #2196f3;
+  font-weight: 500;
+  margin-top: 16px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.privilege-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.privilege-item:nth-child(1) { animation-delay: 0.1s; }
+.privilege-item:nth-child(2) { animation-delay: 0.2s; }
+.privilege-item:nth-child(3) { animation-delay: 0.3s; }
+.privilege-item:nth-child(4) { animation-delay: 0.4s; } 

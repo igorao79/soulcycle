@@ -2,7 +2,77 @@
 
 ⭐ Ссылка на телеграм группу: [Присоединиться к группе](https://t.me/+yFsUa_nD88piNjg6)
 
-⭐ Обновления: 
+## Установка и запуск проекта
+
+### Предварительные требования
+- Node.js (версия 14 или выше)
+- npm или yarn
+
+### Установка
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/ваш-username/reactbook.git
+cd reactbook
+```
+
+2. Установите зависимости:
+```bash
+npm install
+# или
+yarn install
+```
+
+3. Создайте файл `.env` в корневой директории проекта со следующими переменными:
+```
+VITE_FIREBASE_API_KEY=ваш_api_key
+VITE_FIREBASE_AUTH_DOMAIN=ваш_auth_domain
+VITE_FIREBASE_PROJECT_ID=ваш_project_id
+VITE_FIREBASE_STORAGE_BUCKET=ваш_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=ваш_messaging_sender_id
+VITE_FIREBASE_APP_ID=ваш_app_id
+VITE_FIREBASE_MEASUREMENT_ID=ваш_measurement_id
+```
+
+4. Запустите проект в режиме разработки:
+```bash
+npm run dev
+# или
+yarn dev
+```
+
+### Сборка для продакшена
+```bash
+npm run build
+# или
+yarn build
+```
+
+## Развертывание на хостинге
+
+### Firebase Hosting
+1. Установите Firebase CLI:
+```bash
+npm install -g firebase-tools
+```
+
+2. Войдите в свой аккаунт Firebase:
+```bash
+firebase login
+```
+
+3. Инициализируйте проект Firebase:
+```bash
+firebase init
+```
+
+4. Выберите Hosting и укажите директорию сборки (обычно `dist`)
+
+5. Разверните проект:
+```bash
+firebase deploy
+```
+
+## Обновления
 
 ⭐ Апдейт 5.5:
 

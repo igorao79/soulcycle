@@ -1,0 +1,32 @@
+.comment-user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.comment-user-name .privilege-icon {
+  font-size: 0.9em;
+  margin-right: 2px;
+}
+
+.comment-user-name.loading {
+  opacity: 0.7;
+}
+
+/* Стили для разных типов имен */
+.admin-name {
+  font-weight: 600;
+}
+
+.early-user-name {
+  font-weight: 500;
+}
+
+.custom-title-name {
+  font-weight: 500;
+}
+
+.default-name {
+  font-weight: 400;
+} 

@@ -52,7 +52,7 @@
             display: flex;
             gap: 20px;
             list-style: none;
-            font-size: 3rem;
+            font-size: clamp(2rem, 2vw, 3rem);
             font-family: var(--font-bold);
 
             &__link a {

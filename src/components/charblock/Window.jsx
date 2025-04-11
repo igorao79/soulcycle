@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import styles from '../../styles/charblock/Window.module.scss';
-import Tgbtn from '../charblock/window/Tgbtn';
 import AnimatedContent from '../../utils/charblock/AnimatedContent';
 import CharMenu from './menu/CharMenu';
 import IconCarousel from '../charblock/window/IconCarousel';
@@ -28,15 +27,10 @@ function Window() {
     setTimeout(() => setIsSwitching(false), 300); // Разблокируем через 300 мс
   }, [isSwitching, selectedIcon]);
 
-  // Лоадер
-  if (loading) return <div className={styles.loading}>Loading...</div>;
 
-  // Ошибка
-  if (error) return <div className={styles.error}>Error: {error}</div>;
 
   return (
     <div className={styles.window}>
-      <Tgbtn />
       <IconCarousel icons={icons} onIconClick={handleIconClick} />
       <AnimatedContent selectedIcon={selectedIcon} direction={direction}>
         {selectedIcon && characters[selectedIcon] && (
