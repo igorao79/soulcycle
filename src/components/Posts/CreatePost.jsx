@@ -115,7 +115,7 @@ const CreatePost = () => {
         },
         isPoll: isPoll,
         poll: isPoll ? {
-          options: pollOptions.map(option => option),
+          options: pollOptions.filter(option => option.trim() !== ''),
           votes: {},
           results: {}
         } : null

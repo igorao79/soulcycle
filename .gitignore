@@ -7,10 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build & dependencies
 node_modules
 dist
 dist-ssr
+build
 *.local
+css/
+*.css.map
 
 # Editor directories and files
 .vscode/*
@@ -28,3 +32,16 @@ dist-ssr
 .env.local
 .env.development
 .env.production
+.env.*.local
+
+# Firebase keys
+firebase-key.json
+*serviceAccountKey*.json
+
+# Misc
+stats.html
+.firebase/
+coverage/
+__pycache__/
+*.py[cod]
+.vercel

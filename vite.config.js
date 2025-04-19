@@ -23,7 +23,7 @@ export default defineConfig({
     }),
   ],
 
-  base: '/soulcycle/', // Исправлено для GitHub Pages
+  base: '/soulcycle/',
 
   server: {
     open: true,
