@@ -21,6 +21,14 @@ const getAuthToken = async () => {
   }
 };
 
+// Создаем прокси через который будем делать запросы для обхода CORS
+// Используем https://corsproxy.io/ - публичный сервис для обхода CORS
+const createProxiedUrl = (url) => {
+  // Кодируем URL для использования в прокси
+  const encodedUrl = encodeURIComponent(url);
+  return `https://corsproxy.io/?${encodedUrl}`;
+};
+
 // Функция для выполнения запросов с авторизацией
 const fetchWithAuth = async (endpoint, options = {}) => {
   try {
@@ -35,10 +43,12 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     console.log(`Отправка запроса с авторизацией на ${endpoint}`);
     
     const url = `${BASE_API_URL}${endpoint}`;
-    const response = await fetch(url, {
+    // Используем прокси для обхода CORS
+    const proxiedUrl = createProxiedUrl(url);
+    
+    const response = await fetch(proxiedUrl, {
       ...options,
-      headers,
-      // credentials: 'include' // включаем cookies
+      headers
     });
     
     if (!response.ok) {
@@ -69,10 +79,12 @@ const fetchWithoutAuth = async (endpoint, options = {}) => {
     console.log(`Отправка запроса без авторизации на ${endpoint}`);
     
     const url = `${BASE_API_URL}${endpoint}`;
-    const response = await fetch(url, {
+    // Используем прокси для обхода CORS
+    const proxiedUrl = createProxiedUrl(url);
+    
+    const response = await fetch(proxiedUrl, {
       ...options,
-      headers,
-      // credentials: 'include' // включаем cookies
+      headers
     });
     
     if (!response.ok) {
@@ -114,10 +126,12 @@ const fetchWithOptionalAuth = async (endpoint, options = {}) => {
     }
     
     const url = `${BASE_API_URL}${endpoint}`;
-    const response = await fetch(url, {
+    // Используем прокси для обхода CORS
+    const proxiedUrl = createProxiedUrl(url);
+    
+    const response = await fetch(proxiedUrl, {
       ...options,
-      headers,
-      // credentials: 'include' // включаем cookies
+      headers
     });
     
     if (!response.ok) {
