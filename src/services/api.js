@@ -1,18 +1,27 @@
 import { auth } from '../firebase/config';
 
 // Базовый URL для внешнего API
-const API_URL = import.meta.env.VITE_API_URL || "https://scapi-dj82ynavq-igors-projects-f86e1b8f.vercel.app";
+const BASE_API_URL = import.meta.env.VITE_API_URL || "https://scapi-dj82ynavq-igors-projects-f86e1b8f.vercel.app";
 
 // Функция для получения токена авторизации
 const getAuthToken = async () => {
   const user = auth.currentUser;
   if (!user) {
+    console.warn('Пользователь не авторизован для получения токена');
     throw new Error('Пользователь не авторизован');
   }
-  return user.getIdToken();
+  
+  try {
+    const token = await user.getIdToken(true); // force refresh token
+    console.log('Токен успешно получен');
+    return token;
+  } catch (error) {
+    console.error('Ошибка получения токена:', error);
+    throw error;
+  }
 };
 
-// Базовая функция для выполнения запросов с авторизацией
+// Функция для выполнения запросов с авторизацией
 const fetchWithAuth = async (endpoint, options = {}) => {
   try {
     const token = await getAuthToken();
@@ -23,14 +32,19 @@ const fetchWithAuth = async (endpoint, options = {}) => {
       ...options.headers
     };
     
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    console.log(`Отправка запроса с авторизацией на ${endpoint}`);
+    
+    const url = `${BASE_API_URL}${endpoint}`;
+    const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      // credentials: 'include' // включаем cookies
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Ошибка запроса: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Ошибка API (${response.status}):`, errorText);
+      throw new Error(`Ошибка API: ${response.status} ${errorText}`);
     }
     
     if (response.status === 204) {
@@ -52,14 +66,19 @@ const fetchWithoutAuth = async (endpoint, options = {}) => {
       ...options.headers
     };
     
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    console.log(`Отправка запроса без авторизации на ${endpoint}`);
+    
+    const url = `${BASE_API_URL}${endpoint}`;
+    const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      // credentials: 'include' // включаем cookies
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Ошибка запроса: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Ошибка API (${response.status}):`, errorText);
+      throw new Error(`Ошибка API: ${response.status} ${errorText}`);
     }
     
     if (response.status === 204) {
@@ -83,18 +102,36 @@ const fetchWithOptionalAuth = async (endpoint, options = {}) => {
     
     // Добавляем токен, если пользователь авторизован
     if (auth.currentUser) {
-      const token = await auth.currentUser.getIdToken();
-      headers['Authorization'] = `Bearer ${token}`;
+      try {
+        const token = await auth.currentUser.getIdToken(true);
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log(`Запрос с опциональной авторизацией на ${endpoint} (токен получен)`);
+      } catch (err) {
+        console.warn(`Не удалось получить токен для ${endpoint}:`, err);
+      }
+    } else {
+      console.log(`Запрос с опциональной авторизацией на ${endpoint} (без токена)`);
     }
     
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const url = `${BASE_API_URL}${endpoint}`;
+    const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      // credentials: 'include' // включаем cookies
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Ошибка запроса: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Ошибка API (${response.status}):`, errorText);
+      
+      // Если получили 401 для публичного ресурса, пробуем запросить без авторизации
+      if (response.status === 401 && 
+         (endpoint.startsWith('/api/posts') || endpoint.includes('/search'))) {
+        console.log('Повторная попытка запроса без токена');
+        return fetchWithoutAuth(endpoint, options);
+      }
+      
+      throw new Error(`Ошибка API: ${response.status} ${errorText}`);
     }
     
     if (response.status === 204) {
@@ -284,4 +321,4 @@ export default {
   usersApi,
   pollsApi,
   notificationsApi
-}; 
+};
