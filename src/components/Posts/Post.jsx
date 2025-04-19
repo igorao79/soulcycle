@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { doc, updateDoc, increment, deleteDoc, collection, query, where, getDocs, addDoc, deleteField, onSnapshot, getDoc, arrayUnion, arrayRemove, runTransaction, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../../firebase/config';
+import { auth } from '../../firebase/config';
 import CommentList from './CommentList';
 import CreateComment from './CreateComment';
 import './Posts.css';
@@ -8,6 +7,7 @@ import { Link } from 'react-router-dom';
 import HtmlContent from '../common/HtmlContent';
 import { FaCrown, FaStar, FaTag, FaUser, FaHeart, FaRegHeart, FaComment, FaTrash } from 'react-icons/fa';
 import useUserData from '../../hooks/useUserData';
+import { postsApi, likesApi, pollsApi, usersApi } from '../../services/api';
 
 // Компонент для отображения опроса
 const Poll = ({ poll, postId, currentUser, style }) => {
@@ -16,64 +16,48 @@ const Poll = ({ poll, postId, currentUser, style }) => {
   const [results, setResults] = useState(poll.results || {});
 
   useEffect(() => {
-    if (currentUser && poll.votes && poll.votes[currentUser.uid]) {
-      setHasVoted(true);
-      setSelectedOption(poll.votes[currentUser.uid]);
-    }
-  }, [currentUser, poll]);
+    // При инициализации проверяем, голосовал ли пользователь
+    const checkUserVote = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const voteData = await pollsApi.getMyVote(postId);
+        if (voteData && voteData.optionId) {
+          setHasVoted(true);
+          setSelectedOption(voteData.optionId);
+        }
+      } catch (error) {
+        console.error('Error checking user vote:', error);
+      }
+    };
+    
+    // Получаем текущие результаты опроса
+    const getPollResults = async () => {
+      try {
+        const resultsData = await pollsApi.getResults(postId);
+        setResults(resultsData);
+      } catch (error) {
+        console.error('Error getting poll results:', error);
+      }
+    };
+    
+    checkUserVote();
+    getPollResults();
+  }, [currentUser, postId, poll]);
 
   const handleVote = async (option) => {
     if (!currentUser || hasVoted) return;
 
-    const postRef = doc(db, 'posts', postId);
-    const voteRef = doc(db, 'posts', postId, 'votes', currentUser.uid);
-
     try {
-      await runTransaction(db, async (transaction) => {
-        const postDoc = await transaction.get(postRef);
-        if (!postDoc.exists()) {
-          throw new Error('Пост не найден');
-        }
-
-        const postData = postDoc.data();
-        const poll = postData.poll;
-
-        if (!poll || !poll.options.includes(option)) {
-          throw new Error('Неверный вариант ответа');
-        }
-
-        if (poll.votes && poll.votes[currentUser.uid]) {
-          throw new Error('Вы уже проголосовали');
-        }
-
-        const newVotes = { ...poll.votes, [currentUser.uid]: option };
-        const newResults = { ...poll.results };
-        
-        if (!newResults[option]) {
-          newResults[option] = 0;
-        }
-        newResults[option]++;
-
-        transaction.update(postRef, {
-          'poll.votes': newVotes,
-          'poll.results': newResults
-        });
-
-        transaction.set(voteRef, {
-          option,
-          timestamp: serverTimestamp()
-        });
-      });
-
+      await pollsApi.vote(postId, option);
       setHasVoted(true);
       setSelectedOption(option);
-      setResults(prev => ({
-        ...prev,
-        [option]: (prev[option] || 0) + 1
-      }));
+      
+      // Получаем обновленные результаты
+      const updatedResults = await pollsApi.getResults(postId);
+      setResults(updatedResults);
     } catch (error) {
-      console.error('Ошибка при голосовании:', error);
-      alert(error.message);
+      console.error('Error voting in poll:', error);
     }
   };
 
@@ -146,15 +130,13 @@ const Post = ({ post, onDelete }) => {
   const textColor = postStyle.textColor || '#000000';
   const fontFamily = postStyle.fontFamily || 'Arial';
 
+  // Загрузка данных автора поста
   useEffect(() => {
     const loadUserData = async () => {
       if (post.authorId) {
         try {
-          const userDocRef = doc(db, 'users', post.authorId);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            setUserData(userDocSnap.data());
-          }
+          const authorData = await usersApi.getUser(post.authorId);
+          setUserData(authorData);
         } catch (err) {
           console.error('Error loading user data:', err);
         }
@@ -165,6 +147,7 @@ const Post = ({ post, onDelete }) => {
     setIsLoading(false);
   }, [post.authorId]);
 
+  // Получаем текущего пользователя
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUserId(user?.uid || null);
@@ -173,162 +156,109 @@ const Post = ({ post, onDelete }) => {
     return () => unsubscribe();
   }, []);
 
+  // Проверяем, является ли пользователь администратором
   useEffect(() => {
     if (!currentUserId) {
       setIsAdmin(false);
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      doc(db, 'users', currentUserId),
-      (doc) => {
-        if (doc.exists()) {
-          setIsAdmin(doc.data().isAdmin === true);
-        } else {
-          setIsAdmin(false);
-        }
-      },
-      (error) => {
+    const checkAdminStatus = async () => {
+      try {
+        const userData = await usersApi.getUser(currentUserId);
+        setIsAdmin(userData?.isAdmin === true);
+      } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
       }
-    );
+    };
 
-    return () => unsubscribe();
+    checkAdminStatus();
   }, [currentUserId]);
 
   // Отслеживаем изменения в количестве комментариев
   useEffect(() => {
-    const postRef = doc(db, 'posts', post.id);
-    const unsubscribe = onSnapshot(postRef, (doc) => {
-      if (doc.exists()) {
-        setCommentsCount(doc.data().commentsCount || 0);
+    const fetchPostDetails = async () => {
+      if (!post.id) return;
+      
+      try {
+        const postData = await postsApi.getPost(post.id);
+        if (postData) {
+          setCommentsCount(postData.commentsCount || 0);
+          setLikesCount(postData.likesCount || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching post details:', error);
       }
-    });
-
-    return () => unsubscribe();
-  }, [post.id]);
-
-  // Отслеживаем изменения в количестве лайков
-  useEffect(() => {
-    const postRef = doc(db, 'posts', post.id);
-    const unsubscribe = onSnapshot(postRef, (doc) => {
-      if (doc.exists()) {
-        setLikesCount(doc.data().likesCount || 0);
-      }
-    });
-
-    return () => unsubscribe();
+    };
+    
+    fetchPostDetails();
+    
+    // Запускаем периодическое обновление данных поста
+    const intervalId = setInterval(fetchPostDetails, 30000); // каждые 30 секунд
+    
+    return () => clearInterval(intervalId);
   }, [post.id]);
 
   // Проверяем, лайкнул ли пользователь пост
   useEffect(() => {
     if (!currentUserId || !post.id) return;
 
-    const likesRef = collection(db, 'likes');
-    const q = query(
-      likesRef,
-      where('postId', '==', post.id),
-      where('userId', '==', currentUserId)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setIsLiked(!snapshot.empty);
-    });
-
-    return () => unsubscribe();
+    const checkLikeStatus = async () => {
+      try {
+        const likeStatus = await likesApi.isPostLiked(post.id);
+        setIsLiked(likeStatus.liked === true);
+      } catch (error) {
+        console.error('Error checking like status:', error);
+      }
+    };
+    
+    checkLikeStatus();
   }, [currentUserId, post.id]);
 
-  useEffect(() => {
-    if (post.isPoll && auth.currentUser) {
-      setHasVoted(post.poll?.votes?.[auth.currentUser.uid] !== undefined);
-    }
-  }, [post.isPoll, post.poll, auth.currentUser]);
-
+  // Функция для лайка/анлайка поста
   const handleLike = useCallback(async () => {
-    if (!auth.currentUser) {
-      alert('Вы должны быть авторизованы, чтобы поставить лайк');
-      return;
-    }
+    if (!currentUserId || isLikeProcessing) return;
 
-    if (isLikeProcessing) return;
     setIsLikeProcessing(true);
-
+    
     try {
-      const postRef = doc(db, 'posts', post.id);
-      const likesRef = collection(db, 'likes');
-      
       if (isLiked) {
-        // Удаляем лайк
-        const q = query(
-          likesRef,
-          where('postId', '==', post.id),
-          where('userId', '==', auth.currentUser.uid)
-        );
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          await deleteDoc(querySnapshot.docs[0].ref);
-        }
-        await updateDoc(postRef, {
-          likesCount: increment(-1)
-        });
+        await likesApi.unlikePost(post.id);
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - 1));
       } else {
-        // Добавляем лайк
-        await addDoc(likesRef, {
-          postId: post.id,
-          userId: auth.currentUser.uid,
-          createdAt: new Date()
-        });
-        await updateDoc(postRef, {
-          likesCount: increment(1)
-        });
+        await likesApi.likePost(post.id);
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
       }
-    } catch (err) {
-      console.error('Error updating like:', err);
-      alert('Ошибка при обновлении лайка');
+    } catch (error) {
+      console.error('Error toggling like:', error);
     } finally {
       setIsLikeProcessing(false);
     }
-  }, [isLiked, post.id, isLikeProcessing]);
+  }, [currentUserId, isLiked, isLikeProcessing, post.id]);
 
-  const handleDelete = async () => {
-    if (!isAdmin) {
-      alert('У вас нет прав для удаления постов');
-      return;
-    }
+  // Функция для удаления поста
+  const handleDelete = useCallback(async () => {
+    if (!currentUserId || (!isAdmin && post.authorId !== currentUserId)) return;
     
-    if (!window.confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
-      return;
-    }
-
+    if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
+    
     setIsDeleting(true);
+    
     try {
-      // Удаляем все лайки поста
-      const likesRef = collection(db, 'likes');
-      const q = query(likesRef, where('postId', '==', post.id));
-      const querySnapshot = await getDocs(q);
-      const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
-      await Promise.all(deletePromises);
-
-      // Удаляем все комментарии поста
-      const commentsRef = collection(db, 'comments');
-      const commentsQuery = query(commentsRef, where('postId', '==', post.id));
-      const commentsSnapshot = await getDocs(commentsQuery);
-      const deleteCommentsPromises = commentsSnapshot.docs.map(doc => deleteDoc(doc.ref));
-      await Promise.all(deleteCommentsPromises);
-
-      // Удаляем сам пост
-      await deleteDoc(doc(db, 'posts', post.id));
+      await postsApi.deletePost(post.id);
       if (onDelete) {
         onDelete(post.id);
       }
-    } catch (err) {
-      console.error('Error deleting post:', err);
-      alert('Ошибка при удалении поста');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Не удалось удалить пост. Пожалуйста, попробуйте позже.');
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [currentUserId, isAdmin, onDelete, post.authorId, post.id]);
 
   const getAuthorClassName = useCallback(() => {
     if (!userData) return 'author';

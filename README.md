@@ -1,6 +1,89 @@
-⭐ Сайт визитка книги "Цикл Душ"!
+# SoulCycle React App
 
-⭐ Ссылка на телеграм группу: [Присоединиться к группе](https://t.me/+yFsUa_nD88piNjg6)
+Приложение SoulCycle на React с интеграцией Firebase для аутентификации и API бэкенда для работы с данными.
+
+## О проекте
+
+SoulCycle - это социальная платформа, которая позволяет пользователям делиться контентом, общаться и участвовать в обсуждениях через посты и комментарии.
+
+## Технологии
+
+- **Frontend**: React 19, Vite, CSS
+- **Аутентификация**: Firebase Authentication
+- **State Management**: React Hooks и Context API
+- **Deployment**: GitHub Pages
+- **Backend API**: https://scapi-dj82ynavq-igors-projects-f86e1b8f.vercel.app
+
+## Миграция с Firestore на API
+
+Проект был мигрирован с прямого использования Firebase Firestore на взаимодействие через API backend. Основные изменения:
+
+1. Создан сервис `api.js` с методами для работы с постами, комментариями, лайками и пользователями
+2. Все прямые обращения к Firestore заменены на вызовы API
+3. Firebase Authentication по-прежнему используется на фронтенде для аутентификации
+4. Токены Firebase используются для аутентификации запросов к API
+
+## Настройка проекта
+
+### Переменные среды
+
+Создайте файл `.env` на основе `.env.example` и добавьте свои ключи Firebase:
+
+```
+VITE_FIREBASE_API_KEY=your_api_key_here
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+VITE_FIREBASE_PROJECT_ID=your_project_id_here
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+VITE_FIREBASE_APP_ID=your_app_id_here
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id_here
+VITE_API_URL=https://scapi-dj82ynavq-igors-projects-f86e1b8f.vercel.app
+```
+
+### Установка и запуск
+
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
+npm run dev
+
+# Сборка для продакшена
+npm run build
+
+# Деплой на GitHub Pages
+npm run deploy
+```
+
+## Структура API сервиса
+
+Сервис API предоставляет следующие методы:
+
+### Посты
+- `getPosts(options)` - получение списка постов с пагинацией и сортировкой
+- `getPost(postId)` - получение конкретного поста
+- `createPost(postData)` - создание нового поста
+- `updatePost(postId, postData)` - обновление поста
+- `deletePost(postId)` - удаление поста
+
+### Комментарии
+- `getComments(postId, options)` - получение комментариев к посту
+- `createComment(postId, content)` - создание комментария
+- `updateComment(postId, commentId, content)` - обновление комментария
+- `deleteComment(postId, commentId)` - удаление комментария
+
+### Лайки
+- `likePost(postId)` - поставить лайк посту
+- `unlikePost(postId)` - убрать лайк с поста
+- `isPostLiked(postId)` - проверить, лайкнул ли пользователь пост
+- `getPostLikers(postId, options)` - получить список пользователей, лайкнувших пост
+
+### Пользователи
+- `getUser(userId)` - получить данные пользователя
+- `getMe()` - получить данные текущего пользователя
+- `updateUser(userData)` - обновить данные пользователя
+- `syncUser()` - синхронизировать данные пользователя после входа
 
 ## Установка и запуск проекта
 

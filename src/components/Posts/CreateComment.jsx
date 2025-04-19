@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { collection, addDoc, doc, updateDoc, increment } from 'firebase/firestore';
-import { db, auth } from '../../firebase/config';
+import { auth } from '../../firebase/config';
+import { commentsApi } from '../../services/api';
 import './Posts.css';
 
 const CreateComment = ({ postId }) => {
@@ -25,24 +25,11 @@ const CreateComment = ({ postId }) => {
     setError('');
 
     try {
-      const commentData = {
-        postId,
-        content: content.trim(),
-        authorId: auth.currentUser.uid,
-        authorName: auth.currentUser.displayName || 'Аноним',
-        createdAt: new Date()
-      };
-
-      await addDoc(collection(db, 'comments'), commentData);
-
-      const postRef = doc(db, 'posts', postId);
-      await updateDoc(postRef, {
-        commentsCount: increment(1)
-      });
-
+      await commentsApi.createComment(postId, content.trim());
       setContent('');
     } catch (err) {
       setError('Ошибка при создании комментария');
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,23 +41,24 @@ const CreateComment = ({ postId }) => {
   }, [error]);
 
   return (
-    <form className="create-comment" onSubmit={handleSubmit}>
-      <textarea
-        value={content}
-        onChange={handleContentChange}
-        placeholder="Напишите комментарий..."
-        className="comment-input"
-        disabled={isSubmitting}
-      />
-      {error && <div className="error-message">{error}</div>}
-      <button 
-        type="submit" 
-        className="submit-button"
-        disabled={isSubmitting || !content.trim()}
-      >
-        {isSubmitting ? 'Отправка...' : 'Отправить'}
-      </button>
-    </form>
+    <div className="create-comment">
+      <form onSubmit={handleSubmit}>
+        <textarea
+          placeholder="Оставьте ваш комментарий..."
+          value={content}
+          onChange={handleContentChange}
+          disabled={isSubmitting}
+        />
+        {error && <div className="error-message">{error}</div>}
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className={isSubmitting ? 'submitting' : ''}
+        >
+          {isSubmitting ? 'Отправка...' : 'Отправить'}
+        </button>
+      </form>
+    </div>
   );
 };
 

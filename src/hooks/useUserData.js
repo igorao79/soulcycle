@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { usersApi } from '../services/api';
 
 const useUserData = (userId) => {
   const [userData, setUserData] = useState(null);
@@ -16,26 +15,29 @@ const useUserData = (userId) => {
 
     setLoading(true);
     
-    // Подписываемся на изменения документа пользователя
-    const unsubscribe = onSnapshot(
-      doc(db, 'users', userId),
-      (doc) => {
-        if (doc.exists()) {
-          setUserData(doc.data());
-        } else {
+    // Создаем абортконтроллер для возможности отмены запроса при размонтировании
+    const controller = new AbortController();
+    
+    const fetchUserData = async () => {
+      try {
+        const data = await usersApi.getUser(userId);
+        setUserData(data);
+        setError(null);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching user data:', err);
+          setError(err.message);
           setUserData(null);
         }
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Error fetching user data:', err);
-        setError(err.message);
+      } finally {
         setLoading(false);
       }
-    );
-
-    // Отписываемся при размонтировании компонента
-    return () => unsubscribe();
+    };
+    
+    fetchUserData();
+    
+    // Отмена запроса при размонтировании компонента
+    return () => controller.abort();
   }, [userId]);
 
   return { userData, loading, error };

@@ -1,8 +1,15 @@
 [
   {
-    "origin": ["http://localhost:5173", "http://localhost:3000"],
+    "origin": ["*", "https://igorao79.github.io"],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
     "maxAgeSeconds": 3600,
-    "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-resumable"]
+    "responseHeader": [
+      "Content-Type",
+      "Access-Control-Allow-Origin",
+      "X-Requested-With",
+      "Content-Length",
+      "Accept",
+      "Authorization"
+    ]
   }
 ] 

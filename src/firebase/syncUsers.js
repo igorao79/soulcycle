@@ -1,33 +1,15 @@
-import { auth, db } from './config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth } from './config';
 import { onAuthStateChanged } from 'firebase/auth';
+import { usersApi } from '../services/api';
 
-// Функция для создания/обновления записи пользователя в Firestore
+// Функция для синхронизации пользователя с API
 export const syncUserToFirestore = async (user) => {
   if (!user) return;
 
   try {
-    const userRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      // Создаем новую запись пользователя
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: user.displayName || '',
-        createdAt: new Date().toISOString(),
-        isAdmin: false,
-        isEarlyUser: false,
-        lastLogin: new Date().toISOString()
-      });
-    } else {
-      // Обновляем время последнего входа
-      await setDoc(userRef, {
-        lastLogin: new Date().toISOString()
-      }, { merge: true });
-    }
+    await usersApi.syncUser();
   } catch (error) {
-    console.error('Error syncing user to Firestore:', error);
+    console.error('Error syncing user to API:', error);
   }
 };
 

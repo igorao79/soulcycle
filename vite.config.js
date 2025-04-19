@@ -35,6 +35,7 @@ export default defineConfig({
     },
     headers: {
       'Cache-Control': 'no-cache, must-revalidate', // Изменено на более мягкое кэширование
+      'Access-Control-Allow-Origin': '*', // Разрешаем кросс-доменные запросы для разработки
     },
     watch: {
       ignored: ['**/node_modules/**', '**/.git/**'], // Игнорируем лишние файлы для ускорения Hot Module Replacement
@@ -84,4 +85,13 @@ export default defineConfig({
     cssCodeSplit: true, // Разделяем CSS для каждого компонента
     sourcemap: false, // Отключаем source maps для продакшн
   },
+  
+  // Настройки для правильной передачи заголовков CORS при развертывании на GitHub Pages
+  preview: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+    }
+  }
 });

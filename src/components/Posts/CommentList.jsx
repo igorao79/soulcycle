@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, increment, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 import { FaCrown, FaStar, FaTag, FaUser, FaEdit, FaTrash } from 'react-icons/fa';
 import './Posts.css';
+import { commentsApi, usersApi } from '../../services/api';
 
 const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) => {
   const [comments, setComments] = useState([]);
@@ -53,9 +52,7 @@ const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) =
     }
 
     try {
-      const userDocRef = doc(db, 'users', userId);
-      const userDocSnap = await getDoc(userDocRef);
-      const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+      const userData = await usersApi.getUser(userId);
       
       setUserDataCache(prev => ({
         ...prev,
@@ -69,6 +66,7 @@ const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) =
     }
   }, [userDataCache]);
 
+  // Загрузка комментариев
   useEffect(() => {
     if (!postId) {
       setLoading(false);
@@ -78,24 +76,18 @@ const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) =
     setLoading(true);
     setError('');
     
-    const commentsRef = collection(db, 'comments');
-    const q = query(
-      commentsRef,
-      where('postId', '==', postId)
-    );
-
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
+    const fetchComments = async () => {
       try {
-        const commentsData = [];
+        const commentsData = await commentsApi.getComments(postId, { orderBy: 'createdAt:desc' });
         
-        for (const commentDoc of snapshot.docs) {
-          const data = commentDoc.data();
-          const userData = await getUserData(data.authorId);
+        const enhancedComments = [];
+        
+        for (const comment of commentsData) {
+          const userData = await getUserData(comment.authorId);
           
-          commentsData.push({
-            id: commentDoc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate?.() || new Date(),
+          enhancedComments.push({
+            ...comment,
+            createdAt: comment.createdAt ? new Date(comment.createdAt) : new Date(),
             userData: {
               isAdmin: userData.isAdmin || false,
               isEarlyUser: userData.isEarlyUser || false,
@@ -104,12 +96,9 @@ const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) =
           });
         }
         
-        // Сортируем комментарии по дате создания после получения данных
-        commentsData.sort((a, b) => b.createdAt - a.createdAt);
-        
-        setComments(commentsData);
+        setComments(enhancedComments);
         if (onCommentCountChange) {
-          onCommentCountChange(commentsData.length);
+          onCommentCountChange(enhancedComments.length);
         }
         setError('');
         setRetryCount(0);
@@ -124,126 +113,126 @@ const CommentList = ({ postId, currentUserId, isAdmin, onCommentCountChange }) =
       } finally {
         setLoading(false);
       }
-    }, (error) => {
-      console.error('Error in comments snapshot:', error);
-      if (retryCount < MAX_RETRIES) {
-        setRetryCount(prev => prev + 1);
-        setError(`Ошибка при загрузке комментариев. Попытка ${retryCount + 1} из ${MAX_RETRIES}...`);
-      } else {
-        setError('Не удалось загрузить комментарии. Пожалуйста, обновите страницу.');
+    };
+    
+    fetchComments();
+  }, [postId, getUserData, onCommentCountChange, retryCount]);
+
+  // Обработчик удаления комментария
+  const handleDeleteComment = useCallback(async (commentId) => {
+    if (!currentUserId || (!isAdmin && comments.find(c => c.id === commentId)?.authorId !== currentUserId)) {
+      return;
+    }
+
+    try {
+      await commentsApi.deleteComment(postId, commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      if (onCommentCountChange) {
+        onCommentCountChange(comments.length - 1);
       }
-      setLoading(false);
-    });
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+    }
+  }, [comments, currentUserId, isAdmin, onCommentCountChange, postId]);
 
-    return () => unsubscribe();
-  }, [postId, onCommentCountChange, getUserData, retryCount]);
-
-  const handleEdit = useCallback((comment) => {
+  // Начало редактирования комментария
+  const handleStartEdit = useCallback((comment) => {
     setEditingComment(comment.id);
     setEditText(comment.content);
   }, []);
 
+  // Отмена редактирования
+  const handleCancelEdit = useCallback(() => {
+    setEditingComment(null);
+    setEditText('');
+  }, []);
+
+  // Сохранение отредактированного комментария
   const handleSaveEdit = useCallback(async (commentId) => {
+    if (!editText.trim()) return;
+
     try {
-      const commentRef = doc(db, 'comments', commentId);
-      await updateDoc(commentRef, {
-        content: editText,
-        editedAt: new Date()
-      });
+      await commentsApi.updateComment(postId, commentId, editText);
+      
+      setComments(prev => prev.map(c => 
+        c.id === commentId ? { ...c, content: editText } : c
+      ));
+      
       setEditingComment(null);
-    } catch (error) {
-      setError('Ошибка при обновлении комментария');
+      setEditText('');
+    } catch (err) {
+      console.error('Error updating comment:', err);
     }
-  }, [editText]);
+  }, [editText, postId]);
 
-  const handleDelete = useCallback(async (commentId) => {
-    try {
-      await deleteDoc(doc(db, 'comments', commentId));
-      const postRef = doc(db, 'posts', postId);
-      await updateDoc(postRef, {
-        commentsCount: increment(-1)
-      });
-    } catch (error) {
-      setError('Ошибка при удалении комментария');
-    }
-  }, [postId]);
+  if (loading) return <div className="loading-comments">Загрузка комментариев...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
-  const canModifyComment = useCallback((comment) => {
-    return currentUserId === comment.authorId || isAdmin;
-  }, [currentUserId, isAdmin]);
+  if (comments.length === 0) {
+    return <div className="no-comments">Пока нет комментариев. Будьте первым!</div>;
+  }
 
-  // Мемоизируем список комментариев
-  const commentsList = useMemo(() => (
+  return (
     <div className="comment-list">
-      {comments.length === 0 ? (
-        <p className="no-comments">Пока нет комментариев. Будьте первым!</p>
-      ) : (
-        comments.map(comment => (
-          <div key={comment.id} className="comment">
-            <div className="comment-header">
-              <span className={getAuthorClassName(comment.userData)}>
-                {getAuthorIcon(comment.userData)} {comment.authorName}
-              </span>
-              <div className="comment-actions">
-                <span className="date">{formatDate(comment.createdAt)}</span>
-                {canModifyComment(comment) && (
-                  <div className="comment-controls">
-                    <button 
-                      className="edit-button"
-                      onClick={() => handleEdit(comment)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button 
-                      className="delete-button"
-                      onClick={() => handleDelete(comment.id)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                )}
+      {comments.map(comment => (
+        <div key={comment.id} className="comment">
+          <div className="comment-header">
+            <div className={getAuthorClassName(comment.userData)}>
+              {getAuthorIcon(comment.userData)}
+              <span>{comment.authorName}</span>
+            </div>
+            <div className="comment-date">{formatDate(comment.createdAt)}</div>
+          </div>
+          
+          {editingComment === comment.id ? (
+            <div className="edit-comment">
+              <textarea 
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="edit-comment-input"
+              />
+              <div className="edit-actions">
+                <button 
+                  onClick={() => handleSaveEdit(comment.id)}
+                  disabled={!editText.trim()}
+                  className="save-btn"
+                >
+                  Сохранить
+                </button>
+                <button 
+                  onClick={handleCancelEdit}
+                  className="cancel-btn"
+                >
+                  Отмена
+                </button>
               </div>
             </div>
-            {editingComment === comment.id ? (
-              <div className="comment-edit">
-                <textarea
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="edit-textarea"
-                />
-                <div className="edit-actions">
-                  <button 
-                    className="save-button"
-                    onClick={() => handleSaveEdit(comment.id)}
-                  >
-                    Сохранить
-                  </button>
-                  <button 
-                    className="cancel-button"
-                    onClick={() => setEditingComment(null)}
-                  >
-                    Отмена
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="comment-content">
-                {comment.content}
-                {comment.editedAt && (
-                  <span className="edited-mark">(изменено)</span>
-                )}
-              </div>
-            )}
-          </div>
-        ))
-      )}
+          ) : (
+            <div className="comment-content">{comment.content}</div>
+          )}
+          
+          {(isAdmin || currentUserId === comment.authorId) && editingComment !== comment.id && (
+            <div className="comment-actions">
+              {currentUserId === comment.authorId && (
+                <button 
+                  onClick={() => handleStartEdit(comment)}
+                  className="edit-btn"
+                >
+                  <FaEdit /> Редактировать
+                </button>
+              )}
+              <button 
+                onClick={() => handleDeleteComment(comment.id)}
+                className="delete-btn"
+              >
+                <FaTrash /> Удалить
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
-  ), [comments, editingComment, editText, getAuthorClassName, getAuthorIcon, formatDate, canModifyComment, handleEdit, handleDelete, handleSaveEdit]);
-
-  if (loading) return <div className="loading">Загрузка комментариев...</div>;
-  if (error) return <div className="error">{error}</div>;
-
-  return commentsList;
+  );
 };
 
 export default CommentList; 

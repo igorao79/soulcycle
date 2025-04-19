@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 import Post from './Post';
 import './Posts.css';
+import { postsApi } from '../../services/api';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -10,23 +9,28 @@ const PostList = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate()
-      }));
-      setPosts(postsData);
-      setLoading(false);
-    }, (err) => {
-      setError('Ошибка при загрузке постов');
-      console.error(err);
-      setLoading(false);
-    });
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const postsData = await postsApi.getPosts({ orderBy: 'createdAt:desc' });
+        
+        // Преобразуем даты из строк в объекты Date
+        const formattedPosts = postsData.map(post => ({
+          ...post,
+          createdAt: post.createdAt ? new Date(post.createdAt) : null
+        }));
+        
+        setPosts(formattedPosts);
+        setError('');
+      } catch (err) {
+        setError('Ошибка при загрузке постов');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchPosts();
   }, []);
 
   if (loading) return <div className="loading">Загрузка постов...</div>;

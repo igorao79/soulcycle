@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { usersApi } from '../services/api';
 
 const useUserRole = (userId) => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -13,24 +12,20 @@ const useUserRole = (userId) => {
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      doc(db, 'users', userId),
-      (doc) => {
-        if (doc.exists()) {
-          setIsAdmin(doc.data().isAdmin === true);
-        } else {
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      },
-      (error) => {
+    const fetchUserRole = async () => {
+      try {
+        setLoading(true);
+        const userData = await usersApi.getUser(userId);
+        setIsAdmin(userData?.isAdmin === true);
+      } catch (error) {
         console.error('Error checking user role:', error);
         setIsAdmin(false);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    return () => unsubscribe();
+    fetchUserRole();
   }, [userId]);
 
   return { isAdmin, loading };
