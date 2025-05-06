@@ -1,0 +1,60 @@
+/* 
+* Этот файл содержит только специфичные переменные для тем,
+* которые не определены в App.module.css.
+* Основные CSS-переменные определены в App.module.css
+*/
+
+:root {
+  /* Light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f7;
+  --bg-hover: #f0f0f0;
+  --text-primary: #222222;
+  --text-secondary: #555555;
+  --border-color: #dddddd;
+  --accent-rgb: 32, 178, 170;
+  --accent: lightseagreen;
+  --accent-dark: #1a9e94;
+  --bg-input: #f8f8f8;
+
+  /* Modal specific variables */
+  --modal-bg: #ffffff;
+  --modal-border: rgba(0, 0, 0, 0.15);
+  --modal-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+  /* Дополнительные переменные для анимации */
+  --modal-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  
+  /* Дополнительные цвета для меток перков */
+  --sponsor-color: #f28c18;
+  --sponsor-shadow-color: rgba(242, 140, 24, 0.3);
+  --early-user-color: #2cc0d9;
+  --early-user-shadow-color: rgba(44, 192, 217, 0.3);
+  --admin-color: #e91e63;
+  --admin-shadow-color: rgba(233, 30, 99, 0.3);
+}
+
+[data-theme="dark"] {
+  /* Dark theme */
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2a2a2a;
+  --bg-hover: #333333;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #444444;
+  --accent-rgb: 187, 134, 252;
+  --accent: #bb86fc;
+  --accent-dark: #9d5cff;
+  --bg-input: #333333;
+
+  /* Modal specific variables */
+  --modal-bg: #2a2a2a;
+  --modal-border: rgba(255, 255, 255, 0.15);
+  --modal-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  /* Переопределяем только то, что меняется */
+  --modal-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  
+  /* RGB значения для dark theme */
+  --accent-rgb: 187, 134, 252;
+} 

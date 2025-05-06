@@ -1,0 +1,152 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 5px; /* Добавьте отступы для создания пространства */
+
+  &__content {
+      background-color: var(--background-color); /* Используем переменную */
+      color: var(--text-color); /* Цвет текста */
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 1100px;
+      width: 100%;
+      position: relative;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column; // Убедитесь, что элементы располагаются вертикально
+      align-items: center;
+      border: 2px solid var(--border-color); /* Используем переменную */
+  }
+
+  &__closeButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: 0.4s ease;
+      fill: var(--text-color);
+
+      &:hover {
+          fill: red;
+      }
+  }
+
+  &__textContent { // Исправлено название
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+  }
+
+  &__navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+  }
+
+  &__arrowRight,
+  &__arrowLeft {
+      position: absolute;
+      bottom: 2%;
+      font-size: 3rem;
+      background: none;
+      fill: var(--text-color); /* Цвет стрелок */
+  }
+
+  &__arrowRight {
+      right: 2%;
+  }
+
+  &__arrowLeft {
+      left: 2%;
+  }
+
+  &__title {
+      text-transform: uppercase;
+      font-size: 2rem;
+      color: var(--text-color); /* Цвет заголовка */
+      position: relative;
+
+      &::after {
+          content: "";
+          display: block;
+          width: 100%;
+          height: 4px;
+          background: var(--border-color); /* Используем переменную */
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          transform: scaleX(0);
+          animation: appear 0.5s forwards;
+          animation-delay: 0.2s; // Задержка перед началом анимации
+      }
+  }
+
+  &__textBlock {
+      min-height: 500px;
+
+      &__textCont {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          font-size: 1.65rem;
+          line-height: 110%;
+          color: var(--text-color); /* Цвет текста */
+          transition: opacity 0.3s ease-in-out;
+
+          span {
+              filter: blur(4px);
+          }
+
+          blockquote {
+              color: var(--accent-color); /* Используем переменную */
+          }
+      }
+  }
+
+  &__pageIndicator {
+      font-size: 1.5rem;
+      color: var(--text-color); /* Цвет индикатора страницы */
+      position: absolute;
+      bottom: 3%;
+  }
+}
+
+@keyframes appear {
+  to {
+      transform: scaleX(1); // Конечное состояние - полоска видима
+  }
+}
+
+.fadeIn {
+  opacity: 1;
+}
+
+.fadeOut {
+  opacity: 0;
+}
+
+.disabled {
+  fill: darkgray;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@media only screen and (max-width: 760px) {
+  .modalOverlay {
+      &__textContent {
+          min-height: 650px;
+      }
+  }
+}

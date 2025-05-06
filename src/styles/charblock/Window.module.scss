@@ -1,0 +1,106 @@
+.window {
+    height: 75vh;
+    position: relative;
+    background-color: var(--background-color); /* Используем переменную */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    transition: width 0.3s, height 0.3s; /* Анимация для размера */
+    z-index: 1 !important;
+
+    &__message {
+        position: absolute;
+        left: 35%;
+        top: 50%;
+        text-transform: uppercase;
+        color: var(--text-color); /* Цвет текста */
+
+        & h2 {
+            font-size: clamp(3rem, 3vw, 3rem);
+        }
+
+    }
+
+    &__panel {
+        position: absolute;
+        min-height: 80vh;
+        max-width: 200px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 2px solid var(--border-color); /* Используем переменную */
+        z-index: 5 !important;
+        background-color: var(--background-color); /* Фон панели */
+
+        &__iconWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            z-index: 5 !important;
+        }
+
+        &__navButtons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 5 !important;
+
+            &__navButton {
+                background: none;
+                border: none;
+                color: var(--text-color); /* Цвет текста кнопок */
+                z-index: 5 !important;
+
+                &__arrow {
+                    background: none;
+                    border: none;
+                    fill: var(--text-color);
+                    z-index: 5 !important;
+                }
+            }
+        }
+    }
+
+    &__message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.disabled {
+    fill: darkgray;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@media only screen and (max-width: 760px) {
+    .window {
+        top: -20px;
+        flex-direction: column;
+        max-width: 93%;
+        height: 85vh;
+
+        &__panel {
+            position: absolute;
+            rotate: 90deg;
+            gap: 20px;
+            top: -42.5%;
+
+            &__iconWrapper {
+                gap: 10px;
+            }
+
+            &__navButtons {
+                gap: 10px;
+            }
+        }
+
+        &__message {
+            left: 5%;
+            font-size: 2.5rem;
+        }
+    }
+}

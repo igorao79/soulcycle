@@ -1,0 +1,98 @@
+.aboutblock {
+    max-width: 100%;
+    min-height: 500px;
+    background-color: var(--background-color); /* Используем переменную */
+    color: var(--text-color); /* Цвет текста */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+    border-radius: 5px;
+    padding: 2% 2%;
+
+    
+    &__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        
+
+        &__htitle {
+            font-family: 'graphb';
+            font-size: clamp(2rem, 2vw, 3rem);
+            color: var(--text-color); /* Цвет заголовка */
+        }
+
+        &__textblock {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.4rem, 0.9vw, 3rem);
+            position: relative;
+            color: var(--text-color); /* Цвет текста */
+
+            &__text {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+
+                &__icon {
+                    transform: translateY(-5px);
+
+                    &__main {
+                        animation: wiggle 1.5s infinite ease-in-out;
+                        transform-origin: center;
+                    }
+                    &__small {
+                        animation: float 2s infinite ease-in-out;
+                        transform-origin: center;
+                    }
+                }
+            }
+        }
+    }
+
+    &__main {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+
+        &__btitle,
+        &__dtitle {
+            font-family: 'graphb';
+            font-size: clamp(2rem, 2vw, 3rem);
+            color: var(--text-color); /* Цвет заголовков */
+        }
+
+        &__authors,
+        &__developers {
+            width: 100%;
+            display: flex;
+            gap: 10%;
+            border: 1px solid var(--border-color); /* Используем переменную для границы */
+            background-color: var(--background-color); /* Фон для блоков */
+            color: var(--text-color); /* Цвет текста */
+        }
+    }
+}
+
+/* Анимации остаются без изменений */
+@keyframes float {
+    0%, 100% { transform: translate(0px, 0px); }
+    50% { transform: translate(2px, -2px); } /* Двигаем звезду */
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(2deg); } /* Подергивание фигуры */
+}

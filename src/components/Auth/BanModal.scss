@@ -1,0 +1,242 @@
+.ban-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  backdrop-filter: blur(4px);
+  
+  [data-theme="dark"] & {
+    background-color: rgba(0, 0, 0, 0.75);
+  }
+}
+
+.ban-modal {
+  background-color: var(--background-color, white);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  width: 90%;
+  max-width: 480px;
+  overflow: hidden;
+  
+  [data-theme="dark"] & {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.ban-modal-header {
+  background-color: #e74c3c;
+  color: white;
+  padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  h2 {
+    margin: 15px 0 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .ban-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 6px;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  .ban-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    
+    .ban-icon {
+      color: #e74c3c;
+      font-size: 30px;
+    }
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #c0392b;
+  }
+}
+
+.ban-modal-content {
+  padding: 25px;
+  
+  [data-theme="dark"] & {
+    color: var(--text-primary, #e0e0e0);
+  }
+}
+
+.ban-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 25px;
+  
+  .ban-reason, .ban-admin, .ban-time {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    
+    .ban-detail-icon {
+      font-size: 22px;
+      color: #e74c3c;
+      flex-shrink: 0;
+      margin-top: 3px;
+      
+      [data-theme="dark"] & {
+        color: #e67e22;
+      }
+    }
+    
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary, #666);
+      
+      [data-theme="dark"] & {
+        color: #aaa;
+      }
+    }
+    
+    p {
+      margin: 0;
+      padding: 10px 15px;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-primary, #333);
+      
+      [data-theme="dark"] & {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+      
+      &.ban-permanent {
+        color: #c0392b;
+        font-weight: 600;
+        
+        [data-theme="dark"] & {
+          color: #e74c3c;
+        }
+      }
+      
+      &.ban-short {
+        color: #27ae60;
+        
+        [data-theme="dark"] & {
+          color: #2ecc71;
+        }
+      }
+      
+      &.ban-medium {
+        color: #f39c12;
+        
+        [data-theme="dark"] & {
+          color: #f1c40f;
+        }
+      }
+      
+      &.ban-long {
+        color: #e67e22;
+        
+        [data-theme="dark"] & {
+          color: #e74c3c;
+        }
+      }
+    }
+  }
+}
+
+.ban-message {
+  padding: 15px;
+  background-color: rgba(231, 76, 60, 0.07);
+  border-radius: 6px;
+  border-left: 3px solid #e74c3c;
+  margin-bottom: 25px;
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary, #666);
+    
+    [data-theme="dark"] & {
+      color: #bbb;
+    }
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(231, 76, 60, 0.15);
+    border-color: #c0392b;
+  }
+}
+
+.ban-ok-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #c0392b;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #c0392b;
+    
+    &:hover {
+      background-color: #a93226;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ban-modal {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .ban-modal-header h2 {
+    font-size: 20px;
+  }
+  
+  .ban-details {
+    gap: 15px;
+  }
+} 

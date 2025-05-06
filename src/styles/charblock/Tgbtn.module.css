@@ -1,0 +1,67 @@
+.button {
+    font-family: 'graphb';
+    background: var(--text-color);
+    color: var(--background-color);
+    padding: 0.35em 0;
+    font-size: 20px;
+    border: none;
+    border-radius: 0.7em;
+    letter-spacing: 0.08em;
+    position: relative;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 2.5em;
+    padding-left: 2.8em;
+    padding-right: 0.92em;
+    z-index: 1;
+  }
+
+  .button .icon {
+    background: var(--background-color);
+    height: 2em;
+    width: 2em;
+    border-radius: 2em;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0.4em;
+    transition: all 0.5s;
+  }
+
+  .icon svg {
+    margin-left: 0.1em;
+    transition: all 0.5s;
+    color: var(--text-color);
+    width: 2.5rem;
+    height: 2.5rem;
+    position: absolute;
+    right: 18%;
+  }
+
+  .button:hover .icon svg {
+    transform: rotate(360deg);
+    right: 40%;
+  }
+
+  .button:hover .icon {
+    width: calc(100% - 1.5rem);
+    border-radius: 0.5em;
+  }
+
+  @media only screen and (max-width: 760px) {
+    .button {
+      left: -8%;
+      top: 94%;
+      scale: 0.6;
+    }
+  }
+
+  @media (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
+    .button {
+      left: 76%;
+      top: 93%;
+    }
+  }

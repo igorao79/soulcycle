@@ -1,0 +1,1557 @@
+// Импортируем централизованные стили перков
+@import '../../styles/Perks.module.scss';
+
+.profileContainer {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  
+  @media (max-width: 600px) {
+    padding: 20px 15px;
+  }
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.error {
+  color: var(--error);
+}
+
+.profileHeader {
+  display: flex;
+  margin-bottom: 40px;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.avatarContainer {
+  position: relative;
+  margin-right: 40px;
+  
+  @media (max-width: 600px) {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+.avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid var(--accent);
+}
+
+.changeAvatarButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: var(--accent);
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.displayName {
+  font-size: 2rem !important;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  
+  @media (max-width: 600px) {
+    font-size: 1.75rem !important;
+    text-align: center;
+  }
+}
+
+.userMeta {
+  display: grid;
+  gap: 15px;
+  
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+.userRole, .userJoined, .userEmail, .userPrivileges {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+.label {
+  min-width: 170px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  
+  @media (max-width: 600px) {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+.value {
+  color: var(--text-primary);
+  font-weight: 500;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.privilegeContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+// Используем стили перков из централизованного модуля
+// Классы .sponsorPerk, .earlyUserPerk и .adminPerk уже импортированы
+
+.changePerkButton {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: var(--accent-dark);
+  }
+}
+
+.adminActions, .personalSettings {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.adminActions h2, .personalSettings h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.adminActions h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  svg {
+    color: var(--accent);
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.editButton, .banButton, .saveButton, .cancelButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.editButton {
+  background-color: var(--accent);
+  color: white;
+}
+
+.banButton {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.saveButton {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.cancelButton {
+  background-color: #f1f1f1;
+  color: #333;
+  
+  [data-theme="dark"] & {
+    background-color: #333;
+    color: #f1f1f1;
+  }
+}
+
+.settingGroup {
+  margin-bottom: 15px;
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+  }
+}
+
+.settingControl {
+  display: flex;
+  gap: 10px;
+  
+  input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
+
+/* Модальные окна */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  
+  @media (max-width: 500px) {
+    padding: 10px;
+    align-items: flex-end;
+  }
+}
+
+.modalContent {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 28px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  transform-origin: center;
+  animation: modalAppear 0.3s ease-out;
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  
+  // Добавляем лучшую видимость для темной темы
+  [data-theme="dark"] & {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (max-width: 500px) {
+    max-height: 85vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: 600;
+  }
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Улучшенная сетка аватаров */
+.avatarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.avatarOption {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  filter: brightness(0.9);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-5px) scale(1.08);
+    filter: brightness(1.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  }
+  
+  &.selected {
+    border-color: var(--accent);
+    filter: brightness(1.2);
+    box-shadow: 0 0 0 3px var(--accent), 0 8px 25px rgba(0, 0, 0, 0.25);
+  }
+  
+  // Улучшенная видимость в темной теме
+  [data-theme="dark"] & {
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    
+    &:hover, &.selected {
+      border-color: white;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
+    
+    &.selected {
+      border-color: white;
+      box-shadow: 0 0 0 3px white, 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+  }
+}
+
+.closeButton {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.3);
+  
+  &:hover {
+    background-color: var(--accent-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(var(--accent-rgb), 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.3);
+  }
+}
+
+/* Улучшенные стили для выбора перков */
+.perksList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.perkItem {
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--bg-primary);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    
+    &::before {
+      background-color: var(--accent);
+    }
+  }
+  
+  &.activePerk {
+    border-color: var(--accent);
+    background-color: rgba(var(--accent-rgb), 0.08);
+    
+    &::before {
+      background-color: var(--accent);
+    }
+  }
+}
+
+.perkName {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  
+  &.sponsorPerk {
+    color: var(--sponsor-color) !important;
+    text-shadow: 0 0 5px var(--sponsor-shadow-color);
+  }
+  
+  &.earlyUserPerk {
+    color: var(--early-user-color) !important;
+    text-shadow: 0 0 5px var(--early-user-shadow-color);
+  }
+  
+  &.adminPerk {
+    color: var(--admin-color) !important;
+    text-shadow: 0 0 5px var(--admin-shadow-color);
+  }
+}
+
+.perkDescription {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.modalFooter {
+  text-align: center;
+  margin-top: 10px;
+}
+
+// Стили для модальных форм
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    label {
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+    
+    .formControl {
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border-color);
+      background-color: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 16px;
+      transition: all 0.3s;
+      width: 100%;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.2);
+        background-color: var(--bg-secondary);
+      }
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 20px;
+    
+    button {
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 16px;
+      transition: all 0.3s;
+      cursor: pointer;
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+    
+    .cancelButton {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      
+      &:hover:not(:disabled) {
+        background-color: var(--bg-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+    }
+    
+    .submitButton {
+      background-color: var(--accent);
+      border: none;
+      color: white;
+      box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.3);
+      
+      &:hover:not(:disabled) {
+        background-color: var(--accent-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(var(--accent-rgb), 0.4);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(var(--accent-rgb), 0.3);
+      }
+    }
+  }
+}
+
+// Стили для заголовка модального окна
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid rgba(var(--accent-rgb), 0.1);
+  
+  h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+    text-align: left;
+  }
+  
+  .closeButton {
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin: 0;
+    width: auto;
+    box-shadow: none;
+    
+    &:hover {
+      background-color: rgba(var(--accent-rgb), 0.1);
+      color: var(--accent);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// Стили для сообщений об ошибке и успехе
+.errorMessage, .successMessage {
+  padding: 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.errorMessage {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: rgb(220, 38, 38);
+}
+
+.successMessage {
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: rgb(22, 163, 74);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Добавим дополнительную анимацию для модальных окон
+.modalMotion {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Стили для индикатора сложности пароля
+.passwordStrength {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.passwordStrengthInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.passwordStrengthText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.passwordStrengthPercentage {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.passwordStrengthBar {
+  height: 6px;
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.passwordStrengthFill {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 3px;
+  transition: width 0.3s ease-out;
+}
+
+// Улучшенные кнопки для форм
+.formActions {
+  .submitButton {
+    min-width: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    span {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+}
+
+// Улучшаем анимацию успешного сообщения
+.successMessage {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  
+  svg {
+    font-size: 45px;
+    color: rgb(22, 163, 74);
+    background: rgba(34, 197, 94, 0.2);
+    padding: 18px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+    
+    // Улучшаем видимость в темном режиме
+    [data-theme="dark"] & {
+      color: rgb(34, 197, 94);
+      background: rgba(22, 163, 74, 0.25);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.4), 0 5px 15px rgba(34, 197, 94, 0.4);
+    }
+  }
+  
+  span {
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text-primary);
+  }
+}
+
+/* Стили для аватара и модального окна выбора аватара */
+
+.avatarWrapper {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--accent-rgb), 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.avatarHint {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-top: 20px;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 0 15px;
+  
+  &:before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background-color: rgba(var(--accent-rgb), 0.3);
+    margin: 0 auto 15px;
+  }
+}
+
+.adminEditForm {
+  background-color: var(--bg-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+}
+
+.blockLabel {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formInput, .formSelect {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.1);
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    margin-top: 3px;
+    cursor: pointer;
+    
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+}
+
+.checkboxText {
+  display: flex;
+  flex-direction: column;
+}
+
+.statusMessage {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  &.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border-left: 3px solid #e74c3c;
+  }
+  
+  &.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border-left: 3px solid #2ecc71;
+  }
+  
+  &.info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border-left: 3px solid #3498db;
+  }
+  
+  svg {
+    font-size: 18px;
+  }
+}
+
+.loadingIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.adminActions {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  
+  [data-theme="dark"] & {
+    background-color: #292929;
+    border-color: #333;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    [data-theme="dark"] & {
+      color: #e0e0e0;
+    }
+    
+    svg {
+      color: #666;
+      
+      [data-theme="dark"] & {
+        color: #999;
+      }
+    }
+  }
+  
+  .actionButtons {
+    display: flex;
+    gap: 10px;
+    
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      
+      svg {
+        font-size: 1rem;
+      }
+      
+      &.editButton {
+        background-color: #3498db;
+        color: white;
+        
+        &:hover {
+          background-color: #2980b9;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] & {
+          background-color: #2980b9;
+          
+          &:hover {
+            background-color: #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+          }
+        }
+      }
+      
+      &.banButton {
+        background-color: #e74c3c;
+        color: white;
+        
+        &:hover {
+          background-color: #c0392b;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] & {
+          background-color: #c0392b;
+          
+          &:hover {
+            background-color: #e74c3c;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+          }
+        }
+      }
+    }
+  }
+}
+
+.adminEditForm {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin-top: 1rem;
+  
+  [data-theme="dark"] & {
+    background-color: #252530;
+    border-color: #333;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.25rem;
+    
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      [data-theme="dark"] & {
+        color: #ccc;
+      }
+      
+      svg {
+        color: #666;
+        
+        [data-theme="dark"] & {
+          color: #999;
+        }
+      }
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+      
+      [data-theme="dark"] & {
+        background-color: #1e1e24;
+        border-color: #444;
+        color: #e0e0e0;
+        
+        &:focus {
+          border-color: #3498db;
+          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+      }
+    }
+  }
+  
+  .perksOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    
+    [data-theme="dark"] & {
+      background-color: #1e1e24;
+      border-color: #333;
+    }
+  }
+  
+  .perkOption {
+    display: flex;
+    align-items: center;
+    
+    label {
+      margin: 0 0 0 0.75rem;
+      font-weight: normal;
+      cursor: pointer;
+      font-size: 0.95rem;
+      
+      [data-theme="dark"] & {
+        color: #ccc;
+      }
+    }
+    
+    input[type="checkbox"] {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      
+      &:checked {
+        accent-color: #3498db;
+      }
+    }
+  }
+  
+  .basePerk {
+    background-color: rgba(52, 152, 219, 0.05);
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+    
+    [data-theme="dark"] & {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+    
+    .baseLabel {
+      font-weight: 500;
+      
+      .baseNote {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        font-style: italic;
+        margin-left: 5px;
+      }
+    }
+  }
+  
+  .selectPerk {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fff;
+    
+    &:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    [data-theme="dark"] & {
+      background-color: #1e1e24;
+      border-color: #444;
+      color: #e0e0e0;
+      
+      &:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+      }
+      
+      option {
+        background-color: #1e1e24;
+      }
+    }
+  }
+  
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  .cancelButton,
+  .saveButton {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  
+  .cancelButton {
+    background-color: #f0f0f0;
+    border: none;
+    color: #333;
+    
+    &:hover {
+      background-color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] & {
+      background-color: #3a3a3a;
+      color: #ddd;
+      
+      &:hover {
+        background-color: #444;
+      }
+    }
+  }
+  
+  .saveButton {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: #2980b9;
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    [data-theme="dark"] & {
+      background-color: #2980b9;
+      
+      &:hover:not(:disabled) {
+        background-color: #3498db;
+      }
+    }
+  }
+}
+
+.statusMessage {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  svg {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  
+  &.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 3px solid #2ecc71;
+    color: #2ecc71;
+    
+    [data-theme="dark"] & {
+      background-color: rgba(46, 204, 113, 0.15);
+    }
+  }
+  
+  &.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 3px solid #e74c3c;
+    color: #e74c3c;
+    
+    [data-theme="dark"] & {
+      background-color: rgba(231, 76, 60, 0.15);
+    }
+  }
+  
+  &.info {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 3px solid #3498db;
+    color: #3498db;
+    
+    [data-theme="dark"] & {
+      background-color: rgba(52, 152, 219, 0.15);
+    }
+  }
+}
+
+// Styles for ban-related UI elements
+.banInfoBox {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid #e74c3c;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+  
+  h3 {
+    color: #e74c3c;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    
+    &:before {
+      content: '⚠️';
+      margin-right: 8px;
+    }
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(231, 76, 60, 0.2);
+    border-color: #c0392b;
+    
+    h3 {
+      color: #e67e22;
+    }
+  }
+}
+
+.banDetails {
+  margin-bottom: 15px;
+  
+  p {
+    margin: 8px 0;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  
+  .bannedStatus {
+    display: inline-block;
+    background-color: #e74c3c;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    
+    [data-theme="dark"] & {
+      background-color: #c0392b;
+    }
+  }
+  
+  .banDuration {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-primary);
+    
+    svg {
+      color: #e74c3c;
+    }
+  }
+}
+
+.unbanButton {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #2ecc71;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #219653;
+    
+    &:hover {
+      background-color: #27ae60;
+    }
+  }
+}
+
+.banButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #c0392b;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #c0392b;
+    
+    &:hover {
+      background-color: #a93226;
+    }
+  }
+}
+
+// Modal dialog styles for ban functionality
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+.banDialog {
+  background-color: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  overflow: hidden;
+  
+  [data-theme="dark"] & {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.banDialogHeader {
+  background-color: #e74c3c;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #c0392b;
+  }
+}
+
+.banDialogContent {
+  padding: 20px;
+  
+  .formGroup {
+    margin-bottom: 20px;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color, #e1e4e8);
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: var(--input-bg, white);
+      color: var(--text-primary);
+      
+      &:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+      
+      [data-theme="dark"] & {
+        border-color: #444;
+        background-color: #333;
+      }
+    }
+  }
+  
+  [data-theme="dark"] & {
+    color: var(--text-primary);
+  }
+}
+
+.banDialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  
+  .cancelButton {
+    background-color: #eeeeee;
+    color: #333333;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #dddddd;
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    [data-theme="dark"] & {
+      background-color: #444444;
+      color: #eeeeee;
+      
+      &:hover {
+        background-color: #555555;
+      }
+    }
+  }
+} 

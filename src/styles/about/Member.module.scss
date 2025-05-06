@@ -1,0 +1,251 @@
+.member {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 300px;
+    min-height: 80px;
+    overflow: hidden;
+    background-color: var(--background-color2);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    &__imageWrapper {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        overflow: hidden;
+        border-radius: 50%;
+        background: var(--background-color2);
+    }
+
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 5px;
+        flex: 1;
+        padding-left: 20px;
+
+        &__details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            &__name {
+                font-size: 1.4rem;
+                margin: 0;
+                color: var(--text-color);
+                position: relative;
+                display: inline-block;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                width: fit-content;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 1px;
+                    background: var(--text-color);
+                    transform: scaleX(0);
+                    transform-origin: right;
+                    transition: transform 0.3s ease;
+                }
+
+                &:hover::after {
+                    transform: scaleX(1);
+                    transform-origin: left;
+                }
+            }
+
+            &__role {
+                font-size: 1.2rem;
+                color: var(--text-color);
+                opacity: 0.8;
+                font-style: italic;
+            }
+        }
+
+        &__bio {
+            font-size: 1.4rem;
+            color: var(--text-color);
+        }
+    }
+
+    &--igor {
+        &::before {
+            content: '✧';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            animation: rotate 4s linear infinite;
+        }
+
+
+    }
+
+    &--lesya {
+        &::before {
+            content: '♥';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            animation: float 2s infinite;
+        }
+
+    }
+}
+
+/* Тёмная тема */
+:global(.dark) {
+    .member {
+        background-color: var(--background-color2);
+        border-color: var(--border-color);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        }
+}
+
+
+/* Адаптив для мобильных устройств */
+@media (max-width: 768px) {
+    .member {
+        padding: 15px;
+        min-height: 70px;
+        max-width: 100%;
+
+        &__imageWrapper {
+            width: 50px;
+            height: 50px;
+        }
+
+        &__info {
+            padding-left: 15px;
+
+            &__details {
+                &__name {
+                    font-size: 1.2rem;
+                }
+
+                &__role {
+                    font-size: 1rem;
+                }
+            }
+
+            &__bio {
+                font-size: 1.2rem;
+            }
+        }
+
+        &--igor::before,
+        &--lesya::before {
+            font-size: 1.3rem;
+            top: 8px;
+            right: 8px;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .member {
+        padding: 12px;
+        min-height: 60px;
+
+        &__imageWrapper {
+            width: 45px;
+            height: 45px;
+        }
+
+        &__info {
+            padding-left: 12px;
+
+            &__details {
+                &__name {
+                    font-size: 1.1rem;
+                }
+
+                &__role {
+                    font-size: 0.9rem;
+                }
+            }
+
+            &__bio {
+                font-size: 1.1rem;
+            }
+        }
+
+        &--igor::before,
+        &--lesya::before {
+            font-size: 1.2rem;
+            top: 6px;
+            right: 6px;
+        }
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+@keyframes borderRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+

@@ -1,0 +1,232 @@
+.menu {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7%;
+    background-color: #FFFEFE;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+
+    &__left {
+        max-width: 500px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        gap: 100px;
+        align-items: center;
+        justify-content: center;
+        
+        // Добавляем aspect-ratio для стабильных размеров
+        aspect-ratio: 1 / 1;  // Например, если предполагаемые пропорции таковы
+    
+        &__pic {
+            max-width: 500px;
+            min-height: 70px;
+    
+            // Устанавливаем явные размеры или aspect-ratio для стабильности
+            aspect-ratio: 1 / 1;
+    
+            & img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;  // Убирает возможные отступы от inline-элемента
+            }
+        }
+    }
+    
+
+    &__right {
+        max-width: 500px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        padding: 20px 80px;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border-radius: 10px;
+        border: 2px solid black;
+        
+        [data-theme="dark"] & {
+            background-color: black;
+            border: 2px solid white;
+        }
+
+        &__titleblock {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            align-items: center;
+            justify-content: center;
+
+            &__fullname {
+                font-size: 2rem;
+            }
+
+            &__maininfo {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                gap: 10px;
+            }
+
+        }
+
+        &__lore {
+            font-size: 1.6rem;
+            max-width: 120px;
+            min-height: 30px;
+            padding: 20px 10px;
+        }
+
+    }
+
+}
+
+.menu[id="faust"] {
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; /* Установите верхнюю границу */
+        left: 0; /* Установите левую границу */
+        width: 100%;
+        height: 100%;
+        background-image: url('/pics/char/backgrounds/faustb.svg'); /* Убедитесь, что путь правильный */
+        z-index: -1; /* Убедитесь, что z-index достаточный */
+        filter: blur(2.5px);
+        
+    }
+
+    [data-theme="dark"] &::before {
+        background-image: url('/pics/char/backgrounds/faustb-black.svg'); /* Темная тема */
+    }
+    
+}
+
+.menu[id="lonarius"] {
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('/pics/char/backgrounds/lonariusb.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover; // Сохраняем пропорции
+        z-index: -1;
+        filter: blur(1.5px);
+    }
+
+    [data-theme="dark"] &::before {
+        background-image: url('/pics/char/backgrounds/lonariusb-black.svg'); /* Темная тема */
+        background-size: cover; // Сохраняем пропорции
+    }
+}
+.menu[id="vivian"] {
+    
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('/pics/char/backgrounds/vivianb.svg');
+        z-index: -1;
+        filter: blur(1.5px);
+    }
+
+    [data-theme="dark"] &::before {
+        content: '';
+        background-image: url('/pics/char/backgrounds/vivianb-black.svg'); /* Темная тема */
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        filter: blur(1.5px);
+    }
+
+}
+.menu[id="akito"] {
+    
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('/pics/char/backgrounds/akitob2.svg');
+        background-color: white;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover; // Сохраняем пропорции
+        z-index: -1;
+        filter: blur(1.5px);
+    }
+
+    [data-theme="dark"] &::before {
+        content: '';
+        background-image: url('/pics/char/backgrounds/akitob2.svg'); /* Темная тема */
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        filter: blur(1.5px);
+    }
+
+}
+
+
+@media only screen and (max-width: 760px) {
+    .menu {
+        flex-direction: column;
+        gap: 50px;
+        // background-color: red;
+
+        &__left {
+            max-width: 320px !important;
+            padding-top: 40px;
+        }
+
+        &__right {
+            max-width: 300px !important;
+            padding: 20px 20px;
+            gap: 20px;
+
+            &__titleblock {
+                gap: 20px;
+            }
+
+        }
+
+    }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
+    .menu {
+        flex-direction: column;
+
+        &__left {
+            max-width: 500px !important;
+            padding-top: 40px;
+            padding-left: 3%;
+        }
+
+        &__right {
+            max-width: 350px !important;
+            padding: 20px 40px;
+            gap: 20px;
+
+            &__titleblock {
+                gap: 20px;
+            }
+
+        }
+
+    }
+}

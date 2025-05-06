@@ -1,0 +1,73 @@
+/* Централизованные стили для перков пользователей */
+
+// Переменные цветов для перков - единые для всех тем и не меняются
+:root {
+  // Спонсор - золотой/желтый
+  --sponsor-color: #ffcf4a;
+  --sponsor-color-rgb: 255, 207, 74;
+  --sponsor-shadow-color: rgba(255, 207, 74, 0.5);
+  
+  // Ранний пользователь - голубой
+  --early-user-color: #8bc9e3;
+  --early-user-color-rgb: 139, 201, 227;
+  --early-user-shadow-color: rgba(139, 201, 227, 0.5);
+  
+  // Администратор - красный
+  --admin-color: #ff6b6b;
+  --admin-color-rgb: 255, 107, 107;
+  --admin-shadow-color: rgba(255, 107, 107, 0.5);
+  
+  // Обычный пользователь - серый (фиксированный для всех тем)
+  --user-color: #888888;
+  --user-color-rgb: 136, 136, 136;
+  --user-shadow-color: rgba(136, 136, 136, 0.5);
+}
+
+// Общие стили для всех перков - используем максимальный приоритет стилей
+.perkBase {
+  font-weight: 600 !important; // Одинаковое начертание для всех перков
+  font-size: inherit !important; // Наследуем размер текста от родителя
+  line-height: inherit !important; // Наследуем линию от родителя
+  font-family: inherit !important; // Обеспечиваем одинаковый шрифт
+  letter-spacing: inherit !important; // Сохраняем трекинг
+  display: inline-block !important; // Предотвращаем изменение блока
+}
+
+// Классы для разных типов перков - используем !important для всех свойств
+.sponsorPerk {
+  composes: perkBase;
+  color: var(--sponsor-color) !important;
+  text-shadow: 0 0 5px var(--sponsor-shadow-color) !important;
+}
+
+.earlyUserPerk {
+  composes: perkBase;
+  color: var(--early-user-color) !important;
+  text-shadow: 0 0 5px var(--early-user-shadow-color) !important;
+}
+
+.adminPerk {
+  composes: perkBase;
+  color: var(--admin-color) !important;
+  text-shadow: 0 0 5px var(--admin-shadow-color) !important;
+}
+
+// Обычный пользователь (фиксированный серый цвет)
+.userPerk {
+  composes: perkBase;
+  color: var(--user-color) !important;
+  text-shadow: none !important;
+}
+
+// Функция для получения класса перка по его имени
+@function getPerkClass($perk) {
+  @if $perk == 'sponsor' {
+    @return 'sponsorPerk';
+  } @else if $perk == 'early_user' {
+    @return 'earlyUserPerk';
+  } @else if $perk == 'admin' {
+    @return 'adminPerk';
+  } @else {
+    @return 'userPerk';
+  }
+} 

@@ -1,0 +1,1571 @@
+// Стили для компонентов постов
+
+// Контейнер для всего списка постов
+.postsContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// Заголовок ленты постов с кнопкой обновления
+.postsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    svg {
+      color: var(--accent);
+    }
+  }
+}
+
+// Кнопка обновления ленты
+.refreshButton {
+  padding: 8px 16px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+}
+
+// Список постов
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+// Сообщение о загрузке
+.loading {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  svg {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+// Сообщение об ошибке
+.errorMessage {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--error);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 3px solid var(--error);
+  
+  svg {
+    font-size: 18px;
+  }
+}
+
+// Сообщение об отсутствии постов
+.noPosts {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  
+  svg {
+    font-size: 48px;
+    opacity: 0.5;
+  }
+}
+
+// Сообщение для неавторизованных пользователей
+.notAuthenticatedMessage {
+  text-align: center;
+  padding: 16px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  svg {
+    color: var(--accent);
+  }
+}
+
+// Стили для создания постов
+.createPostContainer {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 24px;
+  transition: all var(--transition-fast);
+}
+
+.createPostTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  svg {
+    color: var(--accent);
+  }
+}
+
+.createPostForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contentInput {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  resize: none;
+  min-height: 100px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+.imageUrlInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+// Контейнер для создания опроса
+.pollContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  background-color: var(--bg-highlight);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  position: relative;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  &:before {
+    content: '📊 Опрос';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background-color: var(--accent);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(29, 161, 242, 0.2);
+    display: none;
+  }
+}
+
+.pollQuestionInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 15px;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.pollOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pollOptionInputWrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pollOptionInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.removeOptionButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(231, 76, 60, 0.2);
+    transform: scale(1.1);
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #ff6b6b;
+    
+    &:hover {
+      background-color: rgba(231, 76, 60, 0.3);
+    }
+  }
+}
+
+.addOptionButton {
+  margin-top: 5px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &:hover {
+    background-color: rgba(29, 161, 242, 0.05);
+    border-color: var(--accent);
+  }
+  
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.2);
+    
+    &:hover {
+      background-color: rgba(29, 161, 242, 0.1);
+      border-color: var(--accent);
+    }
+  }
+}
+
+.formOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.formToggles {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.optionToggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-tertiary);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--bg-hover);
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 5px;
+    cursor: pointer;
+  }
+  
+  svg {
+    font-size: 16px;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+  
+  * {
+    cursor: pointer;
+  }
+}
+
+.submitButton {
+  padding: 10px 18px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+}
+
+// Стили для отдельного поста
+.postItem {
+  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  position: relative;
+  border: 1px solid var(--border);
+  
+  // Улучшенные стили для темной темы
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    
+    [data-theme="dark"] & {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+  
+  // Специальные стили для закрепленного поста
+  &.pinnedPost {
+    border: 2px solid var(--accent);
+    position: relative;
+    
+    // Плавный градиент для рамки
+    &:before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--accent), transparent 60%);
+      border-radius: 16px;
+      z-index: -1;
+      opacity: 0.1;
+      transition: opacity 0.3s ease;
+    }
+    
+    &:hover:before {
+      opacity: 0.2;
+    }
+    
+    [data-theme="dark"] & {
+      border: 2px solid var(--accent);
+      
+      &:before {
+        background: linear-gradient(45deg, var(--accent), transparent 80%);
+        opacity: 0.15;
+      }
+      
+      &:hover:before {
+        opacity: 0.25;
+      }
+    }
+  }
+}
+
+// Шапка поста (автор и дата)
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+// Информация об авторе
+.authorInfo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  gap: 12px;
+  font-size: 1.5rem;
+}
+
+// Имя автора
+.authorName {
+  font-weight: 500;
+}
+
+// Аватар
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  [data-theme="dark"] & {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  }
+}
+
+// Дата поста
+.postDate {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  svg {
+    font-size: 14px;
+  }
+}
+
+// Содержимое поста
+.postContent {
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary);
+  
+  [data-theme="dark"] & {
+    // Когда текст поста черный, в темной теме делаем его белым
+    .darkTextConversion {
+      color: var(--text-primary) !important;
+    }
+  }
+  
+  // Улучшенная адаптивность для мобильных устройств
+  @media (max-width: 768px) {
+    font-size: 17px; // Увеличиваем размер на мобильных
+    line-height: 1.6;
+    
+    p, span, div {
+      font-size: inherit;
+    }
+  }
+  
+  // Еще больше для маленьких экранов
+  @media (max-width: 480px) {
+    font-size: 18px;
+    line-height: 1.7;
+  }
+}
+
+// Блок с изображением
+.postImage {
+  margin: 16px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+// Опрос в посте
+.postPoll {
+  background-color: var(--bg-highlight);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  
+  // Улучшаем темную тему для опросов
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+.pollTitle {
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  font-size: 16px;
+  
+  @media (max-width: 768px) {
+    font-size: 17px;
+  }
+}
+
+.pollOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pollOption {
+  display: flex;
+  flex-direction: column;
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+    
+    input {
+      cursor: pointer;
+    }
+    
+    // Улучшенные стили для темной темы
+    [data-theme="dark"] & {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      font-size: 16px;
+      padding: 12px 10px;
+    }
+  }
+}
+
+.pollResults {
+  margin-top: 16px;
+  
+  .pollResultOption {
+    margin-bottom: 10px;
+    
+    .pollOptionText {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+      
+      .pollOptionVotes {
+        color: var(--text-secondary);
+      }
+    }
+    
+    .pollProgressBar {
+      height: 8px;
+      background-color: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+      
+      .pollProgress {
+        height: 100%;
+        background-color: var(--accent);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+    }
+  }
+}
+
+.pollVotersCount {
+  font-size: 12px;
+  margin-top: 16px;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+// Действия с постом (лайки, комментарии)
+.postActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 16px;
+  
+  button {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: rgba(29, 161, 242, 0.1);
+      color: var(--accent);
+      
+      [data-theme="dark"] & {
+        background-color: rgba(29, 161, 242, 0.2);
+      }
+    }
+    
+    svg {
+      font-size: 20px;
+    }
+  }
+}
+
+// Кнопка лайка
+.likeButton {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &.liked {
+    color: #e0245e;
+    
+    &:hover {
+      color: #e0245e;
+      background-color: rgba(224, 36, 94, 0.1);
+      
+      [data-theme="dark"] & {
+        background-color: rgba(224, 36, 94, 0.2);
+      }
+    }
+  }
+}
+
+// Счетчик лайков
+.likeCount {
+  font-size: 14px;
+}
+
+// Кнопка комментария
+.commentButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-hover);
+  }
+  
+  svg {
+    font-size: 20px;
+  }
+}
+
+// Кнопка удаления поста
+.deleteButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(231, 76, 60, 0.1);
+  border: none;
+  color: #e74c3c;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// Стили для комментариев
+.commentsSection {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.commentsHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.loadingComments {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  gap: 8px;
+  
+  svg {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.noComments {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--bg-highlight);
+  border-radius: 8px;
+  font-style: italic;
+}
+
+// Улучшенные стили для формы комментариев
+.commentForm {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: var(--bg-highlight);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 15px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+    }
+    
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.3);
+      }
+    }
+  }
+  
+  button {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-left: auto;
+    transition: background-color 0.2s;
+    
+    &:hover:not(:disabled) {
+      background-color: var(--accent-dark);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    svg {
+      font-size: 18px;
+    }
+  }
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 3px solid #e74c3c;
+  color: #e74c3c;
+  border-radius: 4px;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(231, 76, 60, 0.2);
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Компонент комментария
+.commentItem {
+  margin-bottom: 20px;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+  
+  [data-theme="dark"] & {
+    border-left-color: rgba(29, 161, 242, 0.6);
+  }
+  
+  &.commentReply {
+    margin-left: 30px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent-light, rgba(29, 161, 242, 0.4));
+    
+    [data-theme="dark"] & {
+      border-left-color: rgba(29, 161, 242, 0.3);
+    }
+  }
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.commentAuthorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.commentAuthorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentAuthor {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.commentContent {
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.commentDate {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  
+  svg {
+    font-size: 12px;
+  }
+}
+
+.commentActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.replyButton,
+.deleteCommentButton {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--bg-hover);
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+}
+
+.deleteCommentButton {
+  color: var(--error);
+  
+  &:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+}
+
+.repliesContainer {
+  margin-top: 12px;
+}
+
+.replyForm {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background-color: var(--bg-highlight);
+  border-radius: 8px;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+  
+  textarea {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    min-height: 60px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.replyFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelReplyButton, .submitReplyButton {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelReplyButton {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+  }
+  
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.submitReplyButton {
+  background-color: var(--accent);
+  border: none;
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--accent-dark);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Медиа-запросы для адаптивного дизайна
+@media screen and (max-width: 768px) {
+  .postsContainer {
+    padding: 15px;
+  }
+  
+  .formOptions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .formToggles {
+    width: 100%;
+  }
+  
+  .submitButton {
+    width: 100%;
+  }
+  
+  .postHeader {
+    flex-wrap: wrap;
+  }
+  
+  .postActions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .actionButtons {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .commentActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .commentHeader {
+    flex-wrap: wrap;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .optionToggle {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  
+  .replyButton,
+  .deleteCommentButton {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+  
+  .postTitle {
+    font-size: 1.3rem;
+  }
+  
+  .postContent {
+    font-size: 0.95rem;
+  }
+}
+
+// Стиль для полей ввода текста, делаем их не растягиваемыми
+textarea {
+  resize: none !important;
+  font-family: inherit;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+// Стили для настроек стиля поста
+.stylingOptions {
+  margin-top: 15px;
+  padding: 20px;
+  background-color: var(--bg-highlight);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  position: relative;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  &:before {
+    content: '🎨 Стиль';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background-color: var(--accent);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(29, 161, 242, 0.2);
+  }
+}
+
+.stylingTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  svg {
+    color: var(--accent);
+  }
+}
+
+.stylingGroup {
+  margin-bottom: 15px;
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.colorSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.colorOption {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.2);
+  }
+  
+  &.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.3);
+  }
+}
+
+.fontSelector {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+  }
+  
+  option {
+    padding: 8px;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.addOptionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  border: 1px dashed var(--border);
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba(29, 161, 242, 0.05);
+    border-color: var(--accent);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.2);
+    
+    &:hover:not(:disabled) {
+      background-color: rgba(29, 161, 242, 0.1);
+    }
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+}
+
+.colorPickerContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.colorPreview {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.2);
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.dropletIcon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+}
+
+.colorPickerPopup {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 5px);
+  left: 0;
+  
+  .react-colorful {
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+    
+    [data-theme="dark"] & {
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+.colorPickerCover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.colorNote {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--accent);
+  font-style: italic;
+  line-height: 1.4;
+  padding: 5px 8px;
+  background-color: rgba(var(--accent-rgb), 0.1);
+  border-radius: 4px;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(var(--accent-rgb), 0.15);
+  }
+}
+
+.likeAnimation {
+  animation: likePulse 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes likePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.authPrompt {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+
+  p {
+    margin: 0 0 10px 0;
+    color: var(--text-secondary);
+  }
+
+  .loginButton {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Стиль для поля ввода заголовка
+.titleInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+    font-weight: normal;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.2);
+    }
+  }
+}
+
+// Стиль для заголовка поста
+.postTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+  color: var(--text-primary);
+  word-break: break-word;
+  
+  [data-theme="dark"] & {
+    // Когда заголовок поста черный, в темной теме делаем его белым
+    .darkTextConversion {
+      color: var(--text-primary) !important;
+    }
+  }
+} 

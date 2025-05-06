@@ -1,0 +1,306 @@
+.main {
+    max-width: 1500px;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 1% 6%;
+    
+    /* Add semi-transparent gradient background with backdrop filter for blur effect */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    /* Create subtle gradient overlay */
+    &:before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        border-radius: 12px;
+        pointer-events: none;
+    }
+
+    [data-theme="dark"] & {
+        background: rgba(20, 18, 18, 0.85);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        
+        &:before {
+            background: linear-gradient(
+                135deg,
+                rgba(50, 50, 70, 0.3) 0%,
+                rgba(10, 10, 20, 0) 100%
+            );
+        }
+    }
+
+    &__header {
+        max-width: 200px;
+        display: flex;
+        gap: 10px;
+        align-items: end;
+
+        &__pic {
+            max-width: 80px;
+            min-height: 80px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: filter 0.3s ease;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            &.darkTheme {
+                filter: invert(0.8) brightness(1.5) hue-rotate(180deg);
+            }
+        }
+
+        &__title {
+            font-size: 2rem;
+            color: var(--text-color);
+        }
+
+        // Logo styles
+        &__logo {
+            max-width: 160px;
+            height: auto;
+            object-fit: contain;
+            margin-right: 1rem;
+        }
+    }
+
+    &__nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+
+        &__perexod {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            font-size: clamp(2rem, 2vw, 3rem);
+            font-family: var(--font-bold);
+
+            &__link a {
+                color: var(--text-color);
+            }
+        }
+        
+        &__auth {
+            display: flex;
+            align-items: center;
+        }
+        
+        // Гамбургер-меню для мобильных устройств
+        &__burger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 0;
+            background: none;
+            border: none;
+            transition: all 0.3s ease;
+
+            &__line {
+                width: 100%;
+                height: 2px;
+                background: var(--text-color, #333);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-origin: left center;
+                
+                [data-theme="light"] & {
+                    background: #333;
+                }
+                
+                [data-theme="dark"] & {
+                    background: white;
+                }
+            }
+
+            &.open {
+                .main__nav__burger__line {
+                    &:first-child {
+                        transform: rotate(45deg);
+                    }
+                    &:nth-child(2) {
+                        opacity: 0;
+                    }
+                    &:last-child {
+                        transform: rotate(-45deg);
+                    }
+                }
+            }
+        }
+        
+        // Новое мобильное меню - выпадающее вместо полноэкранного
+        &__mobile {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--bg-primary);
+            z-index: 1000;
+            padding: 80px 20px 20px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            border-left: 1px solid var(--border);
+            
+            // Улучшаем контрастность в темной теме
+            [data-theme="dark"] & {
+                background: rgb(30, 30, 35);
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            }
+
+            &.open {
+                right: 0;
+            }
+            
+            &__list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+
+                &__item {
+                    margin-bottom: 15px;
+
+                    a {
+                        display: block;
+                        padding: 12px 15px;
+                        color: var(--text-primary);
+                        text-decoration: none;
+                        font-size: 16px;
+                        border-radius: 8px;
+                        transition: all 0.2s ease;
+
+                        &:hover {
+                            background: var(--bg-highlight);
+                            color: var(--accent);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Медиа-запрос для мобильных устройств
+@media (max-width: 768px) {
+    .main {
+        padding: 1% 4%;
+        
+        &__nav {
+            &__perexod {
+                display: none;
+            }
+            
+            &__burger {
+                display: flex;
+                margin-right: 10px;
+            }
+            
+            &__auth {
+                margin-left: auto;
+            }
+        }
+    }
+}
+
+.characters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.homepage {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.error {
+  color: #e74c3c;
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.postCard {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.postTitle {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.postImage {
+  margin-bottom: 15px;
+  
+  img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+}
+
+.postContent {
+  color: var(--text-primary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.noPostsMessage {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 40px 0;
+}
+
