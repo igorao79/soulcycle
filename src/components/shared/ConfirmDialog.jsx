@@ -8,15 +8,20 @@ const Overlay = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
+  background: linear-gradient(135deg, rgba(33, 33, 38, 0.85) 0%, rgba(68, 68, 77, 0.85) 100%);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
   padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  will-change: transform;
 `;
 
 // Modal container
@@ -29,6 +34,7 @@ const DialogContainer = styled(motion.div)`
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   position: relative;
   border: 1px solid var(--border);
+  will-change: transform;
 `;
 
 // Dialog header
@@ -142,14 +148,22 @@ const ConfirmDialog = ({
   // Prevent scrolling when modal is open
   React.useEffect(() => {
     if (isOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
+      
+      return () => {
+        // Restore scroll position
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        document.body.style.overflow = 'auto';
+        window.scrollTo(0, scrollY);
+      };
     }
-    
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
   }, [isOpen]);
 
   return (

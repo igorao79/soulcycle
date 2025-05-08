@@ -258,6 +258,14 @@ const userProfileService = {
       userProfileCache.delete(userId);
       console.log(`Cleared profile cache for user ${userId}`);
     }
+  },
+  
+  // Get cached profile data for a user
+  getCachedProfile(userId) {
+    if (userId && userProfileCache.has(userId)) {
+      return userProfileCache.get(userId);
+    }
+    return null;
   }
 };
 

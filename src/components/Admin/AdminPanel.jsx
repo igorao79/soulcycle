@@ -5,7 +5,7 @@ import supabase from '../../services/supabaseClient';
 import userProfileService from '../../services/userProfileService';
 import styles from './AdminPanel.module.scss';
 import { FiUsers, FiEdit, FiUser, FiSettings, FiShield, FiMail, FiKey, FiSave, FiX, FiRefreshCw, FiLoader, 
-         FiAlertCircle, FiCheckCircle, FiInfo, FiUserX } from 'react-icons/fi';
+         FiAlertCircle, FiCheckCircle, FiInfo, FiUserX, FiCalendar, FiToggleLeft, FiToggleRight, FiCheck } from 'react-icons/fi';
 
 const AdminPanel = () => {
   const { user, refreshUser } = useAuth();
@@ -28,6 +28,174 @@ const AdminPanel = () => {
   const [banReason, setBanReason] = useState('');
   const [banDuration, setBanDuration] = useState('');
   const [banLoading, setBanLoading] = useState(false);
+  
+  // Состояния для управления событиями сайта
+  const [siteEvents, setSiteEvents] = useState({
+    earlyUserPromotion: false,
+  });
+  const [eventsLoading, setEventsLoading] = useState(false);
+
+  // Проверка и обновление статуса бана пользователей
+  const checkAndUpdateBanStatus = async (usersData) => {
+    const now = new Date();
+    const updatePromises = [];
+    
+    // Перебираем пользователей и проверяем статус бана
+    for (const user of usersData) {
+      // Если пользователь забанен и есть дата окончания блокировки
+      if (user.is_banned && user.ban_end_at) {
+        const banEndDate = new Date(user.ban_end_at);
+        
+        // Если срок блокировки истек, добавляем к списку на обновление
+        if (banEndDate < now) {
+          updatePromises.push(
+            supabase
+              .from('profiles')
+              .update({ 
+                is_banned: false,
+                ban_reason: null,
+                ban_end_at: null,
+                ban_admin_id: null,
+                ban_admin_name: null
+              })
+              .eq('id', user.id)
+          );
+          
+          // Обновляем статус блокировки в таблице user_bans
+          updatePromises.push(
+            supabase
+              .from('user_bans')
+              .update({ is_active: false })
+              .eq('user_id', user.id)
+              .eq('is_active', true)
+          );
+          
+          // Обновляем пользователя локально
+          user.is_banned = false;
+          user.ban_reason = null;
+          user.ban_end_at = null;
+          user.ban_admin_id = null;
+          user.ban_admin_name = null;
+        }
+      }
+    }
+    
+    // Если есть пользователи на обновление, выполняем все обновления
+    if (updatePromises.length > 0) {
+      await Promise.all(updatePromises);
+      console.log(`Разблокировано пользователей: ${updatePromises.length / 2}`);
+    }
+    
+    return usersData;
+  };
+
+  // Функция для прямой загрузки профилей из Supabase
+  const loadProfilesDirectly = async () => {
+    try {
+      setLoading(true);
+      console.log('Прямая загрузка профилей из Supabase...');
+      
+      // Получаем данные профилей напрямую из Supabase
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (profilesError) {
+        console.error('Ошибка при получении профилей:', profilesError);
+        setError('Ошибка загрузки профилей пользователей');
+        setLoading(false);
+        return [];
+      }
+      
+      if (!profilesData || profilesData.length === 0) {
+        console.log('Профили не найдены');
+        setUsers([]);
+        setLoading(false);
+        return [];
+      }
+      
+      console.log('Загружено профилей:', profilesData.length);
+      
+      // Получаем дополнительные данные из auth.users (если имеем доступ)
+      let authUsers = [];
+      
+      try {
+        // Пробуем получить пользователей через RPC функцию
+        const { data, error } = await supabase.rpc('admin_get_users');
+        
+        if (!error && data) {
+          authUsers = data;
+          console.log('Загружено данных из auth.users:', authUsers.length);
+        }
+      } catch (authError) {
+        console.warn('Не удалось получить данные пользователей из auth схемы:', authError);
+        // Продолжаем работу с данными профилей
+      }
+      
+      // Создаем комбинированный список пользователей
+      let combinedUsers = profilesData.map(profile => {
+        // Ищем соответствующие данные в auth.users
+        const authUser = authUsers.find(au => au.id === profile.id);
+        
+        // Получаем метаданные пользователя, если они есть
+        const userMetadata = authUser?.raw_user_meta_data || {};
+        
+        return {
+          id: profile.id,
+          displayName: profile.display_name || userMetadata.display_name || 'Пользователь',
+          email: authUser?.email || profile.email || 'Нет email',
+          perks: profile.perks || ['user'],
+          activePerk: profile.active_perk || 'user',
+          avatar: profile.avatar || userMetadata.avatar,
+          createdAt: authUser?.created_at || profile.created_at || new Date().toISOString(),
+          is_banned: profile.is_banned || false,
+          ban_reason: profile.ban_reason,
+          ban_end_at: profile.ban_end_at,
+          ban_admin_id: profile.ban_admin_id,
+          ban_admin_name: profile.ban_admin_name
+        };
+      });
+      
+      // Проверяем и обновляем статус бана для каждого пользователя
+      combinedUsers = await checkAndUpdateBanStatus(combinedUsers);
+      
+      // Обновляем state
+      setUsers(combinedUsers);
+      setError(null);
+      
+      console.log('Подготовлен список пользователей:', combinedUsers.length);
+      return combinedUsers;
+      
+    } catch (err) {
+      console.error('Ошибка при загрузке пользователей:', err);
+      setError(err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Загрузка списка пользователей
+  useEffect(() => {
+    loadProfilesDirectly();
+    
+    // При каждом переходе на страницу администратора обновляем данные
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('Страница стала видимой, обновляем данные...');
+        loadProfilesDirectly();
+      }
+    };
+    
+    // Добавляем слушатель для обновления данных при возвращении на вкладку
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Очищаем слушатель при размонтировании компонента
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Проверка, является ли пользователь администратором
   useEffect(() => {
@@ -61,100 +229,78 @@ const AdminPanel = () => {
     }
   }, [user, navigate]);
 
-  // Загрузка списка пользователей
+  // Загрузка настроек событий сайта
   useEffect(() => {
-    // Создаем функцию для загрузки пользователей
-    const fetchUsers = async () => {
+    const fetchSiteEvents = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setEventsLoading(true);
         
-        console.log('Загружаем свежие данные пользователей из Supabase...');
-        
-        // Получаем данные профилей напрямую из Supabase
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (profilesError) {
-          throw new Error(`Ошибка при получении профилей: ${profilesError.message}`);
-        }
-        
-        if (!profilesData || profilesData.length === 0) {
-          console.log('Профили не найдены');
-          setUsers([]);
-          setLoading(false);
-          return;
-        }
-        
-        console.log('Загружено профилей:', profilesData.length);
-        
-        // Получаем дополнительные данные из auth.users (если имеем доступ)
-        let authUsers = [];
-        
+        // Проверяем существование таблицы site_settings
         try {
-          // Пробуем получить пользователей через RPC функцию
-          const { data, error } = await supabase.rpc('admin_get_users');
+          // Получаем настройки событий из таблицы site_settings
+          const { data, error } = await supabase
+            .from('site_settings')
+            .select('*')
+            .single();
           
-          if (!error && data) {
-            authUsers = data;
-            console.log('Загружено данных из auth.users:', authUsers.length);
+          if (error) {
+            console.log('Could not retrieve site_settings. Checking if table needs to be created.');
+            
+            // Если таблица не существует, создаем её через SQL
+            const { error: createTableError } = await supabase.rpc('create_site_settings_if_not_exists');
+            
+            if (createTableError) {
+              console.error('Error creating site_settings table via RPC:', createTableError);
+              
+              // Если не удалось создать через RPC, устанавливаем локальное значение
+              setSiteEvents({
+                earlyUserPromotion: false
+              });
+              return;
+            }
+            
+            // Пробуем создать запись
+            const { data: newSettings, error: newError } = await supabase
+              .from('site_settings')
+              .insert({
+                early_user_promotion: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .select('*')
+              .single();
+              
+            if (newError) {
+              console.error('Error creating site settings:', newError);
+              setSiteEvents({
+                earlyUserPromotion: false
+              });
+            } else {
+              console.log('Successfully created site_settings:', newSettings);
+              setSiteEvents({
+                earlyUserPromotion: newSettings.early_user_promotion || false
+              });
+            }
+          } else {
+            // Устанавливаем состояния из полученных настроек
+            setSiteEvents({
+              earlyUserPromotion: data.early_user_promotion || false
+            });
           }
-        } catch (authError) {
-          console.error('Не удалось получить данные пользователей из auth схемы:', authError);
-          // Продолжаем работу с данными профилей
+        } catch (err) {
+          console.error('Error handling site_settings:', err);
+          // Устанавливаем значения по умолчанию
+          setSiteEvents({
+            earlyUserPromotion: false
+          });
         }
-        
-        // Создаем комбинированный список пользователей
-        const combinedUsers = profilesData.map(profile => {
-          // Ищем соответствующие данные в auth.users
-          const authUser = authUsers.find(au => au.id === profile.id);
-          
-          // Получаем метаданные пользователя, если они есть
-          const userMetadata = authUser?.raw_user_meta_data || {};
-          
-          return {
-            id: profile.id,
-            displayName: profile.display_name || userMetadata.display_name || 'Пользователь',
-            email: authUser?.email || profile.email || 'Нет email',
-            perks: profile.perks || ['user'],
-            activePerk: profile.active_perk || 'user',
-            avatar: profile.avatar || userMetadata.avatar,
-            createdAt: authUser?.created_at || profile.created_at || new Date().toISOString(),
-            is_banned: profile.is_banned || false
-          };
-        });
-        
-        console.log('Подготовлен список пользователей:', combinedUsers.length);
-        setUsers(combinedUsers);
-        setError(null);
-      } catch (err) {
-        console.error('Ошибка при загрузке пользователей:', err);
-        setError(err.message);
       } finally {
-        setLoading(false);
+        setEventsLoading(false);
       }
     };
     
-    // Вызываем функцию загрузки при первом рендере и когда пользователь входит в админ-панель
-    fetchUsers();
-    
-    // При каждом переходе на страницу администратора обновляем данные
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        console.log('Страница стала видимой, обновляем данные...');
-        fetchUsers();
-      }
-    };
-    
-    // Добавляем слушатель для обновления данных при возвращении на вкладку
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Очищаем слушатель при размонтировании компонента
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+    // Загружаем настройки событий
+    fetchSiteEvents();
   }, []);
   
   // Обработчик выбора пользователя для редактирования
@@ -198,238 +344,230 @@ const AdminPanel = () => {
     });
   };
   
-  // Функция, которая напрямую обновляет профиль в базе данных и в auth.users
-  const updateProfileDirectly = async (userId, displayName) => {
-    console.log(`ПРЯМОЕ ОБНОВЛЕНИЕ ПРОФИЛЯ: userId=${userId}, displayName=${displayName}`);
-    
+  // Функция для непосредственного обновления привилегий пользователя
+  const updateUserPrivileges = async (userId, newPrivileges) => {
     try {
-      // Получаем текущие данные пользователя для проверки
-      const { data: oldData, error: getError } = await supabase
+      console.log(`Начинаем обновление привилегий для пользователя ${userId}`);
+      console.log(`Новые привилегии:`, newPrivileges);
+      
+      // Получаем текущий профиль
+      const { data: currentProfile, error: getError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
       
       if (getError) {
-        console.error('ОШИБКА ПРИ ПОЛУЧЕНИИ ДАННЫХ ПРОФИЛЯ:', getError);
-        return { success: false, error: getError };
+        console.error('Ошибка при получении профиля:', getError);
+        throw new Error(`Не удалось получить профиль: ${getError.message}`);
       }
       
-      console.log('ТЕКУЩИЕ ДАННЫЕ ПРОФИЛЯ:', oldData);
+      console.log('Текущие привилегии:', currentProfile.perks);
       
-      // 1. Прямое обновление профиля в таблице profiles
-      const { data, error } = await supabase
+      // Формируем массив привилегий по одной
+      let updatedPerks = ['user']; // Базовая привилегия всегда должна быть
+      
+      // Проверяем каждую привилегию отдельно и добавляем в массив
+      if (newPrivileges.includes('early_user')) {
+        updatedPerks.push('early_user');
+        console.log('Добавлена привилегия early_user');
+      }
+      
+      if (newPrivileges.includes('sponsor')) {
+        updatedPerks.push('sponsor');
+        console.log('Добавлена привилегия sponsor');
+      }
+      
+      if (newPrivileges.includes('admin')) {
+        updatedPerks.push('admin');
+        console.log('Добавлена привилегия admin');
+      }
+      
+      console.log('Итоговый массив привилегий:', updatedPerks);
+      
+      // Выбираем активную привилегию
+      let activePerk = currentProfile.active_perk;
+      
+      // Если текущая активная привилегия не в новом списке, выбираем первую из новых
+      if (!updatedPerks.includes(activePerk)) {
+        activePerk = updatedPerks[0];
+        console.log('Новая активная привилегия:', activePerk);
+      }
+      
+      // МЕТОД 1: Стандартный вызов UPDATE
+      console.log('Обновление привилегий через стандартный UPDATE...');
+      const updateResult = await supabase
         .from('profiles')
-        .update({ display_name: displayName })
+        .update({
+          perks: updatedPerks,
+          active_perk: activePerk,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', userId);
       
-      if (error) {
-        console.error('ОШИБКА ПРИ ОБНОВЛЕНИИ ПРОФИЛЯ:', error);
-        return { success: false, error };
-      }
-      
-      // 2. Обновление метаданных пользователя в auth.users через специальную RPC-функцию
-      // Примечание: эта функция должна быть создана в Supabase
-      try {
-        const { error: rpcError } = await supabase
-          .rpc('admin_update_user_metadata', { 
-            user_id: userId, 
-            metadata_key: 'display_name', 
-            metadata_value: displayName 
+      // Проверяем на ошибки
+      if (updateResult.error) {
+        console.warn('Стандартное обновление не сработало:', updateResult.error);
+        
+        // МЕТОД 2: Пробуем вызвать специальную функцию для обновления привилегий
+        console.log('Пробуем вызвать RPC функцию admin_update_privileges...');
+        try {
+          const { error: rpcError } = await supabase.rpc('admin_update_privileges', {
+            user_id: userId,
+            privileges: updatedPerks
           });
           
-        if (rpcError) {
-          console.warn('ПРЕДУПРЕЖДЕНИЕ: Не удалось обновить метаданные пользователя:', rpcError);
-          // Продолжаем выполнение, так как обновление profiles уже выполнено
+          if (rpcError) {
+            console.error('Ошибка RPC функции:', rpcError);
+            throw new Error(`Ошибка при обновлении привилегий через RPC: ${rpcError.message}`);
+          } else {
+            console.log('Привилегии успешно обновлены через RPC функцию');
+            
+            // Теперь обновляем активную привилегию отдельно
+            const { error: activeError } = await supabase
+              .from('profiles')
+              .update({ 
+                active_perk: activePerk 
+              })
+              .eq('id', userId);
+              
+            if (activeError) {
+              console.warn('Не удалось обновить активную привилегию:', activeError);
+            }
+          }
+        } catch (rpcErr) {
+          console.error('Ошибка при вызове RPC:', rpcErr);
+          
+          // МЕТОД 3: Если все методы не сработали, попробуем последний вариант
+          console.log('Пытаемся выполнить обходное решение...');
+          
+          // Этот метод может сработать, если проблема в том, что supabase
+          // не может правильно преобразовать массив в JSONB
+          const perksJsonString = JSON.stringify(updatedPerks);
+          
+          // Прямой SQL запрос с использованием нестандартного подхода
+          const { error: finalError } = await supabase
+            .from('profiles')
+            .update({
+              // Используем уже готовую строку JSON вместо массива
+              raw_perks: perksJsonString,
+              // Специальный маркер, который затем будет обработан триггером
+              special_update: true,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+            
+          if (finalError) {
+            console.error('Финальная попытка не удалась:', finalError);
+            throw finalError;
+          } else {
+            console.log('Обходное решение сработало');
+          }
         }
-      } catch (rpcError) {
-        console.warn('ПРЕДУПРЕЖДЕНИЕ: Ошибка при вызове RPC для обновления метаданных:', rpcError);
-        // Продолжаем выполнение, так как обновление profiles уже выполнено
+      } else {
+        console.log('Привилегии успешно обновлены через стандартный UPDATE');
       }
       
-      // 3. Проверяем, что обновление действительно произошло
-      const { data: verifyData, error: verifyError } = await supabase
+      // Проверяем что привилегии действительно обновились
+      console.log('Проверяем результат обновления...');
+      const { data: updatedProfile, error: checkError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
       
-      if (verifyError) {
-        console.error('ОШИБКА ПРИ ПРОВЕРКЕ ОБНОВЛЕНИЯ:', verifyError);
-        return { success: false, error: verifyError };
-      }
-      
-      console.log('ПРОВЕРКА ОБНОВЛЕНИЯ:', verifyData);
-      
-      if (verifyData.display_name !== displayName) {
-        console.error(`ДАННЫЕ НЕ ОБНОВИЛИСЬ: ${verifyData.display_name} !== ${displayName}`);
-        return { success: false, error: new Error('Данные не обновились') };
-      }
-      
-      console.log('ОБНОВЛЕНИЕ УСПЕШНО!');
-      return { success: true, data: verifyData };
-    } catch (e) {
-      console.error('НЕОБРАБОТАННАЯ ОШИБКА:', e);
-      return { success: false, error: e };
-    }
-  };
-  
-  // После успешного обновления данных, обновляем список пользователей с принудительным обновлением
-  const refreshUsersList = async () => {
-    try {
-      console.log('Принудительное обновление списка пользователей...');
-      
-      // Установка небольшой задержки, чтобы БД успела обновиться
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Получаем обновленные данные профилей
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      if (checkError) {
+        console.error('Ошибка при проверке обновленного профиля:', checkError);
+      } else {
+        console.log('Проверка обновленного профиля:', updatedProfile);
+        console.log('Обновленные привилегии:', updatedProfile.perks);
+        console.log('Ожидаемые привилегии:', updatedPerks);
         
-      if (profilesError) {
-        console.error('Ошибка при обновлении списка профилей:', profilesError);
-        return;
-      }
-      
-      console.log('Получены свежие данные профилей из БД:', profilesData);
-      
-      // Используем только что полученные данные для обновления списка
-      const updatedUsers = profilesData.map(profile => ({
-        id: profile.id,
-        displayName: profile.display_name || 'Пользователь',
-        email: profile.email || 'Email не указан',
-        perks: profile.perks || ['user'],
-        activePerk: profile.active_perk || 'user',
-        avatar: profile.avatar,
-        createdAt: profile.created_at || new Date().toISOString(),
-        is_banned: profile.is_banned || false
-      }));
-      
-      console.log('Обновляем список пользователей на:', updatedUsers);
-      
-      // Полностью заменяем список пользователей новыми данными
-      setUsers([...updatedUsers]);
-      
-      // Если текущий выбранный пользователь был обновлен, обновляем и его
-      if (selectedUser) {
-        const updatedSelectedUser = updatedUsers.find(u => u.id === selectedUser.id);
-        if (updatedSelectedUser) {
-          console.log('Обновляем выбранного пользователя:', updatedSelectedUser);
-          setSelectedUser(updatedSelectedUser);
+        // Сравнение ожидаемых и полученных привилегий
+        if (JSON.stringify(updatedProfile.perks.sort()) !== JSON.stringify(updatedPerks.sort())) {
+          console.warn('ВНИМАНИЕ: Привилегии обновились не полностью!');
+          console.warn('Полученные:', updatedProfile.perks);
+          console.warn('Ожидаемые:', updatedPerks);
+        } else {
+          console.log('Привилегии обновились корректно');
         }
       }
       
-    } catch (err) {
-      console.error('Ошибка при обновлении списка пользователей:', err);
+      return true;
+    } catch (error) {
+      console.error('Ошибка в функции updateUserPrivileges:', error);
+      throw error;
     }
   };
-  
+
   // Обработчик отправки формы
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
       setLoading(true);
+      let hasChanges = false;
       
-      // Прямое обновление имени пользователя
+      // Обновление имени пользователя
       if (formData.displayName !== selectedUser.displayName) {
-        console.log('Начинаем обновление имени пользователя');
+        console.log(`Обновление имени с "${selectedUser.displayName}" на "${formData.displayName}"`);
         
-        const result = await updateProfileDirectly(selectedUser.id, formData.displayName);
+        const { error: nameError } = await supabase
+          .from('profiles')
+          .update({ display_name: formData.displayName })
+          .eq('id', selectedUser.id);
         
-        if (result.success) {
-          console.log('Имя пользователя успешно обновлено!');
-          
-          // Обновляем список в интерфейсе
-          setUsers(prevUsers => prevUsers.map(user => 
-            user.id === selectedUser.id
-              ? { ...user, displayName: formData.displayName }
-              : user
-          ));
-          
-          // Обновляем весь список
-          refreshUsersList();
-          
-          setTemporaryMessage({
-            type: 'success',
-            text: 'Имя пользователя успешно обновлено!'
-          });
-        } else {
-          console.error('Ошибка при обновлении имени:', result.error);
-          setTemporaryMessage({
-            type: 'error',
-            text: `Ошибка обновления: ${result.error.message}`
-          });
-          setLoading(false);
-          return;
+        if (nameError) {
+          console.error('Ошибка при обновлении имени:', nameError);
+          throw new Error(`Ошибка при обновлении имени: ${nameError.message}`);
         }
+        
+        console.log('Имя пользователя успешно обновлено');
+        hasChanges = true;
       }
       
       // Обновляем привилегии, если они изменились
       if (JSON.stringify(formData.perks) !== JSON.stringify(selectedUser.perks)) {
-        console.log('Обновляем привилегии пользователя:', formData.perks);
-        
-        const perksUpdate = {
-          perks: formData.perks
-        };
-        
-        // Если active_perk больше не существует в perks, обновляем его
-        if (!formData.perks.includes(selectedUser.activePerk)) {
-          perksUpdate.active_perk = formData.perks[0];
-        }
-        
-        try {
-          const { error: perksError } = await supabase
-            .from('profiles')
-            .update(perksUpdate)
-            .eq('id', selectedUser.id);
-            
-          if (perksError) {
-            throw new Error(`Ошибка при обновлении привилегий: ${perksError.message}`);
-          }
-          
-          console.log('Привилегии пользователя успешно обновлены');
-          
-          // Обновляем список пользователей
-          refreshUsersList();
-          
-          // Если текущий пользователь - это пользователь, чьи права были изменены,
-          // обновляем данные пользователя без перезагрузки страницы
-          if (user && user.id === selectedUser.id) {
-            refreshUser();
-          }
-          
-          setTemporaryMessage({
-            type: 'success',
-            text: 'Привилегии пользователя успешно обновлены'
-          });
-        } catch (perksError) {
-          console.error('Ошибка при обновлении привилегий:', perksError);
-          setTemporaryMessage({
-            type: 'error',
-            text: perksError.message
-          });
-        }
+        console.log('Привилегии изменились, обновляем...');
+        await updateUserPrivileges(selectedUser.id, formData.perks);
+        hasChanges = true;
       }
       
-      // Если изменений не было
-      if (formData.displayName === selectedUser.displayName && 
-          JSON.stringify(formData.perks) === JSON.stringify(selectedUser.perks)) {
+      if (!hasChanges) {
         setTemporaryMessage({
           type: 'info',
           text: 'Нет изменений для сохранения'
         });
+        setLoading(false);
+        return;
       }
+      
+      // Загружаем обновленные данные всех профилей
+      await loadProfilesDirectly();
+      
+      // Если текущий пользователь - это пользователь, чьи права были изменены,
+      // обновляем данные пользователя без перезагрузки страницы
+      if (user && user.id === selectedUser.id) {
+        refreshUser();
+      }
+      
+      setTemporaryMessage({
+        type: 'success',
+        text: 'Профиль пользователя успешно обновлен'
+      });
       
       // Сбрасываем режим редактирования через 2 секунды
       setTimeout(() => {
         setIsEditing(false);
         setSelectedUser(null);
-        setTemporaryMessage(null);
       }, 2000);
       
+    } catch (error) {
+      console.error('Ошибка при обновлении профиля:', error);
+      setTemporaryMessage({
+        type: 'error',
+        text: error.message
+      });
     } finally {
       setLoading(false);
     }
@@ -525,6 +663,7 @@ const AdminPanel = () => {
     
     try {
       setBanLoading(true);
+      console.log('Блокировка пользователя:', banDialogUser);
       
       // Рассчитываем время окончания блокировки
       let banEndDate = null;
@@ -555,6 +694,12 @@ const AdminPanel = () => {
           case '1w':
             banEndDate.setDate(banEndDate.getDate() + 7);
             break;
+          case '24h':
+            banEndDate.setHours(banEndDate.getHours() + 24);
+            break;
+          case '7d':
+            banEndDate.setDate(banEndDate.getDate() + 7);
+            break;
           default:
             banEndDate = null;
         }
@@ -572,33 +717,70 @@ const AdminPanel = () => {
         ban_type: banDuration
       };
       
-      // Сохраняем данные блокировки в таблицу user_bans
+      console.log('Данные для бана:', banData);
+      
+      // 1. Сохраняем данные блокировки в таблицу user_bans без select()
       const { error: banError } = await supabase
         .from('user_bans')
         .insert(banData);
         
       if (banError) {
-        throw new Error(`Ошибка при создании блокировки: ${banError.message}`);
+        console.error('Ошибка при создании бана:', banError);
+        throw new Error(`Ошибка при сохранении бана: ${banError.message}`);
       }
       
-      // Устанавливаем флаг блокировки в профиле пользователя
+      console.log('Команда создания бана выполнена');
+      
+      // 2. Отдельным запросом получаем созданную запись о бане
+      const { data: banResult, error: getBanError } = await supabase
+        .from('user_bans')
+        .select('*')
+        .eq('user_id', banDialogUser.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (getBanError) {
+        console.error('Ошибка при получении данных бана:', getBanError);
+      } else if (banResult && banResult.length > 0) {
+        console.log('Данные созданного бана:', banResult[0]);
+      }
+      
+      // 3. Устанавливаем флаг блокировки в профиле пользователя без select()
+      const profileUpdateData = { 
+        is_banned: true,
+        ban_reason: banReason.trim(),
+        ban_end_at: banEndDate ? banEndDate.toISOString() : null,
+        ban_admin_id: user.id,
+        ban_admin_name: user.displayName
+      };
+      
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ 
-          is_banned: true,
-          ban_reason: banReason.trim(),
-          ban_end_at: banEndDate ? banEndDate.toISOString() : null,
-          ban_admin_id: user.id,
-          ban_admin_name: user.displayName
-        })
+        .update(profileUpdateData)
         .eq('id', banDialogUser.id);
         
       if (profileError) {
-        throw new Error(`Ошибка при обновлении профиля: ${profileError.message}`);
+        console.error('Ошибка при обновлении профиля:', profileError);
+      } else {
+        console.log('Команда обновления профиля при бане выполнена');
       }
       
-      // Обновляем список пользователей
-      await refreshUsersList();
+      // 4. Отдельным запросом получаем обновленный профиль
+      const { data: updatedProfile, error: getProfileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', banDialogUser.id)
+        .single();
+      
+      if (getProfileError) {
+        console.error('Ошибка при получении обновленного профиля:', getProfileError);
+      } else {
+        console.log('Обновленный профиль пользователя:', updatedProfile);
+      }
+      
+      // 5. Загружаем обновленные данные всех профилей
+      await loadProfilesDirectly();
       
       // Показываем сообщение об успешной блокировке
       setTemporaryMessage({
@@ -629,8 +811,12 @@ const AdminPanel = () => {
     
     try {
       setBanLoading(true);
+      console.log("Попытка разблокировки пользователя:", userId);
       
-      // Обновляем статус блокировки в таблице user_bans
+      // Получаем данные пользователя для сообщения
+      const userData = users.find(u => u.id === userId);
+      
+      // 1. Обновляем записи в таблице user_bans - БЕЗ select()
       const { error: banError } = await supabase
         .from('user_bans')
         .update({ is_active: false })
@@ -638,38 +824,60 @@ const AdminPanel = () => {
         .eq('is_active', true);
         
       if (banError) {
+        console.error("Ошибка при обновлении бана:", banError);
         throw new Error(`Ошибка при обновлении блокировки: ${banError.message}`);
       }
       
-      // Сбрасываем флаг блокировки в профиле пользователя
+      console.log("Команда разблокировки выполнена");
+      
+      // 2. Сбрасываем флаги блокировки в профиле - БЕЗ select()
+      const profileUpdateData = { 
+        is_banned: false,
+        ban_reason: null,
+        ban_end_at: null,
+        ban_admin_id: null,
+        ban_admin_name: null
+      };
+      
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ 
-          is_banned: false,
-          ban_reason: null,
-          ban_end_at: null,
-          ban_admin_id: null,
-          ban_admin_name: null
-        })
+        .update(profileUpdateData)
         .eq('id', userId);
         
       if (profileError) {
+        console.error("Ошибка при обновлении профиля:", profileError);
         throw new Error(`Ошибка при обновлении профиля: ${profileError.message}`);
       }
       
-      // Обновляем список пользователей
-      await refreshUsersList();
+      console.log("Команда обновления профиля при разблокировке выполнена");
+      
+      // 3. Получаем обновленный профиль отдельным запросом для проверки
+      const { data: updatedProfile, error: getProfileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (getProfileError) {
+        console.error("Ошибка при получении обновленного профиля:", getProfileError);
+      } else {
+        console.log("Обновленный профиль пользователя после разблокировки:", updatedProfile);
+      }
+      
+      // 4. Обновляем список пользователей напрямую
+      await loadProfilesDirectly();
       
       // Показываем сообщение об успешной разблокировке
       setTemporaryMessage({
         type: 'success',
-        text: `Пользователь ${banDialogUser.displayName} успешно разблокирован`
+        text: `Пользователь ${userData?.displayName || 'выбранный'} успешно разблокирован`
       });
       
-      // Закрываем диалог
-      setShowBanDialog(false);
-      setBanDialogUser(null);
-      
+      // Закрываем диалог, если он открыт
+      if (showBanDialog) {
+        setShowBanDialog(false);
+        setBanDialogUser(null);
+      }
     } catch (error) {
       console.error('Ошибка при разблокировке пользователя:', error);
       setTemporaryMessage({
@@ -682,7 +890,7 @@ const AdminPanel = () => {
   };
   
   // Если пользователь не админ, не рендерим компонент
-  if (!isAdmin) {
+  if (!user || !isAdmin) {
     return null;
   }
   
@@ -706,6 +914,37 @@ const AdminPanel = () => {
           {message.text}
         </div>
       )}
+      
+      {/* Секция управления событиями сайта */}
+      <div className={styles.eventsSection}>
+        <h2>
+          <FiCalendar size={18} /> События сайта
+        </h2>
+        
+        {eventsLoading ? (
+          <div className={styles.loader}>
+            <FiLoader size={24} /> Загрузка настроек событий...
+          </div>
+        ) : (
+          <div className={styles.eventsList}>
+            <div className={styles.eventItem}>
+              <div className={styles.eventInfo}>
+                <h3>Привилегия "Ранний пользователь"</h3>
+                <p>Автоматически выдает привилегию "Ранний пользователь" всем новым пользователям при регистрации.</p>
+                <p><strong>Статус:</strong> {siteEvents.earlyUserPromotion ? 'Активно' : 'Неактивно'}</p>
+              </div>
+              <button 
+                className={`${styles.eventToggle} ${siteEvents.earlyUserPromotion ? styles.active : ''}`}
+                onClick={() => toggleSiteEvent('earlyUserPromotion')}
+                disabled={eventsLoading}
+              >
+                {siteEvents.earlyUserPromotion ? <FiToggleRight size={24} /> : <FiToggleLeft size={24} />}
+                {siteEvents.earlyUserPromotion ? 'Выключить' : 'Включить'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       
       <div className={styles.content}>
         <div className={styles.usersSection}>
@@ -749,7 +988,7 @@ const AdminPanel = () => {
                         <td>
                           <div className={styles.userAvatar}>
                             <img 
-                              src={userItem.avatar || 'https://via.placeholder.com/40'} 
+                              src={userItem.avatar || 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23ddd%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%3E%3F%3C%2Ftext%3E%3C%2Fsvg%3E'} 
                               alt={userItem.displayName}
                             />
                           </div>
@@ -783,7 +1022,7 @@ const AdminPanel = () => {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 
-                                // Разрешаем редактирование только если это сам igorao079
+                                // Разрешаем редактирование только если это не защищенный аккаунт
                                 if (userItem.email === 'igoraor79@gmail.com' && user.email !== 'igoraor79@gmail.com') {
                                   setTemporaryMessage({
                                     type: 'warning',
@@ -813,12 +1052,17 @@ const AdminPanel = () => {
                                   return;
                                 }
                                 
-                                // Отображаем диалог блокировки
-                                setBanDialogUser(userItem);
-                                setShowBanDialog(true);
+                                // Если пользователь уже заблокирован - разблокируем
+                                if (userItem.is_banned) {
+                                  handleUnbanUser(userItem.id);
+                                } else {
+                                  // Иначе показываем диалог блокировки
+                                  setBanDialogUser(userItem);
+                                  setShowBanDialog(true);
+                                }
                               }}
                               disabled={userItem.email === 'igoraor79@gmail.com'}
-                              title={userItem.is_banned ? "Управление блокировкой" : "Заблокировать пользователя"}
+                              title={userItem.is_banned ? "Разблокировать пользователя" : "Заблокировать пользователя"}
                             >
                               <FiUserX size={16} color={userItem.is_banned ? "#e74c3c" : "#666"} />
                             </button>
@@ -1025,11 +1269,8 @@ const AdminPanel = () => {
                       <option value="30m">30 минут</option>
                       <option value="2h">2 часа</option>
                       <option value="6h">6 часов</option>
-                      <option value="12h">12 часов</option>
-                      <option value="1d">1 день</option>
-                      <option value="3d">3 дня</option>
-                      <option value="1w">1 неделя</option>
-                      <option value="permanent">Навсегда</option>
+                      <option value="24h">24 часа</option>
+                      <option value="7d">7 дней</option>
                     </select>
                   </div>
                   

@@ -51,14 +51,13 @@ const authService = {
         throw new Error('Пользователь с таким именем уже существует');
       }
       
-      // Регистрируем пользователя через Supabase Auth
+      // Регистрируем пользователя через Supabase Auth - максимально просто
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            display_name: displayName,
-            role: 'user',
+            display_name: displayName
           }
         }
       });
@@ -67,26 +66,12 @@ const authService = {
         throw new Error(translateAuthError(error.message) || 'Ошибка при регистрации');
       }
       
-      // Установка начальных привилегий при регистрации
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ 
-          perks: ['user'], // Базовая привилегия "Пользователь"
-          active_perk: 'user',
-          display_name: displayName
-        })
-        .eq('id', data.user.id);
-        
-      if (profileError) {
-        console.error('Ошибка при установке привилегий:', profileError);
-      }
-      
       // Создаем объект пользователя
       const user = {
         id: data.user.id,
         email: data.user.email,
-        displayName: data.user.user_metadata.display_name,
-        role: data.user.user_metadata.role,
+        displayName: displayName,
+        role: 'user',
         perks: ['user'],
         activePerk: 'user',
         createdAt: data.user.created_at

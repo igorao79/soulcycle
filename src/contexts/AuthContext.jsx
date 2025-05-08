@@ -191,6 +191,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Функция для авторизации через OAuth провайдеров (Google, и т.д.)
+  const loginWithProvider = async (provider) => {
+    try {
+      setLoading(true);
+      
+      // Настраиваем специальные параметры для улучшения безопасности
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: {
+            // Для Google OAuth
+            access_type: 'offline',
+            prompt: 'consent', // Всегда запрашивать согласие на доступ
+            hd: 'domain.com', // Опционально: ограничить определенным доменом
+          }
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error(`Ошибка при входе через ${provider}:`, error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Функция для выхода
   const logout = async () => {
     try {
@@ -285,6 +317,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        loginWithProvider,
         loading,
         refreshUser,
         isAuthenticated: !!user

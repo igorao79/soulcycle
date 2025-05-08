@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
@@ -7,6 +7,27 @@ import { FiX } from 'react-icons/fi';
 
 const AuthModal = ({ isOpen, onClose }) => {
   const [activeForm, setActiveForm] = useState('login'); // 'login' or 'register'
+  
+  // Prevent scroll and maintain position
+  useEffect(() => {
+    if (isOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        // Restore scroll position
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        document.body.style.overflow = 'auto';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
   
   const handleSwitchToRegister = () => {
     setActiveForm('register');

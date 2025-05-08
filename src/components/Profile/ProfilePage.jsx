@@ -1404,7 +1404,7 @@ const ProfilePage = () => {
                   {getActivePerkName()}
                 </span>
                 
-                {isOwnProfile && profileUser.perks && profileUser.perks.length > 1 && (
+                {isOwnProfile && profileUser.perks && (
                   <button 
                     className={styles.changePerkButton}
                     onClick={handleOpenPerkModal}

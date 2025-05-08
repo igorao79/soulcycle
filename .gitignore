@@ -46,3 +46,4 @@ __pycache__/
 *.py[cod]
 .vercel
 sql_backup/
+sql/
