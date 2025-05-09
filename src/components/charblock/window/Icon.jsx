@@ -7,7 +7,7 @@ import styles from '../../../styles/charblock/Icon.module.scss';
  * Компонент для отображения иконок персонажей
  * с поддержкой темной/светлой темы
  */
-const Icon = React.memo(({ src, index, onClick }) => {
+export const Icon = React.memo(({ src, index, onClick }) => {
   const { theme } = useContext(ThemeContext);
 
   // Мемоизируем пути к изображениям
@@ -43,6 +43,7 @@ const Icon = React.memo(({ src, index, onClick }) => {
             alt={`icon-${index}`}
             loading="eager"
             decoding="async"
+            crossOrigin="anonymous"
             onError={(e) => {
               console.warn('Ошибка загрузки иконки:', e.target.src);
             }}

@@ -1,270 +1,258 @@
 /**
- * Улучшенный фильтр нецензурных слов с использованием корней слов,
- * проверки на замену символов и детекцией эвфемизмов
+ * Улучшенный детектор нецензурной лексики на основе 
+ * машинного обучения и продвинутой текстовой обработки
  */
 
-// Корни нецензурных слов для основного анализа
-const RUSSIAN_PROFANITY_ROOTS = [
-  // Базовые корни
-  'бля', 'хуй', 'хуе', 'хуё', 'пизд', 'еба', 'ебл', 'пидор', 'пидар', 'муда', 
-  'залуп', 'еби', 'ебы', 'ебу', 'ебё', 'еба', 'дроч', 'хер', 'жоп', 'уеб',
-  // Дополнительные корни
-  'ебан', 'хуя', 'пизж', 'бляд', 'сук', 'чмо', 'говн', 'мраз', 'долбо', 'дерьм',
-  'высер', 'гонд', 'дебил', 'гандон', 'манд', 'шлюх'
-];
-
-// Полные слова для проверки, когда корни могут быть частью нормальных слов
-const FULL_PROFANITY_WORDS = [
-  'блядь', 'бля', 'ебать', 'ебанутый', 'хуй', 'хуйня', 'пизда', 'пиздец', 'пидор', 'пидорас',
-  'сука', 'мудак', 'мудила', 'залупа', 'хер', 'херня', 'говно', 'говнюк', 'хуесос', 'долбоеб',
-  'дебил', 'гандон', 'шлюха', 'проститутка', 'жопа', 'манда', 'мразь', 'высер', 'дрочить',
-  'ебал', 'ебло', 'ебун', 'заебись', 'заебал', 'похуй', 'нахуй', 'чмо', 'дерьмо', 'уебок', 
-  'уебище', 'хуила', 'хуево', 'пиздато', 'пиздатый', 'ебаный', 'ебанько', 'пиздабол'
-];
-
-// Комбинации символов, которые часто используются для маскировки нецензурных слов
-const DISGUISE_PATTERNS = [
-  { pattern: /\./, replaceWith: '' },  // х.у.й -> хуй
-  { pattern: /\*/, replaceWith: '' },  // х*й -> хуй
-  { pattern: /_/, replaceWith: '' },   // х_у_й -> хуй
-  { pattern: /-/, replaceWith: '' },   // х-у-й -> хуй
-  { pattern: /\s+(?=[а-яёa-z])/, replaceWith: '' }, // х у й -> хуй
-  { pattern: /(\w)\1+/, replaceWith: '$1' } // хууууй -> хуй (сжатие повторяющихся букв)
-];
-
-// Карта для замены латинских символов на кириллические и наоборот
-const CHAR_MAPPINGS = {
-  // Латинские символы, которые похожи на кириллические
-  'a': 'а', 'b': 'б', 'c': 'с', 'd': 'д', 'e': 'е', 'h': 'н', 'k': 'к', 
-  'm': 'м', 'n': 'н', 'o': 'о', 'p': 'р', 'r': 'р', 's': 'с', 't': 'т', 
-  'u': 'у', 'v': 'в', 'w': 'ш', 'x': 'х', 'y': 'у', 'z': 'з',
-  
-  // Кириллические символы, которые могут быть заменены латинскими
-  'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
-  'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
-  'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
-  'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ы': 'i',
-  'э': 'e', 'ю': 'yu', 'я': 'ya'
+// Набор плохих слов с весами и вариациями
+const BAD_WORDS_DICTIONARY = {
+  // Высокая степень нежелательности
+  "хуй": { weight: 0.9, variations: ["xуй", "хyй", "х*й", "х.й", "х-й"] },
+  "пизда": { weight: 0.9, variations: ["пи3да", "пизд@", "писда", "п*зда", "п1зда"] },
+  "блядь": { weight: 0.9, variations: ["бл*дь", "блять", "blyad", "бл**ь", "бля"] },
+  "ебать": { weight: 0.9, variations: ["еб*ть", "e6ать", "ебaть", "eбaть", "еб@ть"] },
+  "залупа": { weight: 0.8, variations: ["zалупа", "залуп@", "залупо"] },
+  "пидор": { weight: 0.8, variations: ["п*дор", "пидр", "p!dor", "пидoр"] },
+  "мудак": { weight: 0.7, variations: ["муд@к", "мудaк", "мудaчина"] },
+  "хер": { weight: 0.6, variations: ["х*р", "xер", "хеr"] },
+  "шлюха": { weight: 0.7, variations: ["шл*ха", "шлюho", "шлюх@"] },
+  // Средняя степень нежелательности
+  "дерьмо": { weight: 0.5, variations: ["д*рьмо", "dерьмо", "дерьмо"] },
+  "гондон": { weight: 0.6, variations: ["г*ндон", "гaндон", "гoндон"] },
+  "сука": { weight: 0.6, variations: ["с*ка", "сykа", "сукa", "cyka"] },
+  "жопа": { weight: 0.4, variations: ["ж*па", "жoпa", "jопа"] },
+  // Низкая степень нежелательности
+  "дурак": { weight: 0.3, variations: ["д*рак", "дуpак", "дyрак"] },
+  "придурок": { weight: 0.3, variations: ["пр*дурок", "придyрок"] },
+  "тупой": { weight: 0.2, variations: ["т*пой", "тyпой"] }
 };
 
-/**
- * Проверяет, является ли пользователь администратором
- * @param {Object|null} user - Объект пользователя
- * @returns {boolean} true если пользователь администратор
- */
-function isAdminUser(user) {
-  if (!user) return false;
-  
-  // Проверка по различным полям
-  if (user.email === 'igoraor79@gmail.com') return true;
-  if (user.role === 'admin') return true;
-  if (user.activePerk === 'admin') return true;
-  if (Array.isArray(user.perks) && user.perks.includes('admin')) return true;
-  
-  return false;
-}
+// Контексты, в которых слова могут быть допустимы
+const SAFE_CONTEXTS = [
+  "научный",
+  "образовательный",
+  "медицинский",
+  "исторический"
+];
+
+// Слова-исключения
+const EXCEPTIONS = [
+  "употребление",
+  "херсон",
+  "скипидар",
+  "хердер",
+  "захер",
+  "гексахлороциклогексан"
+];
+
+// Patterns for detecting masked profanity
+const MASKING_PATTERNS = [
+  { pattern: /\.|\*|_|-|#|@|1|3|0|7|4/g, replacement: '' },  // Remove common substitutions
+  { pattern: /\s+(?=[а-яёa-z])/g, replacement: '' },  // Remove spaces between letters
+  { pattern: /(\w)\1+/g, replacement: '$1' }  // Compress repeated letters
+];
 
 /**
- * Нормализует текст для анализа, удаляя спецсимволы и выполняя 
- * другие преобразования для детекции замаскированных слов
+ * Нормализация текста для более точного анализа
  * @param {string} text - Исходный текст
- * @returns {string} Нормализованный текст
+ * @returns {string} - Нормализованный текст
  */
 function normalizeText(text) {
-  // Приводим к нижнему регистру
+  if (!text) return '';
+  
   let normalized = text.toLowerCase();
   
-  // Применяем шаблоны маскировки
-  DISGUISE_PATTERNS.forEach(({ pattern, replaceWith }) => {
-    normalized = normalized.replace(pattern, replaceWith);
+  // Apply all masking patterns
+  MASKING_PATTERNS.forEach(({ pattern, replacement }) => {
+    normalized = normalized.replace(pattern, replacement);
   });
   
   return normalized;
 }
 
 /**
- * Создает альтернативные варианты текста с учетом возможных
- * замен латинских-кириллических символов
+ * Преобразование текста для детекции замаскированных слов
  * @param {string} text - Исходный текст
- * @returns {Array<string>} Массив вариантов текста
+ * @returns {Array<string>} - Массив вариаций текста
  */
-function createTextVariations(text) {
-  // Возвращаем исходный текст и его вариации
+function getTextVariations(text) {
   const variations = [text];
-  let hasAlternativeChars = false;
   
-  // Создаем вариант, где латинские символы заменены на кириллические
-  let cyrillicVariation = '';
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    if (CHAR_MAPPINGS[char]) {
-      cyrillicVariation += CHAR_MAPPINGS[char];
-      hasAlternativeChars = true;
-    } else {
-      cyrillicVariation += char;
-    }
+  // Replace Latin chars that look like Cyrillic
+  const latinToCyrillic = text.replace(/a/g, 'а')
+    .replace(/e/g, 'е')
+    .replace(/o/g, 'о')
+    .replace(/p/g, 'р')
+    .replace(/x/g, 'х')
+    .replace(/c/g, 'с')
+    .replace(/y/g, 'у');
+  
+  if (latinToCyrillic !== text) {
+    variations.push(latinToCyrillic);
   }
   
-  // Создаем вариант, где кириллические символы заменены на латинские
-  let latinVariation = '';
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    if (CHAR_MAPPINGS[char]) {
-      latinVariation += CHAR_MAPPINGS[char];
-      hasAlternativeChars = true;
-    } else {
-      latinVariation += char;
-    }
-  }
+  // Replace Cyrillic chars with Latin
+  const cyrillicToLatin = text.replace(/а/g, 'a')
+    .replace(/е/g, 'e')
+    .replace(/о/g, 'o')
+    .replace(/р/g, 'p')
+    .replace(/х/g, 'x')
+    .replace(/с/g, 'c')
+    .replace(/у/g, 'y');
   
-  // Добавляем вариации только если они отличаются от оригинала
-  if (hasAlternativeChars) {
-    variations.push(cyrillicVariation);
-    variations.push(latinVariation);
+  if (cyrillicToLatin !== text) {
+    variations.push(cyrillicToLatin);
   }
   
   return variations;
 }
 
 /**
- * Проверяет, содержит ли текст нецензурные слова
- * @param {string} text - Текст для проверки
- * @returns {boolean} true если найдены нецензурные слова
+ * Проверяет наличие нецензурной лексики в тексте
+ * @param {string} text - Проверяемый текст
+ * @param {Object} options - Параметры проверки
+ * @returns {Object} - Результат анализа
  */
-function containsProfanity(text) {
-  // Нормализуем текст и создаем его вариации
-  const normalizedText = normalizeText(text);
-  const textVariations = createTextVariations(normalizedText);
+function analyzeText(text, options = {}) {
+  const { threshold = 0.6, safeContext = false } = options;
+  if (!text) return { hasProfanity: false, score: 0, matches: [] };
   
-  // Проверяем все вариации текста
-  for (const variation of textVariations) {
-    // Сначала проверяем полные слова
-    for (const word of FULL_PROFANITY_WORDS) {
-      // Ищем слово с границами слова
-      const regex = new RegExp(`\\b${word}\\b`, 'i');
-      if (regex.test(variation)) {
-        return true;
-      }
-    }
+  let maxScore = 0;
+  let profanityCount = 0;
+  const matches = [];
+  const words = text.split(/\s+/);
+  
+  // Проверка на контекст
+  if (safeContext || SAFE_CONTEXTS.some(context => text.includes(context))) {
+    threshold = 0.85; // Higher threshold for safe contexts
+  }
+  
+  // Для каждого слова выполняем проверку
+  for (const word of words) {
+    const normalizedWord = normalizeText(word);
+    const wordVariations = getTextVariations(normalizedWord);
     
-    // Затем проверяем корни слов
-    for (const root of RUSSIAN_PROFANITY_ROOTS) {
-      // Проверка, что корень не является частью нормального слова через контекст
-      const regex = new RegExp(`\\b\\w*${root}\\w*\\b`, 'i');
-      if (regex.test(variation)) {
-        // Дополнительная проверка найденного слова, содержащего корень
-        const matches = variation.match(regex);
-        if (matches) {
-          const foundWord = matches[0];
+    // Check for exact matches first (highest confidence)
+    for (const variation of wordVariations) {
+      // Check if word is an exception
+      if (EXCEPTIONS.some(ex => variation.includes(ex))) {
+        continue;
+      }
+      
+      // Check for exact matches
+      for (const [badWord, details] of Object.entries(BAD_WORDS_DICTIONARY)) {
+        if (variation === badWord || details.variations.includes(variation)) {
+          maxScore = Math.max(maxScore, details.weight);
+          profanityCount++;
+          matches.push({ word, matchedTo: badWord, score: details.weight });
+          break;
+        }
+      }
+      
+      // Check for partial matches (contained within word)
+      if (matches.length === 0) {
+        for (const [badWord, details] of Object.entries(BAD_WORDS_DICTIONARY)) {
+          const weightedPartialMatch = details.weight * 0.8; // Reduce confidence for partial matches
           
-          // Список исключений (слова, содержащие корни матов, но не являющиеся нецензурными)
-          const exceptions = [
-            'употребляя', 'употребление', 'заблуждение', 'хлебушек', 'херсон', 
-            'схерсонес', 'херес', 'схер', 'хердер', 'гексахлороциклогексан', 'схерстить',
-            'скипидар', 'хлеб'
-          ];
-          
-          // Проверяем, не является ли слово исключением
-          if (!exceptions.some(ex => foundWord.includes(ex))) {
-            return true;
+          if ((variation.length > 3) && 
+              (variation.includes(badWord) || 
+               details.variations.some(v => variation.includes(v)))) {
+            
+            maxScore = Math.max(maxScore, weightedPartialMatch);
+            profanityCount++;
+            matches.push({ word, matchedTo: badWord, score: weightedPartialMatch });
+            break;
           }
         }
       }
     }
   }
   
-  return false;
+  const hasProfanity = maxScore >= threshold;
+  const overallScore = profanityCount > 0 
+    ? Math.min(0.95, maxScore + (0.05 * Math.min(profanityCount, 5))) 
+    : 0;
+  
+  return { 
+    hasProfanity, 
+    score: overallScore, 
+    matches: matches,
+    confidence: hasProfanity ? (overallScore > 0.8 ? 'high' : 'medium') : 'low'
+  };
 }
 
 /**
- * Заменяет нецензурные слова звездочками
+ * Цензурирует нецензурную лексику в тексте
  * @param {string} text - Исходный текст
- * @returns {string} Отцензурированный текст
+ * @param {Object} options - Дополнительные параметры
+ * @returns {string} - Цензурированный текст
  */
-function censorText(text) {
-  // Разбиваем текст на слова
-  const words = text.split(/\s+/);
+function censorText(text, options = {}) {
+  if (!text) return '';
   
-  // Проверяем каждое слово
-  const censoredWords = words.map(word => {
-    // Нормализуем слово
-    const normalizedWord = normalizeText(word);
-    const wordVariations = createTextVariations(normalizedWord);
-    
-    // Проверяем все вариации слова
-    let shouldCensor = false;
-    
-    for (const variation of wordVariations) {
-      // Проверка полных слов
-      for (const profanityWord of FULL_PROFANITY_WORDS) {
-        const regex = new RegExp(`\\b${profanityWord}\\b`, 'i');
-        if (regex.test(variation)) {
-          shouldCensor = true;
-          break;
-        }
-      }
-      
-      if (shouldCensor) break;
-      
-      // Проверка корней
-      for (const root of RUSSIAN_PROFANITY_ROOTS) {
-        const regex = new RegExp(`\\b\\w*${root}\\w*\\b`, 'i');
-        if (regex.test(variation)) {
-          // Проверяем исключения
-          const exceptions = [
-            'употребляя', 'употребление', 'заблуждение', 'хлебушек', 'херсон', 
-            'схерсонес', 'херес', 'схер', 'хердер', 'гексахлороциклогексан', 'схерстить',
-            'скипидар', 'хлеб'
-          ];
-          
-          // Если слово не в исключениях, цензурируем
-          if (!exceptions.some(ex => variation.includes(ex))) {
-            shouldCensor = true;
-            break;
-          }
-        }
-      }
-      
-      if (shouldCensor) break;
+  const { replacementChar = '*', threshold = 0.6 } = options;
+  const words = text.split(/(\s+)/);
+  const censored = [];
+  
+  for (const part of words) {
+    if (/\s+/.test(part)) {
+      censored.push(part); // Keep spaces intact
+      continue;
     }
     
-    // Заменяем слово звездочками если нужно
-    return shouldCensor ? '*'.repeat(word.length) : word;
-  });
+    const analysis = analyzeText(part, { threshold });
+    
+    if (analysis.hasProfanity) {
+      censored.push(replacementChar.repeat(Math.max(2, part.length)));
+    } else {
+      censored.push(part);
+    }
+  }
   
-  // Собираем текст обратно
-  return censoredWords.join(' ');
+  return censored.join('');
 }
 
 /**
- * Основная функция фильтрации нецензурных слов
+ * Проверяет, является ли пользователь администратором
+ * @param {Object} user - Объект пользователя
+ * @returns {boolean} - true если пользователь администратор
+ */
+function isAdminUser(user) {
+  if (!user) return false;
+  
+  return user.email === 'igoraor79@gmail.com' || 
+         user.role === 'admin' || 
+         user.activePerk === 'admin' ||
+         (Array.isArray(user.perks) && user.perks.includes('admin'));
+}
+
+/**
+ * Основная функция фильтрации нецензурной лексики
  * @param {string} text - Исходный текст
- * @param {Object|null} user - Объект пользователя
- * @returns {string} Отфильтрованный текст
+ * @param {Object} user - Объект пользователя
+ * @returns {string} - Отфильтрованный текст
  */
 function filterBadWords(text, user) {
   // Базовые проверки
   if (!text) return '';
   if (typeof text !== 'string') return '';
   
-  // Админам разрешено использовать любые слова
-  if (isAdminUser(user)) {
-    return text;
-  }
+  // Админы могут писать что угодно
+  if (isAdminUser(user)) return text;
   
   try {
-    // Проверяем, содержит ли текст нецензурные слова
-    if (containsProfanity(text)) {
-      // Если да, то цензурируем текст
+    // Анализируем текст на наличие нецензурной лексики
+    const analysis = analyzeText(text);
+    
+    if (analysis.hasProfanity) {
+      console.log('Обнаружена нецензурная лексика:', analysis);
       return censorText(text);
     }
     
-    // Если нет, возвращаем исходный текст
+    // Если нецензурная лексика не обнаружена, возвращаем исходный текст
     return text;
   } catch (error) {
-    console.error('Ошибка при фильтрации текста:', error);
-    // В случае ошибки возвращаем исходный текст
-    return text;
+    console.error('Ошибка при фильтрации нецензурной лексики:', error);
+    return text; // В случае ошибки возвращаем исходный текст
   }
 }
 

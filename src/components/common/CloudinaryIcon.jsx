@@ -54,6 +54,7 @@ const CloudinaryIcon = ({
             alt={alt || `Иконка ${icon} ${index ? `- ${index}` : ''}`} 
             loading="eager"
             decoding="async"
+            crossOrigin="anonymous"
             onError={(e) => {
               console.warn(`Ошибка загрузки иконки ${icon}:`, e.target.src);
             }}

@@ -52,9 +52,6 @@
     --gradient-end: #666666;
     
     /* Фоновое изображение - отдельные переменные для каждого формата */
-    --page-bg-avif: url('/pics/background.avif');
-    --page-bg-webp: url('/pics/background.webp');
-    --page-bg-jpg: url('/pics/background.jpg');
     
     /* Переходы и анимации */
     --transition-fast: 0.2s ease;
@@ -115,9 +112,6 @@
     --gradient-end: #a0a0a0;
     
     /* Фоновые изображения - темная тема */
-    --page-bg-avif: url('/pics/backgroundblack.avif');
-    --page-bg-webp: url('/pics/backgroundblack.webp');
-    --page-bg-jpg: url('/pics/backgroundblack.jpg');
     
     /* Стили для скроллбара в темной теме */
     --scrollbar-track: #2a2a2a;
@@ -179,7 +173,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     margin: 0 auto;
     background-color: var(--background-color);
-    background-image: var(--page-bg-jpg); /* Fallback */
+    background-image: var(--page-bg); /* Single background image with best format */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -187,22 +181,6 @@ h1, h2, h3, h4, h5, h6 {
     transition: all var(--transition-slow);
     overflow: hidden;
     background-attachment: fixed;
-}
-
-/* Поддержка AVIF */
-@supports (background-image: url('/pics/test.avif')) {
-    .page {
-        background-image: var(--page-bg-avif);
-    }
-}
-
-/* Поддержка WebP если AVIF не поддерживается */
-@supports not (background-image: url('/pics/test.avif')) {
-    @supports (background-image: url('/pics/test.webp')) {
-        .page {
-            background-image: var(--page-bg-webp);
-        }
-    }
 }
 
 img {

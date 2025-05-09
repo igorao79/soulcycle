@@ -52,4 +52,52 @@ DROP POLICY IF EXISTS "Администраторы могут обновлят�
 CREATE POLICY "Администраторы могут обновлять закрепление постов" ON posts 
 FOR UPDATE 
 USING (auth.uid() IS NOT NULL)
-WITH CHECK (is_admin()); 
+WITH CHECK (is_admin());
+
+-- Удаляем существующую функцию, чтобы избежать ошибки изменения типа возвращаемого значения
+DROP FUNCTION IF EXISTS pin_post(UUID);
+
+-- Создаем хранимую процедуру для закрепления поста
+-- Эта процедура сначала открепляет все посты, а затем закрепляет указанный пост
+CREATE OR REPLACE FUNCTION pin_post(post_id_to_pin UUID)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  pinned_post JSON;
+  post_exists BOOLEAN;
+BEGIN
+  -- Проверяем, существует ли указанный пост
+  SELECT EXISTS(SELECT 1 FROM posts WHERE id = post_id_to_pin) INTO post_exists;
+  
+  IF NOT post_exists THEN
+    RAISE EXCEPTION 'Пост с указанным ID не найден: %', post_id_to_pin;
+  END IF;
+
+  -- Проверяем, является ли пользователь администратором
+  IF NOT is_admin() THEN
+    RAISE EXCEPTION 'Только администраторы могут закреплять посты';
+  END IF;
+
+  -- Открепляем все посты в рамках транзакции
+  UPDATE posts SET is_pinned = false WHERE is_pinned = true;
+  
+  -- Закрепляем указанный пост
+  UPDATE posts SET is_pinned = true WHERE id = post_id_to_pin;
+  
+  -- Возвращаем обновленный пост
+  SELECT row_to_json(p) INTO pinned_post
+  FROM (
+    SELECT id, title, content, image_url, user_id, created_at, is_pinned
+    FROM posts
+    WHERE id = post_id_to_pin
+  ) p;
+  
+  RETURN pinned_post;
+
+EXCEPTION
+  WHEN others THEN
+    RAISE EXCEPTION 'Ошибка при закреплении поста: %', SQLERRM;
+END;
+$$; 

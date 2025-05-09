@@ -3,28 +3,70 @@
     display: flex;
     align-items: center;
     padding: 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 15px;
+    border-radius: 16px;
     width: 100%;
-    max-width: 300px;
-    min-height: 80px;
+    max-width: 340px;
+    min-height: 120px;
     overflow: hidden;
-    background-color: var(--background-color2);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    
     &:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        
+        .member__info__details__name::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .member__imageContainer {
+            transform: scale(1.05);
+        }
     }
 
     &__imageWrapper {
         position: relative;
-        width: 60px;
-        height: 60px;
+        min-width: 80px;
+        width: 80px;
+        height: 80px;
         overflow: hidden;
         border-radius: 50%;
-        background: var(--background-color2);
+        z-index: 1;
+        
+        &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent), transparent);
+            border-radius: 50%;
+            z-index: -1;
+            animation: borderRotate 4s linear infinite;
+        }
+    }
+
+    &__imageContainer {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 50%;
+        background: var(--bg-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.35s ease;
+        border: 3px solid var(--bg-primary);
+        
+        a {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     }
 
     &__image {
@@ -32,6 +74,7 @@
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
+        transition: filter 0.3s ease;
     }
 
     &__info {
@@ -39,19 +82,19 @@
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
-        gap: 5px;
+        gap: 8px;
         flex: 1;
         padding-left: 20px;
 
         &__details {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
 
             &__name {
                 font-size: 1.4rem;
                 margin: 0;
-                color: var(--text-color);
+                color: var(--text-primary);
                 position: relative;
                 display: inline-block;
                 font-weight: 600;
@@ -64,13 +107,37 @@
                     bottom: -2px;
                     left: 0;
                     width: 100%;
-                    height: 1px;
-                    background: var(--text-color);
+                    height: 2px;
+                    background: var(--accent);
                     transform: scaleX(0);
                     transform-origin: right;
-                    transition: transform 0.3s ease;
+                    transition: transform 0.4s ease;
                 }
-
+            }
+            
+            &__link {
+                color: var(--text-primary);
+                text-decoration: none;
+                transition: color 0.3s ease;
+                position: relative;
+                
+                &:hover {
+                    color: var(--accent);
+                }
+                
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background: var(--accent);
+                    transform: scaleX(0);
+                    transform-origin: right;
+                    transition: transform 0.4s ease;
+                }
+                
                 &:hover::after {
                     transform: scaleX(1);
                     transform-origin: left;
@@ -78,145 +145,116 @@
             }
 
             &__role {
-                font-size: 1.2rem;
-                color: var(--text-color);
-                opacity: 0.8;
+                font-size: 1.1rem;
+                color: var(--text-secondary);
                 font-style: italic;
+                margin-top: 2px;
             }
         }
 
         &__bio {
-            font-size: 1.4rem;
-            color: var(--text-color);
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            margin-bottom: 0;
         }
     }
 
+    // Custom styling for specific members
     &--igor {
+        position: relative;
+        overflow: hidden;
+        
         &::before {
             content: '✧';
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             font-size: 1.5rem;
-            color: var(--text-color);
+            color: var(--accent);
             opacity: 0.8;
-            animation: rotate 4s linear infinite;
+            animation: rotate 8s linear infinite;
         }
-
-
+        
+        &::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.15;
+            z-index: 0;
+        }
     }
 
     &--lesya {
+        position: relative;
+        overflow: hidden;
+        
         &::before {
             content: '♥';
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             font-size: 1.5rem;
-            color: var(--text-color);
+            color: var(--accent);
             opacity: 0.8;
-            animation: float 2s infinite;
+            animation: heartbeat 2s infinite ease-in-out;
         }
-
+        
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.15;
+            z-index: 0;
+        }
     }
-}
-
-/* Тёмная тема */
-:global(.dark) {
-    .member {
-        background-color: var(--background-color2);
+    
+    // Dark theme adjustments
+    [data-theme="dark"] & {
+        background-color: var(--bg-secondary);
         border-color: var(--border-color);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
         &:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
         }
+        
+        .member__imageContainer {
+            border-color: var(--bg-secondary);
         }
-}
-
-
-/* Адаптив для мобильных устройств */
-@media (max-width: 768px) {
-    .member {
-        padding: 15px;
-        min-height: 70px;
-        max-width: 100%;
-
-        &__imageWrapper {
-            width: 50px;
-            height: 50px;
-        }
-
-        &__info {
-            padding-left: 15px;
-
-            &__details {
-                &__name {
-                    font-size: 1.2rem;
-                }
-
-                &__role {
-                    font-size: 1rem;
-                }
-            }
-
-            &__bio {
-                font-size: 1.2rem;
-            }
-        }
-
-        &--igor::before,
-        &--lesya::before {
-            font-size: 1.3rem;
-            top: 8px;
-            right: 8px;
+        
+        &::after {
+            opacity: 0.25;
         }
     }
 }
 
-@media (max-width: 480px) {
-    .member {
-        padding: 12px;
-        min-height: 60px;
-
-        &__imageWrapper {
-            width: 45px;
-            height: 45px;
-        }
-
-        &__info {
-            padding-left: 12px;
-
-            &__details {
-                &__name {
-                    font-size: 1.1rem;
-                }
-
-                &__role {
-                    font-size: 0.9rem;
-                }
-            }
-
-            &__bio {
-                font-size: 1.1rem;
-            }
-        }
-
-        &--igor::before,
-        &--lesya::before {
-            font-size: 1.2rem;
-            top: 6px;
-            right: 6px;
-        }
+/* Specialized animations */
+@keyframes borderRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }
 
-@keyframes float {
+@keyframes heartbeat {
     0%, 100% {
-        transform: translateY(0);
+        transform: scale(1);
     }
     50% {
-        transform: translateY(-5px);
+        transform: scale(1.2);
+        opacity: 1;
     }
 }
 
@@ -229,23 +267,96 @@
     }
 }
 
-
-@keyframes borderRotate {
-    from {
-        transform: rotate(0deg);
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
     }
-    to {
-        transform: rotate(360deg);
+    50% {
+        transform: translateY(-5px);
     }
 }
 
+/* Adaptive styles for mobile devices */
+@media (max-width: 768px) {
+    .member {
+        padding: 15px;
+        min-height: 100px;
+        max-width: 100%;
+        flex-direction: row;
 
-@keyframes blink {
-    0%, 100% {
-        opacity: 0.5;
+        &__imageWrapper {
+            min-width: 70px;
+            width: 70px;
+            height: 70px;
+        }
+
+        &__info {
+            padding-left: 15px;
+
+            &__details {
+                &__name {
+                    font-size: 1.2rem;
+                }
+
+                &__role {
+                    font-size: 0.95rem;
+                }
+            }
+
+            &__bio {
+                font-size: 1.1rem;
+                line-height: 1.4;
+            }
+        }
+
+        &--igor::before,
+        &--lesya::before {
+            font-size: 1.3rem;
+            top: 10px;
+            right: 10px;
+        }
     }
-    50% {
-        opacity: 1;
+}
+
+@media (max-width: 480px) {
+    .member {
+        padding: 12px;
+        min-height: 90px;
+
+        &__imageWrapper {
+            min-width: 60px;
+            width: 60px;
+            height: 60px;
+        }
+
+        &__info {
+            padding-left: 15px;
+
+            &__details {
+                &__name {
+                    font-size: 1.1rem;
+                }
+
+                &__role {
+                    font-size: 0.9rem;
+                }
+            }
+
+            &__bio {
+                font-size: 1rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+
+        &--igor::before,
+        &--lesya::before {
+            font-size: 1.2rem;
+            top: 8px;
+            right: 8px;
+        }
     }
 }
 

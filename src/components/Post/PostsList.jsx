@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import postService from '../../services/postService';
 import PostItem from './PostItem';
 import CreatePostForm from './CreatePostForm';
+import RulesModal from '../Rules/RulesModal';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Post.module.scss';
 import { 
   FiMessageSquare, FiRefreshCw, FiLoader, FiAlertCircle, 
-  FiFileText, FiInbox
+  FiFileText, FiInbox, FiBookOpen
 } from 'react-icons/fi';
 
 const PostsList = () => {
@@ -15,6 +16,7 @@ const PostsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   
   // Проверка, является ли пользователь администратором
   const isAdmin = isAuthenticated && user && (
@@ -91,11 +93,20 @@ const PostsList = () => {
   };
   
   // Обработчик изменения статуса закрепления
-  const handlePinChange = async (postId, isPinned) => {
+  const handlePinChange = async (postId, isPinned, previouslyPinnedId) => {
     // Обновляем локальное состояние постов
-    const updatedPosts = posts.map(post => 
-      post.id === postId ? { ...post, is_pinned: isPinned } : post
-    );
+    const updatedPosts = posts.map(post => {
+      // Для закрепляемого поста
+      if (post.id === postId) {
+        return { ...post, is_pinned: isPinned };
+      }
+      // Если пост был ранее закреплен и мы закрепляем новый
+      else if (previouslyPinnedId && post.id === previouslyPinnedId && isPinned) {
+        return { ...post, is_pinned: false };
+      }
+      // Остальные посты
+      return post;
+    });
     
     // Сортируем посты так, чтобы закрепленные были сверху
     const pinnedPosts = updatedPosts.filter(post => post.is_pinned);
@@ -113,6 +124,11 @@ const PostsList = () => {
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
   };
+
+  // Обработчик открытия/закрытия модального окна с правилами
+  const toggleRulesModal = () => {
+    setIsRulesModalOpen(prev => !prev);
+  };
   
   return (
     <div className={styles.postsContainer}>
@@ -120,13 +136,21 @@ const PostsList = () => {
         <h2>
           <FiFileText /> Лента постов
         </h2>
-        <button 
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={loading}
-        >
-          {loading ? <FiLoader /> : <FiRefreshCw />} Обновить
-        </button>
+        <div className={styles.headerButtons}>
+          <button 
+            className={styles.rulesButton}
+            onClick={toggleRulesModal}
+          >
+            <FiBookOpen /> Правила
+          </button>
+          <button 
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            {loading ? <FiLoader /> : <FiRefreshCw />} Обновить
+          </button>
+        </div>
       </div>
       
       {/* Отображаем форму создания постов только для администраторов */}
@@ -160,6 +184,12 @@ const PostsList = () => {
           <p>Постов пока нет. {isAdmin ? 'Создайте первый пост!' : 'Скоро здесь появится интересный контент!'}</p>
         </div>
       )}
+
+      {/* Модальное окно с правилами */}
+      <RulesModal
+        isOpen={isRulesModalOpen}
+        onClose={() => setIsRulesModalOpen(false)}
+      />
     </div>
   );
 };

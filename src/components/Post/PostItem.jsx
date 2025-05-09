@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import postService from '../../services/postService';
@@ -146,7 +146,6 @@ const PollOptionButton = styled.div`
   display: flex;
   align-items: center;
   transition: all 0.2s ease;
-  color: var(--text-primary);
   
   &:hover {
     background: ${props => props.$disabled ? 'transparent' : 'rgba(29, 161, 242, 0.05)'};
@@ -154,12 +153,17 @@ const PollOptionButton = styled.div`
   
   [data-theme="dark"] & {
     border-color: rgba(255, 255, 255, 0.1);
-    background: ${props => props.$isSelected ? 'rgba(29, 161, 242, 0.2)' : 'transparent'};
+    background: ${props => props.$isSelected ? 'rgba(29, 161, 242, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
     color: var(--text-primary);
     
     &:hover {
-      background: ${props => props.$disabled ? 'transparent' : 'rgba(29, 161, 242, 0.1)'};
+      background: ${props => props.$disabled ? 'rgba(255, 255, 255, 0.05)' : 'rgba(29, 161, 242, 0.1)'};
     }
+    
+    ${props => props.$isSelected && `
+      box-shadow: 0 0 5px rgba(29, 161, 242, 0.3);
+      border-color: rgba(29, 161, 242, 0.5);
+    `}
   }
 `;
 
@@ -173,12 +177,20 @@ const OptionText = styled.span`
   // Force color to adapt to theme
   [data-theme="dark"] & {
     color: var(--text-primary) !important;
+    ${props => props.$isSelected && `
+      text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
+    `}
   }
 `;
 
 const CheckIcon = styled(FiCheck)`
   color: var(--accent, #1da1f2);
   margin-right: 10px;
+  
+  [data-theme="dark"] & {
+    color: white;
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+  }
 `;
 
 const PercentageText = styled.span`
@@ -186,6 +198,11 @@ const PercentageText = styled.span`
   font-weight: 600;
   font-size: 14px;
   margin-left: auto;
+  
+  [data-theme="dark"] & {
+    color: white;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  }
 `;
 
 const ProgressBarContainer = styled.div`
@@ -207,6 +224,11 @@ const ProgressBarFill = styled.div`
   width: ${props => props.$width}%;
   border-radius: 3px;
   transition: width 0.5s ease-out;
+  
+  [data-theme="dark"] & {
+    background: linear-gradient(90deg, #1d9cf2 0%, #36c3ff 100%);
+    box-shadow: 0 0 5px rgba(29, 161, 242, 0.5);
+  }
 `;
 
 const VotesCount = styled.div`
@@ -378,24 +400,68 @@ const dropdownVariants = {
 };
 
 // Компонент для отображения опроса
-const PollComponent = ({ poll, postId, onVote, hasVoted, votedOption, results, isAdmin }) => {
+const PollComponent = ({ poll, postId, onVote, hasVoted, votedOption, results, isAdmin, user }) => {
   const { isAuthenticated } = useAuth();
-  const [totalVotes, setTotalVotes] = useState(0);
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteError, setVoteError] = useState(null);
   const [showAuthWarning, setShowAuthWarning] = useState(false);
   
   // Получаем цвета для стилизации опроса
   const pollOptionsColor = poll.optionsColor || (poll.styling && poll.styling.optionsColor) || null;
   const pollFontFamily = (poll.styling && poll.styling.fontFamily) || 'inherit';
   
-  // Log poll data for debugging
-  console.log('Poll data in PollComponent:', poll);
-  
-  useEffect(() => {
-    if (results) {
-      const total = results.reduce((sum, result) => sum + result.votes, 0);
-      setTotalVotes(total);
-    }
+  // Рассчитываем общее количество голосов непосредственно из results при каждом рендере
+  const totalVotes = useMemo(() => {
+    if (!results || !Array.isArray(results)) return 0;
+    return results.reduce((sum, result) => sum + (result.votes || 0), 0);
   }, [results]);
+  
+  // Алгоритм правильного распределения процентов с гарантированной суммой 100%
+  const pollPercentages = useMemo(() => {
+    if (!results || !Array.isArray(results) || totalVotes === 0) {
+      return poll.options.map(() => 0);
+    }
+    
+    // Сначала вычисляем точные проценты с плавающей точкой
+    const exactPercentages = results.map(result => (result.votes / totalVotes) * 100);
+    
+    // Округляем вниз и считаем, сколько процентов "потеряли" из-за округления
+    const roundedDown = exactPercentages.map(p => Math.floor(p));
+    const remainingPercent = 100 - roundedDown.reduce((sum, p) => sum + p, 0);
+    
+    // Сортируем индексы по дробной части (от большей к меньшей)
+    const indices = exactPercentages.map((p, i) => i);
+    indices.sort((a, b) => (exactPercentages[b] - Math.floor(exactPercentages[b])) - 
+                           (exactPercentages[a] - Math.floor(exactPercentages[a])));
+    
+    // Распределяем оставшиеся проценты тем вариантам, у которых больше дробная часть
+    const finalPercentages = [...roundedDown];
+    for (let i = 0; i < remainingPercent; i++) {
+      finalPercentages[indices[i % indices.length]]++;
+    }
+    
+    console.log('Exact percentages:', exactPercentages);
+    console.log('Final percentages with correct distribution:', finalPercentages);
+    console.log('Total sum:', finalPercentages.reduce((sum, p) => sum + p, 0));
+    
+    return finalPercentages;
+  }, [results, totalVotes, poll.options.length]);
+  
+  // Выводим детальную отладочную информацию
+  useEffect(() => {
+    console.log('PollComponent render:');
+    console.log('- Poll:', poll);
+    console.log('- Results:', results);
+    console.log('- Total votes calculated:', totalVotes);
+    console.log('- Calculated percentages:', pollPercentages);
+    
+    if (results && Array.isArray(results)) {
+      // Проверяем расчет процентов
+      results.forEach((result, idx) => {
+        console.log(`Option "${result.option}": ${result.votes}/${totalVotes} = ${pollPercentages[idx]}%`);
+      });
+    }
+  }, [poll, results, totalVotes, pollPercentages]);
 
   const handleVote = async (optionIndex) => {
     if (!isAuthenticated) {
@@ -403,12 +469,19 @@ const PollComponent = ({ poll, postId, onVote, hasVoted, votedOption, results, i
       return;
     }
     
-    if (hasVoted) return;
+    if (hasVoted || isVoting) return;
+
+    setIsVoting(true);
+    setVoteError(null);
     
     try {
       await onVote(optionIndex);
     } catch (error) {
       console.error('Ошибка при голосовании:', error);
+      setVoteError(error.message || 'Ошибка при голосовании. Пожалуйста, попробуйте позже.');
+      setTimeout(() => setVoteError(null), 5000);
+    } finally {
+      setIsVoting(false);
     }
   };
 
@@ -420,21 +493,57 @@ const PollComponent = ({ poll, postId, onVote, hasVoted, votedOption, results, i
       {!poll.hideQuestion && (
         <PollQuestion>{poll.question}</PollQuestion>
       )}
+      
+      {voteError && (
+        <div style={{
+          padding: '10px',
+          margin: '10px 0',
+          backgroundColor: 'rgba(255, 0, 0, 0.1)',
+          borderLeft: '3px solid red',
+          color: 'var(--text-primary)',
+          fontSize: '14px'
+        }}>
+          {voteError}
+        </div>
+      )}
+      
       <PollOptionsList>
         {poll.options.map((option, index) => {
-          const result = results?.find(r => r.option === option) || { votes: 0 };
-          const percent = totalVotes > 0 
-            ? Math.round((result.votes / totalVotes) * 100) 
-            : 0;
+          // Находим результат для этой опции - сначала по тексту опции, потом по индексу
+          let result;
+          if (results && Array.isArray(results)) {
+            // Сначала пробуем найти по точному совпадению текста
+            result = results.find(r => r.option === option);
+            
+            // Если не нашли по тексту, используем индекс
+            if (!result && results[index]) {
+              result = results[index];
+            }
+            
+            // Если все равно не нашли, создаем пустой результат
+            if (!result) {
+              result = { option, votes: 0 };
+            }
+          } else {
+            // Если results не массив или не существует, создаем пустой результат
+            result = { option, votes: 0 };
+          }
+          
+          // Используем заранее рассчитанные проценты с гарантированной суммой 100%
+          const percent = showResults ? pollPercentages[index] || 0 : 0;
+          
           const isSelected = votedOption === index;
           
           return (
             <PollOption 
               key={`option-${index}-${option}`} 
               onClick={() => hasVoted ? null : handleVote(index)}
-              $disabled={hasVoted}
+              $disabled={hasVoted || isVoting}
             >
-              <PollOptionButton $isSelected={isSelected} $disabled={hasVoted}>
+              <PollOptionButton $isSelected={isSelected} $disabled={hasVoted || isVoting}>
+                {isVoting && index === votedOption && (
+                  <span style={{marginRight: '8px'}}>⏳</span>
+                )}
                 {isSelected && <CheckIcon />}
                 <OptionText 
                   $isSelected={isSelected} 
@@ -778,11 +887,26 @@ function CommentItem({ comment, onReply, onDelete }) {
   
   const handleReplyClick = () => {
     if (!isAuthenticated) {
-      setShowAuthWarning(true);
+      setShowAuthWarning('reply');
       return;
     }
-    setShowReplyForm(true);
+    
+    // Переключаем состояние формы ответа
+    setShowReplyForm(prevState => !prevState);
     setShowActionsDropdown(false);
+    
+    // Если форма открывается, то фокусируемся на текстовом поле
+    if (!showReplyForm) {
+      setTimeout(() => {
+        const textareas = document.querySelectorAll(`.${styles.replyForm} textarea`);
+        if (textareas.length > 0) {
+          textareas[textareas.length - 1].focus();
+        }
+      }, 100);
+    }
+    
+    // Добавляем логирование для отладки
+    console.log('Нажата кнопка "Ответить":', comment.id, 'Форма будет отображена:', !showReplyForm);
   };
   
   const handleCancelReply = () => {
@@ -873,18 +997,10 @@ function CommentItem({ comment, onReply, onDelete }) {
   
   return (
     <div className={styles.commentItem}>
-      {/* Inject responsive and swipe styles */}
+      {/* Inject responsive styles */}
       <style dangerouslySetInnerHTML={{ __html: commentResponsiveStyles }} />
-      <style dangerouslySetInnerHTML={{ __html: mobileCommentResponsiveStyles }} />
-      <style dangerouslySetInnerHTML={{ __html: slideActionStyles }} />
       
-      <div 
-        className={`commentInner ${swiped ? 'swiped' : ''}`}
-        ref={commentRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+      <div className="commentInner">
         <div className={styles.commentHeader}>
           <div className={styles.commentAuthorAvatar}>
             <OptimizedAvatar src={comment.author.avatar} alt={comment.author.displayName} className={styles.avatar} />
@@ -911,36 +1027,6 @@ function CommentItem({ comment, onReply, onDelete }) {
               </span>
             </Link>
           </div>
-          
-          {/* Mobile dropdown for comment actions - using improved touch UI */}
-          <div className={`${styles.commentActions} ${styles.mobileOnly}`} style={{ position: 'absolute', top: '5px', right: '5px' }}>
-            <CommentActionsDropdown onClick={e => e.stopPropagation()}>
-              <DropdownToggle onClick={() => setShowActionsDropdown(!showActionsDropdown)}>
-                <FiMoreVertical />
-              </DropdownToggle>
-              
-              <AnimatePresence>
-                {showActionsDropdown && (
-                  <DropdownMenu
-                    variants={dropdownVariants}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                  >
-                    <DropdownItem onClick={handleReplyClick}>
-                      <FiCornerDownRight /> Ответить
-                    </DropdownItem>
-                    
-                    {canDeleteComment && (
-                      <DropdownItem onClick={openDeleteConfirm} $danger={true}>
-                        <FiTrash2 /> Удалить
-                      </DropdownItem>
-                    )}
-                  </DropdownMenu>
-                )}
-              </AnimatePresence>
-            </CommentActionsDropdown>
-          </div>
         </div>
         
         <div className={styles.commentContent}>{comment.content}</div>
@@ -949,8 +1035,8 @@ function CommentItem({ comment, onReply, onDelete }) {
           <FiClock /> {formatRelativeTime(comment.created_at)}
         </div>
         
-        {/* Desktop comment actions */}
-        <div className={`${styles.commentActions} ${styles.desktopOnly}`}>
+        {/* Унифицированные кнопки действий */}
+        <div className={styles.commentActions}>
           <button 
             className={styles.replyButton}
             onClick={handleReplyClick}
@@ -968,19 +1054,6 @@ function CommentItem({ comment, onReply, onDelete }) {
             </button>
           )}
         </div>
-        
-        {/* Mobile swipe actions */}
-        <div className="commentSwipeActions">
-          <div className="commentActionButton replyAction" onClick={handleReplyClick}>
-            <FiCornerDownRight />
-          </div>
-          
-          {canDeleteComment && (
-            <div className="commentActionButton deleteAction" onClick={openDeleteConfirm}>
-              <FiTrash2 />
-            </div>
-          )}
-        </div>
       </div>
       
       {/* Delete confirmation dialog */}
@@ -994,6 +1067,43 @@ function CommentItem({ comment, onReply, onDelete }) {
         cancelText="Отмена"
         isDanger={true}
       />
+      
+      {/* Форма для ответа на комментарий */}
+      {showReplyForm && (
+        <form onSubmit={handleSubmitReply} className={styles.replyForm}>
+          <textarea
+            value={replyContent}
+            onChange={(e) => setReplyContent(e.target.value)}
+            placeholder="Напишите ответ..."
+            disabled={isSubmittingReply}
+          />
+          <div className={styles.replyFormActions}>
+            <button 
+              type="button" 
+              onClick={handleCancelReply} 
+              className={styles.cancelReplyButton}
+              disabled={isSubmittingReply}
+            >
+              <FiX /> Отмена
+            </button>
+            <button 
+              type="submit" 
+              className={styles.submitReplyButton}
+              disabled={isSubmittingReply}
+            >
+              {isSubmittingReply ? (
+                <>
+                  <FiLoader /> Отправка...
+                </>
+              ) : (
+                <>
+                  <FiSend /> Ответить
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
       
       {comment.replies && comment.replies.length > 0 && (
         <div className={styles.repliesContainer}>
@@ -1505,24 +1615,37 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
     }
     
     try {
-      const { results } = await postService.voteInPoll(post.id, user.id, optionIndex);
-      setHasVoted(true);
-      setVotedOption(optionIndex);
-      setPollResults(results);
+      // Fix the function name - votePoll instead of voteInPoll
+      const response = await postService.votePoll(post.id, optionIndex);
+      
+      if (response.success) {
+        setHasVoted(true);
+        setVotedOption(optionIndex);
+        setPollResults(response.results);
+      } else {
+        throw new Error(response.message || 'Ошибка при голосовании');
+      }
     } catch (error) {
       console.error('Ошибка при голосовании:', error);
-      alert('Не удалось проголосовать. Возможно, таблица для голосования еще не создана в базе данных.');
       
-      // В случае ошибки создаем фиктивный результат голосования
+      // Show proper error message to user
+      alert(`Не удалось проголосовать: ${error.message || 'Неизвестная ошибка'}`);
+      
+      // In case of error, try to provide fallback UI update
       if (post.poll_data && post.poll_data.options) {
-        // Создаем имитацию результатов с одним голосом пользователя
+        // Create fake results with one vote for debug purposes
         const fakeResults = post.poll_data.options.map((option, index) => ({
           option,
           votes: index === optionIndex ? 1 : 0
         }));
-        setHasVoted(true);
-        setVotedOption(optionIndex);
-        setPollResults(fakeResults);
+        
+        // Only in development - update UI even after error
+        if (process.env.NODE_ENV === 'development') {
+          setHasVoted(true);
+          setVotedOption(optionIndex);
+          setPollResults(fakeResults);
+          console.log('Development mode: Showing fake poll results after error');
+        }
       }
     }
   };
@@ -1858,6 +1981,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
                   votedOption={votedOption}
                   results={pollResults}
                   isAdmin={isAdmin}
+                  user={user}
                 />
               </div>
             )}
@@ -2094,6 +2218,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
                 votedOption={votedOption}
                 results={pollResults}
                 isAdmin={isAdmin}
+                user={user}
               />
             </div>
           )}
@@ -2246,4 +2371,5 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
   );
 };
 
+// Явный экспорт компонента PostItem
 export default PostItem; 

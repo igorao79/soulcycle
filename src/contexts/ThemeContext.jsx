@@ -14,7 +14,26 @@ export const ThemeProvider = ({ children }) => {
   }, [isDarkMode]);
 
   const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
+    // Add transitioning class to disable transitions during theme change
+    document.documentElement.classList.add('theme-transitioning');
+    document.body.style.willChange = 'background-color, color';
+    
+    // Use requestAnimationFrame to batch changes in the next frame
+    requestAnimationFrame(() => {
+      setIsDarkMode(prev => !prev);
+      
+      // Force a reflow
+      void document.documentElement.offsetHeight;
+      
+      // Remove transitioning class after theme change is complete to re-enable transitions
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transitioning');
+        document.body.style.willChange = '';
+        
+        // Dispatch theme change event
+        window.dispatchEvent(new Event('themechange'));
+      }, 50); // Small delay to ensure the theme has fully applied
+    });
   };
 
   return (

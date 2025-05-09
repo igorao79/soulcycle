@@ -1,13 +1,11 @@
 import React from 'react';
-
-// Заглушка для аватара - путь к гостевому аватару
-const DEFAULT_AVATAR_PATH = './pics/pfp/guest';
+import { Avatar, AVATARS } from '../../utils/cloudinary';
 
 /**
- * Компонент для оптимизированного отображения аватара с поддержкой нескольких форматов
+ * Компонент для оптимизированного отображения аватара с использованием Cloudinary
  * 
  * @param {Object} props - Свойства компонента
- * @param {string} props.src - Путь к аватару
+ * @param {string} props.src - Путь к аватару (имя файла без расширения или полный URL)
  * @param {string} props.alt - Альтернативный текст
  * @param {string} props.className - CSS-класс для элемента img
  * @param {Function} props.onLoad - Обработчик события загрузки
@@ -15,44 +13,74 @@ const DEFAULT_AVATAR_PATH = './pics/pfp/guest';
  * @returns {JSX.Element} - Компонент аватара с поддержкой различных форматов
  */
 const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
-  // Если путь к аватару не указан, используем заглушку
-  const basePath = src || DEFAULT_AVATAR_PATH;
+  // Определяем имя аватара для Cloudinary
+  let avatarName = AVATARS.GUEST;
   
-  // Создаем ссылки на различные форматы изображения
-  const getAvatarPath = (format) => {
-    // Если путь уже содержит расширение, не изменяем его
-    if (src && (src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.jpeg') || 
-               src.endsWith('.webp') || src.endsWith('.avif') || src.startsWith('data:') ||
-               src.startsWith('http'))) {
-      return src;
+  // Получаем размер аватара из стилей или параметров
+  const getAvatarSize = () => {
+    if (style?.width) {
+      return parseInt(style.width, 10) * 2; // Запрашиваем в 2 раза больше для ретина дисплеев
+    } else if (style?.height) {
+      return parseInt(style.height, 10) * 2; // Запрашиваем в 2 раза больше для ретина дисплеев
+    } else {
+      return 180; // Значение по умолчанию, достаточно большое для хорошего качества
     }
-    
-    return `${basePath}.${format}`;
   };
-
+  
+  // Проверяем, является ли src одним из предопределенных аватаров
+  if (src) {
+    if (src.includes('pfp1') || src.includes('vivian')) {
+      avatarName = AVATARS.VIVIAN;
+    } else if (src.includes('pfp2') || src.includes('akito')) {
+      avatarName = AVATARS.AKITO;
+    } else if (src.includes('pfp3') || src.includes('lonarius')) {
+      avatarName = AVATARS.LONARIUS;
+    } else if (src.includes('pfp4') || src.includes('faust')) {
+      avatarName = AVATARS.FAUST;
+    } else if (src.includes('igorpic') || src === AVATARS.IGOR) {
+      avatarName = AVATARS.IGOR;
+    } else if (src.includes('lesyapic') || src === AVATARS.LESYA) {
+      avatarName = AVATARS.LESYA;
+    } else if (src.startsWith('http') || src.startsWith('data:')) {
+      // Если это полный URL или Data URL, используем его как есть
+      return (
+        <img
+          src={src}
+          alt={alt || "Аватар пользователя"}
+          className={className}
+          style={{
+            ...style,
+            objectFit: 'cover',
+            imageRendering: 'auto',
+          }}
+          onLoad={onLoad}
+          loading="eager"
+          crossOrigin="anonymous"
+          onError={(e) => {
+            console.warn('Ошибка загрузки аватара:', e.target.src);
+            // Используем гостевой аватар из Cloudinary в случае ошибки
+            e.target.src = `https://res.cloudinary.com/do9t8preg/image/upload/q_100,dpr_auto,fl_progressive/v1746775570/${AVATARS.GUEST}`;
+            e.target.onerror = null;
+          }}
+        />
+      );
+    }
+  }
+  
+  // Используем компонент Avatar из cloudinary.jsx с улучшенными настройками для качества
   return (
-    <picture>
-      {/* AVIF формат - наиболее оптимизированный */}
-      <source srcSet={getAvatarPath('avif')} type="image/avif" />
-      {/* WebP формат - хорошо поддерживается в большинстве браузеров */}
-      <source srcSet={getAvatarPath('webp')} type="image/webp" />
-      {/* PNG формат - запасной вариант для всех браузеров */}
-      <img 
-        src={getAvatarPath('png')} 
-        alt={alt || "Аватар пользователя"} 
-        className={className}
-        style={style}
-        onLoad={onLoad}
-        onError={(e) => {
-          console.warn('Ошибка загрузки аватара:', e.target.src);
-          // Если все форматы не загрузились, устанавливаем гостевой аватар
-          if (e.target.src !== `${DEFAULT_AVATAR_PATH}.png`) {
-            e.target.src = `${DEFAULT_AVATAR_PATH}.png`;
-          }
-          e.target.onerror = null;
-        }}
-      />
-    </picture>
+    <Avatar
+      avatar={avatarName}
+      alt={alt || "Аватар пользователя"}
+      className={className}
+      style={{
+        ...style,
+        objectFit: 'cover',
+        imageRendering: 'auto',
+      }}
+      size={getAvatarSize()}
+      onLoad={onLoad}
+    />
   );
 };
 

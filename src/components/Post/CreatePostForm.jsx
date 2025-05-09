@@ -183,8 +183,15 @@ const CreatePostForm = ({ onPostCreated }) => {
       return;
     }
     
-    if (!content.trim()) {
+    // Требуем текст только если нет опроса
+    if (!showPoll && !content.trim()) {
       setError('Текст поста не может быть пустым');
+      return;
+    }
+    
+    // Если опрос включен, но оба поля пустые - ошибка
+    if (showPoll && !content.trim() && !title.trim()) {
+      setError('Добавьте текст поста или заголовок для опроса');
       return;
     }
     
@@ -312,10 +319,10 @@ const CreatePostForm = ({ onPostCreated }) => {
           className={styles.contentInput}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={showPoll ? "Текст поста с опросом..." : "Текст вашего поста..."}
+          placeholder={showPoll ? "Текст поста с опросом (необязательно)..." : "Текст вашего поста..."}
           rows={4}
           disabled={isSubmitting}
-          required
+          required={!showPoll}
           style={{ color: contentColor, fontFamily: selectedFont }}
         />
         

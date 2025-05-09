@@ -99,14 +99,14 @@
         left: 0; /* Установите левую границу */
         width: 100%;
         height: 100%;
-        background-image: url('/pics/char/backgrounds/faustb.svg'); /* Убедитесь, что путь правильный */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/faustb.svg'); /* Cloudinary URL */
         z-index: -1; /* Убедитесь, что z-index достаточный */
         filter: blur(2.5px);
         
     }
 
     [data-theme="dark"] &::before {
-        background-image: url('/pics/char/backgrounds/faustb-black.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/faustb-black.svg'); /* Темная тема */
     }
     
 }
@@ -117,7 +117,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('/pics/char/backgrounds/lonariusb.svg');
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/lonariusb.svg');
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover; // Сохраняем пропорции
@@ -126,7 +126,7 @@
     }
 
     [data-theme="dark"] &::before {
-        background-image: url('/pics/char/backgrounds/lonariusb-black.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/lonariusb-black.svg'); /* Темная тема */
         background-size: cover; // Сохраняем пропорции
     }
 }
@@ -137,14 +137,14 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('/pics/char/backgrounds/vivianb.svg');
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/vivianb.svg');
         z-index: -1;
         filter: blur(1.5px);
     }
 
     [data-theme="dark"] &::before {
         content: '';
-        background-image: url('/pics/char/backgrounds/vivianb-black.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/vivianb-black.svg'); /* Темная тема */
         position: absolute;
         width: 100%;
         height: 100%;
@@ -160,7 +160,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('/pics/char/backgrounds/akitob2.svg');
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob2.svg');
         background-color: white;
         background-repeat: no-repeat;
         background-position: center;
@@ -171,7 +171,7 @@
 
     [data-theme="dark"] &::before {
         content: '';
-        background-image: url('/pics/char/backgrounds/akitob2.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob2.svg'); /* Темная тема */
         position: absolute;
         width: 100%;
         height: 100%;

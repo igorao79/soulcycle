@@ -32,6 +32,28 @@
   --early-user-shadow-color: rgba(44, 192, 217, 0.3);
   --admin-color: #e91e63;
   --admin-shadow-color: rgba(233, 30, 99, 0.3);
+
+  /* Disable transitions during theme change */
+  &.theme-transitioning * {
+    transition: none !important;
+  }
+  
+  /* Use GPU acceleration for smoother transitions */
+  &:not(.theme-transitioning) {
+    * {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    
+    body {
+      transition: background-color 0.2s ease;
+    }
+    
+    /* Only transition these specific properties */
+    a, button, .transition-item {
+      transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+  }
 }
 
 [data-theme="dark"] {

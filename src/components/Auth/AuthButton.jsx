@@ -8,6 +8,7 @@ import { USER_UPDATED_EVENT } from '../../contexts/AuthContext';
 import { FiLogIn, FiUser, FiSettings, FiLogOut, FiChevronDown } from 'react-icons/fi';
 import perkStyles from '../../styles/Perks.module.scss';
 import OptimizedAvatar from '../shared/OptimizedAvatar';
+import userProfileService from '../../services/userProfileService';
 
 const AuthButton = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -20,6 +21,7 @@ const AuthButton = () => {
   
   // Добавляем forceUpdate для обновления компонента при изменениях пользователя
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const [avatarKey, setAvatarKey] = useState(Date.now());  // Добавляем ключ для принудительного обновления аватара
   
   // Функция определения класса перка (вынесена для переиспользования)
   const getPerkClass = useCallback((perkName) => {
@@ -71,6 +73,11 @@ const AuthButton = () => {
         console.log('AuthButton: Получено событие обновления пользователя', updatedUser);
         forceUpdate();
         
+        // Проверяем, изменился ли аватар
+        if (user && user.avatar !== updatedUser.avatar) {
+          setAvatarKey(Date.now()); // Увеличиваем ключ для принудительного обновления аватара
+        }
+        
         // Обновляем статус администратора
         const isUserAdmin = updatedUser.email === 'igoraor79@gmail.com' || 
                            updatedUser.perks?.includes('admin') || 
@@ -98,8 +105,22 @@ const AuthButton = () => {
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'user') {
-        // Принудительно обновляем компонент при изменении user в localStorage
-        forceUpdate();
+        try {
+          // Если данные пользователя изменились
+          const newUserData = e.newValue ? JSON.parse(e.newValue) : null;
+          const oldUserData = user;
+          
+          // Проверяем изменение аватара (даже в той же вкладке)
+          if (newUserData && oldUserData && newUserData.avatar !== oldUserData.avatar) {
+            console.log('AuthButton: Обнаружено изменение аватара:', newUserData.avatar);
+            setAvatarKey(Date.now()); // Устанавливаем новый ключ для обновления
+          }
+          
+          // Принудительно обновляем компонент при изменении user в localStorage
+          forceUpdate();
+        } catch (error) {
+          console.error('Ошибка при обработке изменений localStorage:', error);
+        }
       }
     };
     
@@ -110,7 +131,7 @@ const AuthButton = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [user]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -206,6 +227,7 @@ const AuthButton = () => {
               src={user?.avatar} 
               alt="Аватар пользователя" 
               className={styles.avatar}
+              key={avatarKey}
             />
             <span className={`${styles.username} ${activePerkClass}`}>{displayName}</span>
             <motion.span

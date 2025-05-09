@@ -9,21 +9,77 @@ import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 function App() {
     const { theme } = useContext(ThemeContext);
     
-    // Устанавливаем фоновое изображение из Cloudinary
+    // Устанавливаем фоновое изображение из Cloudinary с надежным определением формата
     useEffect(() => {
-        const setCloudinaryBackground = () => {
-            const root = document.documentElement;
+        // Кэшируем результаты определения формата
+        let formatCache = null;
+
+        // Функция для определения поддерживаемого формата
+        const detectBestFormat = async () => {
+            // Если формат уже определен, используем его
+            if (formatCache) {
+                return formatCache;
+            }
+
+            // Определяем поддержку AVIF
+            const checkAvifSupport = async () => {
+                try {
+                    // Создаем канвас для проверки AVIF вместо загрузки тестового изображения
+                    if (self.createImageBitmap) {
+                        const avifBlob = await fetch(
+                            'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=',
+                            { method: 'HEAD' }
+                        ).then(response => response.ok);
+                        return avifBlob;
+                    }
+                    return false;
+                } catch (e) {
+                    return false;
+                }
+            };
+            
+            // Проверка поддержки WebP с помощью фичер-детекта без загрузки изображения
+            const checkWebPSupport = () => {
+                const canvas = document.createElement('canvas');
+                if (canvas && canvas.getContext && canvas.getContext('2d')) {
+                    return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+                }
+                return false;
+            };
+            
+            // Определяем лучший формат
+            const hasAvif = await checkAvifSupport();
+            const hasWebP = checkWebPSupport();
+            
+            console.log('Browser supports AVIF:', hasAvif);
+            console.log('Browser supports WebP:', hasWebP);
+            
+            // Выбираем оптимальный формат
+            let format = 'jpg'; // По умолчанию
+            if (hasAvif) {
+                format = 'avif';
+            } else if (hasWebP) {
+                format = 'webp';
+            }
+
+            // Сохраняем результат в кэш
+            formatCache = format;
+            return format;
+        };
+        
+        // Устанавливаем фоновое изображение
+        const setCloudinaryBackground = async () => {
             const backgroundName = theme === 'dark' ? 'backgroundblack' : 'background';
             
-            // Получаем URL изображений в разных форматах
-            const avifUrl = getCloudinaryUrl(backgroundName, { format: 'avif', quality: 90 });
-            const webpUrl = getCloudinaryUrl(backgroundName, { format: 'webp', quality: 90 });
-            const jpgUrl = getCloudinaryUrl(backgroundName, { format: 'jpg', quality: 90 });
+            // Определяем формат
+            const format = await detectBestFormat();
+
+            // Получаем URL изображения в выбранном формате
+            const imageUrl = getCloudinaryUrl(backgroundName, { format, quality: 90 });
             
-            // Устанавливаем CSS-переменные
-            root.style.setProperty('--page-bg-avif', `url('${avifUrl}')`);
-            root.style.setProperty('--page-bg-webp', `url('${webpUrl}')`);
-            root.style.setProperty('--page-bg-jpg', `url('${jpgUrl}')`);
+            // Устанавливаем CSS-переменную с выбранным форматом
+            document.documentElement.style.setProperty('--page-bg', `url('${imageUrl}')`);
+            console.log(`Background set to ${format} format:`, imageUrl);
         };
         
         setCloudinaryBackground();

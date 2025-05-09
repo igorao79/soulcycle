@@ -7,122 +7,99 @@ import perkStyles from '../../styles/Perks.module.scss';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiAlertCircle, FiCheck, FiX, FiLoader, FiEdit, FiUser, FiMail, FiCalendar, FiShield, FiSettings, FiSave, FiUserX, FiInfo, FiCheckCircle, FiClock } from 'react-icons/fi';
 import supabase from '../../services/supabaseClient';
-
-// Заглушка для аватара - заменяем на путь к гостевому аватару
-const DEFAULT_AVATAR_PATH = './pics/pfp/guest';
-
-// Компонент для оптимизированного отображения аватара с поддержкой нескольких форматов
-const OptimizedAvatar = ({ src, alt, className }) => {
-  // Если путь к аватару не указан, используем заглушку
-  const basePath = src || DEFAULT_AVATAR_PATH;
-  
-  // Создаем ссылки на различные форматы изображения
-  const getAvatarPath = (format) => {
-    // Если путь уже содержит расширение, не изменяем его
-    if (src && (src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.jpeg') || src.endsWith('.webp') || src.endsWith('.avif'))) {
-      return src;
-    }
-    
-    return `${basePath}.${format}`;
-  };
-
-  return (
-    <picture>
-      {/* AVIF формат - наиболее оптимизированный */}
-      <source srcSet={getAvatarPath('avif')} type="image/avif" />
-      {/* WebP формат - хорошо поддерживается в большинстве браузеров */}
-      <source srcSet={getAvatarPath('webp')} type="image/webp" />
-      {/* PNG формат - запасной вариант для всех браузеров */}
-      <img 
-        src={getAvatarPath('png')} 
-        alt={alt} 
-        className={className}
-        onError={(e) => {
-          console.warn('Ошибка загрузки аватара:', e.target.src);
-          // Если все форматы не загрузились, устанавливаем гостевой аватар
-          if (e.target.src !== `${DEFAULT_AVATAR_PATH}.png`) {
-            e.target.src = `${DEFAULT_AVATAR_PATH}.png`;
-          }
-          e.target.onerror = null;
-        }}
-      />
-    </picture>
-  );
-};
+import { Avatar, AVATARS, CloudinaryImage } from '../../utils/cloudinary';
+import OptimizedAvatar from '../shared/OptimizedAvatar';
+import ReactDOM from 'react-dom';
 
 // Доступные аватарки
-const AVATARS = [
-  { id: 1, path: './pics/pfp/pfp1' },
-  { id: 2, path: './pics/pfp/pfp2' },
-  { id: 3, path: './pics/pfp/pfp3' },
-  { id: 4, path: './pics/pfp/pfp4' },
-  { id: 5, path: './pics/pfp/pfp5' }
+const PROFILE_AVATARS = [
+  { id: 1, name: AVATARS.GUEST, displayName: 'Гость' },
+  { id: 2, name: AVATARS.VIVIAN, displayName: 'Вивиан' },
+  { id: 3, name: AVATARS.AKITO, displayName: 'Акито' },
+  { id: 4, name: AVATARS.LONARIUS, displayName: 'Лонариус' },
+  { id: 5, name: AVATARS.FAUST, displayName: 'Фауст' }
+];
+
+// Особые аватарки только для администраторов
+const ADMIN_AVATARS = [
+  { id: 101, name: AVATARS.IGOR, displayName: 'Игорь', adminOnly: true },
+  { id: 102, name: AVATARS.LESYA, displayName: 'Леся', adminOnly: true }
 ];
 
 // Компонент модального окна для выбора привилегии
 const PerkModal = ({ perks, activePerk, onSelectPerk, onClose }) => {
-  return (
-    <div className={styles.modalOverlay}>
-      <motion.div 
-        className={styles.modalContent}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        <div className={styles.modalHeader}>
-          <h3>Выберите привилегию</h3>
-          <button className={styles.closeButton} onClick={onClose}>
-            <FiX size={20} />
-          </button>
-        </div>
+  // Блокировка прокрутки страницы при открытии модального окна
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Обработчик нажатия Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
+  
+  // Обработчик клика по фону для закрытия модального окна
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+  
+  return ReactDOM.createPortal(
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose}>
+          <FiX size={20} />
+        </button>
         
-        <div className={styles.perksList}>
-          {perks.map(perk => {
-            const perkClass = perk === 'sponsor' ? styles.sponsorPerk : 
-                            perk === 'early_user' ? styles.earlyUserPerk : 
-                            perk === 'admin' ? styles.adminPerk : '';
-            
-            return (
-              <motion.div 
-                key={perk} 
-                className={`${styles.perkItem} ${activePerk === perk ? styles.activePerk : ''}`}
-                onClick={() => onSelectPerk(perk)}
-                whileHover={{ x: 5 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className={`${styles.perkName} ${perkClass}`}>
-                  {perk === 'user' ? 'Пользователь' : 
-                  perk === 'early_user' ? 'Ранний пользователь' : 
-                  perk === 'sponsor' ? 'Спонсор' : perk}
-                </div>
-                <div className={styles.perkDescription}>
-                  {perk === 'user' ? 'Базовая привилегия всех пользователей' : 
-                  perk === 'early_user' ? 'Ранний пользователь проекта' : 
-                  perk === 'sponsor' ? 'Спонсор проекта с расширенными возможностями' : 'Специальная привилегия'}
-                </div>
-                {activePerk === perk && (
-                  <motion.div 
-                    style={{ 
-                      position: 'absolute', 
-                      right: 15, 
-                      top: '50%', 
-                      transform: 'translateY(-50%)',
-                      color: 'var(--accent)'
-                    }}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <FiCheck size={20} />
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
+        <div className={styles.modalContent}>
+          <h3>Выберите привилегию</h3>
+          
+          <div className={styles.perksList}>
+            {perks.map(perk => {
+              const perkClass = perk === 'sponsor' ? perkStyles.sponsorPerk : 
+                              perk === 'early_user' ? perkStyles.earlyUserPerk : 
+                              perk === 'admin' ? perkStyles.adminPerk : perkStyles.userPerk;
+              
+              return (
+                <motion.div
+                  key={perk}
+                  className={`${styles.perkOption} ${perk === activePerk ? styles.activePerkOption : ''}`}
+                  whileHover={{ scale: 1.03 }}
+                  onClick={() => onSelectPerk(perk)}
+                >
+                  <div className={`${styles.perkName} ${perkClass}`}>
+                    {perk === 'sponsor' && 'Спонсор'}
+                    {perk === 'early_user' && 'Ранний пользователь'}
+                    {perk === 'admin' && 'Администратор'}
+                    {perk === 'user' && 'Пользователь'}
+                  </div>
+                  {perk === activePerk && (
+                    <div className={styles.activePerkIndicator}>
+                      <FiCheck size={16} />
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 
@@ -133,6 +110,36 @@ const ChangeNameModal = ({ onClose, onSubmit, initialName }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  // Блокировка прокрутки страницы при открытии модального окна
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Обработчик нажатия Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && !loading) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose, loading]);
+  
+  // Обработчик клика по фону для закрытия модального окна
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !loading) {
+      onClose();
+    }
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,25 +167,15 @@ const ChangeNameModal = ({ onClose, onSubmit, initialName }) => {
     }
   };
   
-  return (
-    <div className={styles.modalOverlay}>
-      <motion.div 
-        className={styles.modalMotion}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        <motion.div 
-          className={styles.modalContent}
-          animate={success ? { scale: 0.95, opacity: 0 } : { scale: 1, opacity: 1 }}
-        >
-          <div className={styles.modalHeader}>
-            <h3>Изменить имя пользователя</h3>
-            <button className={styles.closeButton} onClick={onClose} disabled={loading}>
-              <FiX size={20} />
-            </button>
-          </div>
+  return ReactDOM.createPortal(
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose} disabled={loading}>
+          <FiX size={20} />
+        </button>
+        
+        <div className={styles.modalContent}>
+          <h3>Изменить имя пользователя</h3>
           
           {success ? (
             <motion.div 
@@ -261,9 +258,10 @@ const ChangeNameModal = ({ onClose, onSubmit, initialName }) => {
               </div>
             </form>
           )}
-        </motion.div>
-      </motion.div>
-    </div>
+        </div>
+      </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 
@@ -275,6 +273,36 @@ const ChangePasswordModal = ({ onClose, onSubmit }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  // Блокировка прокрутки страницы при открытии модального окна
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Обработчик нажатия Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && !loading) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose, loading]);
+  
+  // Обработчик клика по фону для закрытия модального окна
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !loading) {
+      onClose();
+    }
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -312,25 +340,15 @@ const ChangePasswordModal = ({ onClose, onSubmit }) => {
     }
   };
   
-  return (
-    <div className={styles.modalOverlay}>
-      <motion.div 
-        className={styles.modalMotion}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        <motion.div 
-          className={styles.modalContent}
-          animate={success ? { scale: 0.95, opacity: 0 } : { scale: 1, opacity: 1 }}
-        >
-          <div className={styles.modalHeader}>
-            <h3>Изменить пароль</h3>
-            <button className={styles.closeButton} onClick={onClose} disabled={loading}>
-              <FiX size={20} />
-            </button>
-          </div>
+  return ReactDOM.createPortal(
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose} disabled={loading}>
+          <FiX size={20} />
+        </button>
+        
+        <div className={styles.modalContent}>
+          <h3>Изменить пароль</h3>
           
           {success ? (
             <motion.div 
@@ -426,17 +444,51 @@ const ChangePasswordModal = ({ onClose, onSubmit }) => {
               </div>
             </form>
           )}
-        </motion.div>
-      </motion.div>
-    </div>
+        </div>
+      </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 
 // Компонент модального окна для выбора аватара
-const AvatarModal = ({ avatars, onSelectAvatar, onClose }) => {
+const AvatarModal = ({ avatars, adminAvatars = [], isAdmin, onSelectAvatar, onClose }) => {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Combine standard and admin avatars if user is admin
+  const displayedAvatars = isAdmin ? [...avatars, ...adminAvatars] : avatars;
+
+  // Блокировка прокрутки страницы при открытии модального окна
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Обработчик нажатия Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && !isLoading && !showSuccess) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose, isLoading, showSuccess]);
+  
+  // Обработчик клика по фону для закрытия модального окна
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !isLoading && !showSuccess) {
+      onClose();
+    }
+  };
 
   const handleSelect = async (avatar) => {
     if (isLoading || showSuccess) return;
@@ -453,104 +505,70 @@ const AvatarModal = ({ avatars, onSelectAvatar, onClose }) => {
     }, 500);
   };
 
-  return (
-    <div className={styles.modalOverlay}>
-      <motion.div 
-        className={styles.modalMotion}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        <motion.div 
-          className={styles.modalContent}
-          animate={showSuccess ? { scale: 0.95, opacity: 0.8 } : { scale: 1, opacity: 1 }}
-        >
-          <div className={styles.modalHeader}>
-            <h3>Выберите аватар</h3>
-            <button 
-              className={styles.closeButton} 
-              onClick={onClose}
-              disabled={isLoading || showSuccess}
-            >
-              <FiX size={20} />
-            </button>
-          </div>
+  return ReactDOM.createPortal(
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose} disabled={isLoading || showSuccess}>
+          <FiX size={20} />
+        </button>
+        
+        <div className={styles.modalContent}>
+          <h3>Выберите аватар</h3>
           
-          {showSuccess ? (
+          {showSuccess && (
             <motion.div 
               className={styles.successMessage}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
             >
-              <FiCheck size={20} />
+              <FiCheckCircle size={40} />
               <span>Аватар успешно изменен!</span>
             </motion.div>
-          ) : (
-            <>
-              <motion.div 
-                className={styles.avatarGrid}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
-              >
-                {avatars.map((avatar, index) => (
-                  <motion.div
-                    key={avatar.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={styles.avatarWrapper}
-                  >
-                    <picture>
-                      <source srcSet={`${avatar.path}.avif`} type="image/avif" />
-                      <source srcSet={`${avatar.path}.webp`} type="image/webp" />
-                      <motion.img 
-                        src={`${avatar.path}.png`} 
-                        alt={`Аватар ${avatar.id}`}
-                        className={`${styles.avatarOption} ${selectedAvatar?.id === avatar.id ? styles.selected : ''}`}
-                        onClick={() => handleSelect(avatar)}
-                        whileHover={{ scale: 1.08, y: -5 }}
-                        whileTap={{ scale: 0.95 }}
-                        transition={{ 
-                          type: "spring", 
-                          stiffness: 300, 
-                          damping: 20 
-                        }}
-                      />
-                    </picture>
-                    {selectedAvatar?.id === avatar.id && isLoading && (
-                      <motion.div 
-                        className={styles.loadingOverlay}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        >
-                          <FiLoader size={24} color="white" />
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
-              
-              <motion.p
-                className={styles.avatarHint}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                Выберите один из доступных аватаров, чтобы обновить вашу фотографию профиля.
-              </motion.p>
-            </>
           )}
-        </motion.div>
-      </motion.div>
-    </div>
+          
+          <div className={styles.avatarsGrid}>
+            {displayedAvatars.map(avatar => (
+              <motion.div
+                key={avatar.id}
+                className={`${styles.avatarCard} ${selectedAvatar?.id === avatar.id ? styles.selectedAvatar : ''} ${avatar.adminOnly ? styles.adminAvatar : ''}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleSelect(avatar)}
+              >
+                <div className={styles.avatarImageContainer}>
+                  <OptimizedAvatar
+                    src={avatar.name}
+                    alt={avatar.displayName}
+                    className={styles.avatarImage}
+                  />
+                  
+                  {selectedAvatar?.id === avatar.id && (
+                    <motion.div
+                      className={styles.selectedIndicator}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.1 }}
+                    >
+                      <FiCheck size={16} color="#fff" />
+                    </motion.div>
+                  )}
+                  
+                  {avatar.adminOnly && (
+                    <span className={styles.adminAvatarBadge}>Admin</span>
+                  )}
+                </div>
+                
+                <span className={styles.avatarName}>
+                  {avatar.displayName}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 
@@ -813,6 +831,160 @@ const AdminProfileEditForm = ({ user, onSave, onCancel }) => {
   );
 };
 
+// Компонент модального окна для блокировки пользователя
+const BanDialog = ({ onClose, onBanUser, loading, username }) => {
+  const [banReason, setBanReason] = useState('');
+  const [banDuration, setBanDuration] = useState('');
+  const [error, setError] = useState('');
+  
+  // Блокировка прокрутки страницы при открытии модального окна
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Обработчик нажатия Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && !loading) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose, loading]);
+  
+  // Обработчик клика по фону для закрытия модального окна
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !loading) {
+      onClose();
+    }
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!banReason.trim()) {
+      setError('Пожалуйста, укажите причину блокировки');
+      return;
+    }
+    
+    if (!banDuration) {
+      setError('Пожалуйста, выберите длительность блокировки');
+      return;
+    }
+    
+    setError('');
+    onBanUser(banReason, banDuration);
+  };
+  
+  return ReactDOM.createPortal(
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose} disabled={loading}>
+          <FiX size={20} />
+        </button>
+        
+        <div className={styles.modalContent}>
+          <div className={styles.banModalHeader}>
+            <h3><FiUserX size={22} /> Блокировка пользователя</h3>
+            <p>Пользователь <strong>{username}</strong> будет заблокирован и не сможет входить в приложение или взаимодействовать с другими пользователями.</p>
+          </div>
+          
+          {error && (
+            <motion.div 
+              className={styles.errorMessage}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <FiAlertCircle size={18} />
+              <span>{error}</span>
+            </motion.div>
+          )}
+          
+          <form onSubmit={handleSubmit} className={styles.modalForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="banReason">
+                <FiInfo size={16} style={{marginRight: '6px'}} />
+                Причина блокировки:
+              </label>
+              <textarea
+                id="banReason"
+                value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+                placeholder="Укажите причину блокировки пользователя"
+                className={styles.formControl}
+                rows={4}
+              />
+            </div>
+            
+            <div className={styles.modalDivider}></div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="banDuration">
+                <FiClock size={16} style={{marginRight: '6px'}} />
+                Длительность блокировки:
+              </label>
+              <select
+                id="banDuration"
+                value={banDuration}
+                onChange={(e) => setBanDuration(e.target.value)}
+                className={styles.formControl}
+              >
+                <option value="">Выберите длительность</option>
+                <option value="30m">30 минут</option>
+                <option value="2h">2 часа</option>
+                <option value="6h">6 часов</option>
+                <option value="12h">12 часов</option>
+                <option value="1d">1 день</option>
+                <option value="3d">3 дня</option>
+                <option value="1w">1 неделя</option>
+                <option value="permanent">Навсегда</option>
+              </select>
+            </div>
+            
+            <div className={styles.formActions}>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={onClose}
+                disabled={loading}
+              >
+                <FiX /> Отмена
+              </button>
+              <button
+                type="submit"
+                className={`${styles.submitButton} ${styles.banButton}`}
+                disabled={loading}
+              >
+                {loading ? (
+                  <motion.span
+                    animate={{ opacity: [1, 0.5, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <FiLoader /> Блокировка...
+                  </motion.span>
+                ) : (
+                  <>
+                    <FiUserX /> Заблокировать
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
+  );
+};
+
 const ProfilePage = () => {
   const { userId } = useParams();
   const { user: currentUser, isAuthenticated, loading: authLoading, refreshUser } = useAuth();
@@ -830,8 +1002,6 @@ const ProfilePage = () => {
   
   // Ban-related state
   const [showBanDialog, setShowBanDialog] = useState(false);
-  const [banReason, setBanReason] = useState('');
-  const [banDuration, setBanDuration] = useState('');
   const [banLoading, setBanLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
   
@@ -870,7 +1040,15 @@ const ProfilePage = () => {
           console.log('Отображаем данные текущего пользователя:', currentUser);
         } else if (userId) {
           try {
+            // Проверяем формат UUID для userId
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(userId)) {
+              console.warn('Некорректный формат ID пользователя:', userId);
+              // Но продолжаем попытку получить пользователя, т.к. формат ID может измениться
+            }
+            
             // Получаем информацию о пользователе через API
+            console.log('Запрашиваем профиль пользователя с ID:', userId);
             const userData = await authService.getUserById(userId);
             console.log('Получены данные профиля из API:', userData);
             
@@ -879,7 +1057,7 @@ const ProfilePage = () => {
               id: userData.id,
               displayName: userData.displayName || 'Пользователь',
               role: userData.role || 'user',
-              email: isAdmin ? userData.email : null, // Email виден только владельцу и админу
+              email: userData.email, // Email виден всем
               avatar: userData.avatar,
               perks: userData.perks || ['user'],
               activePerk: userData.activePerk || 'user',
@@ -897,8 +1075,15 @@ const ProfilePage = () => {
             
             setError(null);
           } catch (err) {
-            // Если не получилось получить данные, используем заглушку
+            // Если не получилось получить данные, используем заглушку или перенаправляем пользователя
             console.error('Ошибка при получении данных профиля:', err);
+            
+            if (err.message.includes('Неверный ID')) {
+              // Перенаправляем на собственный профиль, если ID невалидный
+              navigate('/profile', { replace: true });
+              return;
+            }
+            
             setProfileUser({
               id: userId,
               displayName: 'Пользователь',
@@ -923,7 +1108,7 @@ const ProfilePage = () => {
     };
     
     fetchProfileData();
-  }, [userId, currentUser, isOwnProfile, isAdmin, authLoading]);
+  }, [userId, currentUser, isOwnProfile, isAdmin, authLoading, navigate]);
 
   // Загрузка информации о блокировке
   const loadBanInfo = async (userId) => {
@@ -951,10 +1136,8 @@ const ProfilePage = () => {
   };
 
   // Обработчик блокировки пользователя
-  const handleBanUser = async (e) => {
-    if (e) e.preventDefault();
-    
-    if (!profileUser || !banReason.trim() || !banDuration) return;
+  const handleBanUser = async (reason, duration) => {
+    if (!profileUser) return;
     
     try {
       setBanLoading(true);
@@ -962,11 +1145,11 @@ const ProfilePage = () => {
       // Рассчитываем время окончания блокировки
       let banEndDate = null;
       
-      if (banDuration !== 'permanent') {
+      if (duration !== 'permanent') {
         banEndDate = new Date();
         
         // Добавляем соответствующее время в зависимости от выбранной длительности
-        switch (banDuration) {
+        switch (duration) {
           case '30m':
             banEndDate.setMinutes(banEndDate.getMinutes() + 30);
             break;
@@ -998,11 +1181,11 @@ const ProfilePage = () => {
         user_id: profileUser.id,
         admin_id: currentUser.id,
         admin_name: currentUser.displayName,
-        reason: banReason.trim(),
+        reason: reason.trim(),
         created_at: new Date().toISOString(),
         end_at: banEndDate ? banEndDate.toISOString() : null,
         is_active: true,
-        ban_type: banDuration
+        ban_type: duration
       };
       
       // Сохраняем данные блокировки в таблицу user_bans
@@ -1019,7 +1202,7 @@ const ProfilePage = () => {
         .from('profiles')
         .update({ 
           is_banned: true,
-          ban_reason: banReason.trim(),
+          ban_reason: reason.trim(),
           ban_end_at: banEndDate ? banEndDate.toISOString() : null,
           ban_admin_id: currentUser.id,
           ban_admin_name: currentUser.displayName
@@ -1034,7 +1217,7 @@ const ProfilePage = () => {
       setProfileUser({
         ...profileUser,
         is_banned: true,
-        ban_reason: banReason.trim(),
+        ban_reason: reason.trim(),
         ban_end_at: banEndDate ? banEndDate.toISOString() : null,
         ban_admin_name: currentUser.displayName
       });
@@ -1055,8 +1238,6 @@ const ProfilePage = () => {
       
       // Закрываем диалог
       setShowBanDialog(false);
-      setBanReason('');
-      setBanDuration('');
       
     } catch (error) {
       console.error('Ошибка при блокировке пользователя:', error);
@@ -1185,17 +1366,25 @@ const ProfilePage = () => {
   
   const handleAvatarSelect = async (avatarId) => {
     try {
-      // Находим выбранный аватар
-      const selectedAvatar = AVATARS.find(avatar => avatar.id === avatarId);
+      // Находим выбранный аватар в обычных или админских аватарках
+      const selectedAvatar = 
+        PROFILE_AVATARS.find(avatar => avatar.id === avatarId) || 
+        ADMIN_AVATARS.find(avatar => avatar.id === avatarId);
       
       if (selectedAvatar && profileUser) {
+        // Проверяем, имеет ли пользователь право использовать специальные аватарки команды
+        const isSpecialAvatar = selectedAvatar.name === AVATARS.IGOR || selectedAvatar.name === AVATARS.LESYA;
+        if (isSpecialAvatar && !isAdmin && profileUser.activePerk !== 'admin') {
+          throw new Error('У вас нет прав для использования этого аватара');
+        }
+        
         // Обновляем аватар в Supabase
-        await authService.updateAvatar(selectedAvatar.path);
+        await authService.updateAvatar(selectedAvatar.name);
         
         // Обновляем локальный стейт
         setProfileUser({
           ...profileUser,
-          avatar: selectedAvatar.path
+          avatar: selectedAvatar.name
         });
       }
       
@@ -1211,11 +1400,19 @@ const ProfilePage = () => {
 
   // Обработчики для перков
   const handleOpenPerkModal = () => {
-    setIsPerkModalOpen(true);
+    // Проверяем, имеет ли пользователь больше одной привилегии и является ли текущий пользователь владельцем профиля или админом
+    if ((isOwnProfile || isAdmin) && profileUser.perks && profileUser.perks.length > 1) {
+      setIsPerkModalOpen(true);
+    }
   };
 
   const handlePerkSelect = async (perk) => {
     try {
+      // Проверяем, имеет ли пользователь право менять привилегию
+      if (!isOwnProfile && !isAdmin) {
+        return;
+      }
+
       // Передаем refreshUser как коллбэк для немедленного обновления контекста пользователя
       await authService.updateActivePerk(perk, refreshUser);
       
@@ -1259,36 +1456,28 @@ const ProfilePage = () => {
 
   // Получаем CSS-класс для активного перка из централизованного модуля
   const getActivePerkClass = () => {
-    if (!profileUser.activePerk) return '';
+    if (!profileUser?.activePerk) return perkStyles.userPerk;
     
-    switch (profileUser.activePerk) {
-      case 'sponsor':
-        return perkStyles.sponsorPerk;
-      case 'early_user':
-        return perkStyles.earlyUserPerk;
-      case 'admin':
-        return perkStyles.adminPerk;
-      default:
-        return perkStyles.userPerk;
-    }
+    return profileUser.activePerk === 'early_user'
+      ? perkStyles.earlyUserPerk
+      : profileUser.activePerk === 'sponsor' 
+      ? perkStyles.sponsorPerk
+      : profileUser.activePerk === 'admin'
+      ? perkStyles.adminPerk
+      : perkStyles.userPerk;
   };
 
   // Получаем имя активного перка для отображения
   const getActivePerkName = () => {
-    if (!profileUser.activePerk) return 'Пользователь';
+    if (!profileUser?.activePerk) return 'Пользователь';
     
-    switch (profileUser.activePerk) {
-      case 'sponsor':
-        return 'Спонсор';
-      case 'early_user':
-        return 'Ранний пользователь';
-      case 'admin':
-        return 'Администратор';
-      case 'user':
-        return 'Пользователь';
-      default:
-        return profileUser.activePerk;
-    }
+    return profileUser.activePerk === 'early_user'
+      ? 'Ранний пользователь'
+      : profileUser.activePerk === 'sponsor'
+      ? 'Спонсор'
+      : profileUser.activePerk === 'admin'
+      ? 'Администратор'
+      : 'Пользователь';
   };
   
   // Обработчик для открытия модального окна изменения имени
@@ -1364,18 +1553,23 @@ const ProfilePage = () => {
   return (
     <div className={styles.profileContainer}>
       <div className={styles.profileHeader}>
-        <div className={styles.avatarContainer}>
-          <OptimizedAvatar 
-            src={profileUser.avatar} 
-            alt="Аватар пользователя" 
-            className={styles.avatar}
-          />
+        <div className={styles.avatarSection}>
+          <div className={styles.avatarContainer}>
+            <OptimizedAvatar 
+              src={profileUser.avatar || AVATARS.GUEST} 
+              alt={profileUser.displayName || 'Пользователь'} 
+              className={styles.profileAvatar}
+            />
+          </div>
+          
+          {/* Кнопка изменения аватара - доступна только владельцу или админу */}
           {(isOwnProfile || isAdmin) && (
             <button 
-              className={styles.changeAvatarButton} 
+              className={styles.changeAvatarButton}
               onClick={handleAvatarChange}
+              aria-label="Изменить аватар"
             >
-              Изменить
+              <FiEdit size={18} /> <span className={styles.buttonText}>Изменить аватар</span>
             </button>
           )}
         </div>
@@ -1386,47 +1580,34 @@ const ProfilePage = () => {
             {isAdmin && <span className={styles.adminLabel}> (ID: {profileUser.id.substring(0, 8)}...)</span>}
           </h1>
           
-          <div className={styles.userMeta}>
-            {/* Роль видна только администраторам */}
-            {isAdmin && (
-              <div className={styles.userRole}>
-                <span className={styles.label}>Роль:</span>
-                <span className={styles.value}>{profileUser.role || 'user'}</span>
-              </div>
-            )}
-            
-            {/* Привилегии пользователя */}
-            <div className={styles.userPrivileges}>
-              <span className={styles.label}>Привилегия:</span>
-              
-              <div className={styles.privilegeContainer}>
-                <span className={`${styles.value} ${getActivePerkClass()}`}>
-                  {getActivePerkName()}
-                </span>
-                
-                {isOwnProfile && profileUser.perks && (
-                  <button 
-                    className={styles.changePerkButton}
-                    onClick={handleOpenPerkModal}
-                  >
-                    Изменить
-                  </button>
+          {profileUser.perks && profileUser.perks.length > 0 && (
+            <div className={styles.perksContainer}>
+              <div 
+                className={`${styles.activePerk} ${getActivePerkClass()}`}
+                onClick={(isOwnProfile || isAdmin) && profileUser.perks.length > 1 ? handleOpenPerkModal : undefined}
+                style={{ cursor: (isOwnProfile || isAdmin) && profileUser.perks.length > 1 ? 'pointer' : 'default' }}
+              >
+                {getActivePerkName()}
+                {(isOwnProfile || isAdmin) && profileUser.perks.length > 1 && (
+                  <FiEdit size={16} className={styles.editPerkIcon} />
                 )}
               </div>
             </div>
-            
-            <div className={styles.userJoined}>
-              <span className={styles.label}>Дата регистрации:</span>
-              <span className={styles.value}>{formatDate(profileUser.createdAt)}</span>
-            </div>
-            
-            {/* Email показываем только владельцу профиля и администратору */}
-            {(isOwnProfile || isAdmin) && profileUser.email && (
-              <div className={styles.userEmail}>
-                <span className={styles.label}>Email:</span>
-                <span className={styles.value}>{profileUser.email}</span>
+          )}
+          
+          <div className={styles.profileDetails}>
+            {/* Email виден всем пользователям */}
+            {profileUser.email && (
+              <div className={styles.profileDetail}>
+                <FiMail className={styles.detailIcon} size={20} />
+                <span>{profileUser.email}</span>
               </div>
             )}
+            
+            <div className={styles.profileDetail}>
+              <FiCalendar className={styles.detailIcon} size={20} />
+              <span>Регистрация: {formatDate(profileUser.createdAt)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1554,134 +1735,42 @@ const ProfilePage = () => {
         </div>
       )}
       
-      {/* Модальное окно выбора аватара */}
-      <AnimatePresence>
-        {isAvatarModalOpen && (
-          <AvatarModal 
-            avatars={AVATARS}
-            onSelectAvatar={handleAvatarSelect}
-            onClose={handleCloseAvatarModal}
-          />
-        )}
-      </AnimatePresence>
+      {/* Модальные окна */}
+      {isAvatarModalOpen && <AvatarModal 
+        avatars={PROFILE_AVATARS}
+        adminAvatars={ADMIN_AVATARS}
+        isAdmin={isAdmin || (profileUser?.activePerk === 'admin')}
+        onSelectAvatar={handleAvatarSelect}
+        onClose={handleCloseAvatarModal}
+      />}
       
-      {/* Модальное окно выбора привилегии */}
-      <AnimatePresence>
-        {isPerkModalOpen && (
-          <PerkModal 
-            perks={profileUser.perks || ['user']}
-            activePerk={profileUser.activePerk || 'user'}
-            onSelectPerk={handlePerkSelect}
-            onClose={handleClosePerkModal}
-          />
-        )}
-      </AnimatePresence>
+      {isPerkModalOpen && <PerkModal 
+        perks={profileUser.perks || ['user']}
+        activePerk={profileUser.activePerk || 'user'}
+        onSelectPerk={handlePerkSelect}
+        onClose={handleClosePerkModal}
+      />}
       
-      {/* Модальное окно изменения имени */}
-      <AnimatePresence>
-        {isNameModalOpen && (
-          <ChangeNameModal 
-            onClose={() => setIsNameModalOpen(false)}
-            onSubmit={handleChangeName}
-            initialName={profileUser?.displayName}
-          />
-        )}
-      </AnimatePresence>
+      {isNameModalOpen && <ChangeNameModal 
+        onClose={() => setIsNameModalOpen(false)}
+        onSubmit={handleChangeName}
+        initialName={profileUser?.displayName}
+      />}
       
-      {/* Модальное окно изменения пароля */}
-      <AnimatePresence>
-        {isPasswordModalOpen && (
-          <ChangePasswordModal 
-            onClose={() => setIsPasswordModalOpen(false)}
-            onSubmit={handleChangePassword}
-          />
-        )}
-      </AnimatePresence>
+      {isPasswordModalOpen && <ChangePasswordModal 
+        onClose={() => setIsPasswordModalOpen(false)}
+        onSubmit={handleChangePassword}
+      />}
       
       {/* Диалог блокировки пользователя */}
-      <AnimatePresence>
-        {showBanDialog && (
-          <motion.div 
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className={styles.banDialog}
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              transition={{ type: "spring", damping: 20 }}
-            >
-              <div className={styles.banDialogHeader}>
-                <h3>Блокировка пользователя</h3>
-                <button 
-                  className={styles.closeButton} 
-                  onClick={() => setShowBanDialog(false)}
-                  disabled={banLoading}
-                >
-                  <FiX />
-                </button>
-              </div>
-              
-              <div className={styles.banDialogContent}>
-                <form onSubmit={handleBanUser}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="banReason">Причина блокировки:</label>
-                    <textarea
-                      id="banReason"
-                      value={banReason}
-                      onChange={(e) => setBanReason(e.target.value)}
-                      placeholder="Укажите причину блокировки пользователя"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  
-                  <div className={styles.formGroup}>
-                    <label htmlFor="banDuration">Длительность блокировки:</label>
-                    <select
-                      id="banDuration"
-                      value={banDuration}
-                      onChange={(e) => setBanDuration(e.target.value)}
-                      required
-                    >
-                      <option value="">Выберите длительность</option>
-                      <option value="30m">30 минут</option>
-                      <option value="2h">2 часа</option>
-                      <option value="6h">6 часов</option>
-                      <option value="12h">12 часов</option>
-                      <option value="1d">1 день</option>
-                      <option value="3d">3 дня</option>
-                      <option value="1w">1 неделя</option>
-                      <option value="permanent">Навсегда</option>
-                    </select>
-                  </div>
-                  
-                  <div className={styles.banDialogActions}>
-                    <button
-                      type="button"
-                      className={styles.cancelButton}
-                      onClick={() => setShowBanDialog(false)}
-                      disabled={banLoading}
-                    >
-                      <FiX /> Отмена
-                    </button>
-                    <button
-                      type="submit"
-                      className={styles.banButton}
-                      disabled={!banReason.trim() || !banDuration || banLoading}
-                    >
-                      {banLoading ? <FiLoader /> : <FiUserX />} Заблокировать
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showBanDialog && (
+        <BanDialog 
+          onClose={() => setShowBanDialog(false)}
+          onBanUser={handleBanUser}
+          loading={banLoading}
+          username={profileUser.displayName}
+        />
+      )}
     </div>
   );
 };

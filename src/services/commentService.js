@@ -1,5 +1,6 @@
 import supabase from './supabaseClient';
 import userProfileService from './userProfileService';
+import filterBadWords from '../utils/filterBadWords';
 
 const commentService = {
   // Получение комментариев к посту
@@ -82,7 +83,8 @@ const commentService = {
                   displayName: replyAuthorProfile.displayName,
                   avatar: replyAuthorProfile.avatar,
                   perks: replyPerks,
-                  activePerk: replyActivePerk
+                  activePerk: replyActivePerk,
+                  id: reply.user_id
                 }
               });
             } catch (error) {
@@ -93,7 +95,8 @@ const commentService = {
                   displayName: 'Пользователь',
                   avatar: null,
                   perks: [],
-                  activePerk: 'user'
+                  activePerk: 'user',
+                  id: reply.user_id
                 }
               });
             }
@@ -106,7 +109,8 @@ const commentService = {
               displayName: authorProfile.displayName,
               avatar: authorProfile.avatar,
               perks: perks,
-              activePerk: activePerk
+              activePerk: activePerk,
+              id: comment.user_id
             },
             replies: enrichedReplies
           });
@@ -119,7 +123,8 @@ const commentService = {
               displayName: 'Пользователь',
               avatar: null,
               perks: [],
-              activePerk: 'user'
+              activePerk: 'user',
+              id: comment.user_id
             },
             replies: []
           });
@@ -141,11 +146,17 @@ const commentService = {
       // Получаем профиль пользователя через userProfileService
       const authorProfile = await userProfileService.getUserProfile(commentData.userId);
       
+      // Применяем фильтр плохих слов к контенту
+      const filteredContent = filterBadWords(commentData.content, {
+        id: commentData.userId,
+        ...authorProfile
+      });
+      
       // Создаем комментарий
       const { data, error } = await supabase
         .from('post_comments')
         .insert({
-          content: commentData.content,
+          content: filteredContent, // Используем отфильтрованный контент
           post_id: commentData.postId,
           user_id: commentData.userId,
           parent_id: null // Это корневой комментарий, не ответ
@@ -173,7 +184,8 @@ const commentService = {
           displayName: authorProfile.displayName,
           avatar: authorProfile.avatar,
           perks: perks,
-          activePerk: activePerk
+          activePerk: activePerk,
+          id: commentData.userId
         },
         replies: []
       };
@@ -189,11 +201,17 @@ const commentService = {
       // Получаем профиль пользователя через userProfileService
       const authorProfile = await userProfileService.getUserProfile(replyData.userId);
       
+      // Применяем фильтр плохих слов к контенту
+      const filteredContent = filterBadWords(replyData.content, {
+        id: replyData.userId,
+        ...authorProfile
+      });
+      
       // Создаем ответ на комментарий
       const { data, error } = await supabase
         .from('post_comments')
         .insert({
-          content: replyData.content,
+          content: filteredContent, // Используем отфильтрованный контент
           post_id: replyData.postId,
           user_id: replyData.userId,
           parent_id: replyData.commentId // Это ответ на комментарий
@@ -221,7 +239,8 @@ const commentService = {
           displayName: authorProfile.displayName,
           avatar: authorProfile.avatar,
           perks: perks,
-          activePerk: activePerk
+          activePerk: activePerk,
+          id: replyData.userId
         }
       };
     } catch (error) {

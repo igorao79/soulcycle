@@ -448,13 +448,21 @@ const authService = {
   // Получение информации о пользователе по ID
   async getUserById(userId) {
     try {
+      // Проверка на валидность userId
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        console.error('Получен невалидный userId:', userId);
+        throw new Error('Неверный ID пользователя');
+      }
+      
       // Проверяем наличие пользователя в кеше
       const cachedUser = userProfileService.getCachedProfile(userId);
       if (cachedUser) {
+        console.log('Профиль получен из кеша:', cachedUser.id);
         return cachedUser;
       }
       
       // Если нет в кеше, получаем данные из Supabase
+      console.log('Запрос профиля из Supabase:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -462,12 +470,35 @@ const authService = {
         .single();
       
       if (error) {
+        // Проверяем конкретные ошибки, связанные с ID
+        if (error.message.includes('invalid input syntax for type uuid')) {
+          console.error(`Проблема с форматом UUID: ${userId}. Ошибка: ${error.message}`);
+          // Попробуем получить пользователя по display_name, если ID некорректен
+          try {
+            const { data: profileByName, error: nameError } = await supabase
+              .from('profiles')
+              .select('*')
+              .ilike('display_name', userId)
+              .limit(1);
+              
+            if (nameError || !profileByName || profileByName.length === 0) {
+              throw new Error(`Неверный формат ID: ${userId}`);
+            }
+            
+            return this.getUserById(profileByName[0].id);
+          } catch (fallbackError) {
+            throw new Error(`Неверный формат ID: ${userId}`);
+          }
+        }
+        console.error(`Ошибка получения профиля: ${error.message}`);
         throw new Error(error.message || 'Ошибка при получении профиля');
       }
       
       if (!data) {
         throw new Error('Пользователь не найден');
       }
+      
+      console.log('Получены данные из profiles:', data);
       
       // Создаем объект пользователя
       const userData = {
@@ -496,55 +527,67 @@ const authService = {
   },
 
   // Обновление аватара пользователя
-  async updateAvatar(avatarPath) {
+  async updateAvatar(avatarName) {
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      // Получаем текущего пользователя
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (sessionError || !sessionData.session) {
-        throw new Error('Пользователь не авторизован');
+      if (userError) {
+        throw new Error(translateAuthError(userError.message) || 'Ошибка при получении пользователя');
       }
       
-      const userId = sessionData.session.user.id;
+      if (!user) {
+        throw new Error('Пользователь не найден');
+      }
       
       // Обновляем метаданные пользователя
       const { data, error } = await supabase.auth.updateUser({
-        data: { avatar: avatarPath }
+        data: {
+          avatar: avatarName
+        }
       });
       
       if (error) {
-        throw new Error(error.message || 'Ошибка при обновлении аватара');
+        throw new Error(translateAuthError(error.message) || 'Ошибка при обновлении аватара');
       }
       
-      // Также обновляем аватар в таблице profiles
+      // Обновляем данные в профиле
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ avatar: avatarPath })
-        .eq('id', userId);
+        .update({ avatar: avatarName })
+        .eq('id', user.id);
         
       if (profileError) {
         console.error('Ошибка при обновлении аватара в профиле:', profileError);
       }
       
       // Обновляем данные пользователя в localStorage
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userData = JSON.parse(userStr);
-        userData.avatar = avatarPath;
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        // Обновляем кеш профилей
-        userProfileService.updateProfileCache(userId, { avatar: avatarPath });
-        
-        // Генерируем событие для немедленного уведомления всех компонентов
-        emitEvent('profileUpdated', { 
-          userId, 
-          profileData: { ...userData, avatar: avatarPath } 
-        });
-      }
+      const userData = JSON.parse(localStorage.getItem('user')) || {};
+      userData.avatar = avatarName;
+      localStorage.setItem('user', JSON.stringify(userData));
       
-      return true;
+      // Обновляем кеш профилей
+      userProfileService.updateProfileCache(user.id, {
+        avatar: avatarName
+      });
+      
+      // Отправляем событие об обновлении профиля
+      emitEvent('profile-updated', {
+        userId: user.id,
+        field: 'avatar',
+        value: avatarName
+      });
+      
+      return {
+        success: true,
+        avatar: avatarName
+      };
     } catch (error) {
       console.error('Ошибка при обновлении аватара:', error);
+      // Перевод сообщения об ошибке
+      if (error.message) {
+        error.message = translateAuthError(error.message);
+      }
       throw error;
     }
   },
@@ -815,6 +858,46 @@ const authService = {
     } catch (error) {
       console.error('Error refreshing current user:', error);
       return null;
+    }
+  },
+
+  // Исправление проблем с профилями пользователей через SQL-скрипт
+  async fixProfileIssues() {
+    try {
+      // Проверяем, является ли пользователь администратором
+      const { data: session } = await supabase.auth.getSession();
+      if (!session || !session.session || session.session.user.email !== 'igoraor79@gmail.com') {
+        throw new Error('Только администратор может выполнять эту операцию');
+      }
+      
+      // Получаем SQL-скрипт из файла
+      const response = await fetch('/src/sql/profile_navigation_fix.sql');
+      if (!response.ok) {
+        throw new Error('Не удалось загрузить скрипт для исправления профилей');
+      }
+      
+      const sqlScript = await response.text();
+      
+      // Выполняем SQL-скрипт через RPC (удаленный вызов процедур)
+      const { data, error } = await supabase.rpc('execute_sql_admin', {
+        sql_query: sqlScript
+      });
+      
+      if (error) {
+        console.error('Ошибка при выполнении SQL-скрипта:', error);
+        throw new Error(`Ошибка при исправлении профилей: ${error.message}`);
+      }
+      
+      console.log('Результат выполнения SQL-скрипта:', data);
+      
+      return {
+        success: true,
+        message: 'Проблемы с профилями успешно исправлены',
+        details: data
+      };
+    } catch (error) {
+      console.error('Ошибка при исправлении профилей:', error);
+      throw error;
     }
   }
 };

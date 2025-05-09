@@ -6,6 +6,8 @@ import userProfileService from '../../services/userProfileService';
 import styles from './AdminPanel.module.scss';
 import { FiUsers, FiEdit, FiUser, FiSettings, FiShield, FiMail, FiKey, FiSave, FiX, FiRefreshCw, FiLoader, 
          FiAlertCircle, FiCheckCircle, FiInfo, FiUserX, FiCalendar, FiToggleLeft, FiToggleRight, FiCheck } from 'react-icons/fi';
+import { Avatar, AVATARS } from '../../utils/cloudinary';
+import ReactDOM from 'react-dom';
 
 const AdminPanel = () => {
   const { user, refreshUser } = useAuth();
@@ -889,10 +891,186 @@ const AdminPanel = () => {
     }
   };
   
+  // Функция для включения/выключения событий сайта
+  const toggleSiteEvent = async (eventName) => {
+    try {
+      // Проверяем права администратора
+      const isUserAdmin = user && (
+        user.email === 'igoraor79@gmail.com' || 
+        user.perks?.includes('admin') || 
+        user.activePerk === 'admin'
+      );
+      
+      if (!isUserAdmin) {
+        setTemporaryMessage({
+          type: 'error',
+          text: 'Только администраторы могут управлять событиями сайта'
+        });
+        return;
+      }
+      
+      setEventsLoading(true);
+      
+      // Переключаем состояние нужного события
+      const newValue = !siteEvents[eventName];
+      
+      // Форматируем название события для БД (camelCase → snake_case)
+      let dbEventName = '';
+      
+      if (eventName === 'earlyUserPromotion') {
+        dbEventName = 'early_user_promotion';
+      } else {
+        dbEventName = eventName.replace(/([A-Z])/g, '_$1').toLowerCase();
+      }
+      
+      // Обновляем в БД
+      const { error } = await supabase
+        .from('site_settings')
+        .update({ 
+          [dbEventName]: newValue,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', (await supabase.from('site_settings').select('id').single()).data.id);
+      
+      if (error) {
+        console.error(`Ошибка при обновлении настройки ${eventName}:`, error);
+        
+        // Пробуем создать таблицу, если её нет
+        console.log('Пробуем создать таблицу site_settings...');
+        
+        try {
+          // Создаем таблицу через RPC
+          await supabase.rpc('create_site_settings_if_not_exists');
+          
+          // Повторяем попытку обновления
+          const { error: updateError } = await supabase
+            .from('site_settings')
+            .update({ 
+              [dbEventName]: newValue,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', (await supabase.from('site_settings').select('id').single()).data.id);
+          
+          if (updateError) {
+            throw new Error(`Не удалось обновить настройку: ${updateError.message}`);
+          }
+        } catch (createError) {
+          throw new Error(`Не удалось создать или обновить таблицу настроек: ${createError.message}`);
+        }
+      }
+      
+      // Обновляем локальное состояние
+      setSiteEvents(prev => ({
+        ...prev,
+        [eventName]: newValue
+      }));
+      
+      setTemporaryMessage({
+        type: 'success',
+        text: `Событие "${eventName === 'earlyUserPromotion' ? 'Ранний пользователь' : eventName}" ${newValue ? 'включено' : 'отключено'}`
+      });
+    } catch (error) {
+      console.error('Ошибка при переключении события:', error);
+      setTemporaryMessage({
+        type: 'error',
+        text: error.message
+      });
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+  
   // Если пользователь не админ, не рендерим компонент
   if (!user || !isAdmin) {
     return null;
   }
+  
+  // Add this before returning the main component JSX
+  // Replace the existing ban dialog modal with this implementation
+  const renderBanDialog = () => {
+    if (!showBanDialog) return null;
+
+    return ReactDOM.createPortal(
+      <div className={styles.modalOverlay}>
+        <div className={styles.banDialog}>
+          <div className={styles.banDialogHeader}>
+            <h3>{banDialogUser.is_banned ? "Управление блокировкой" : "Блокировка пользователя"}</h3>
+            <button 
+              className={styles.closeButton} 
+              onClick={() => setShowBanDialog(false)}
+            >
+              <FiX />
+            </button>
+          </div>
+          
+          <div className={styles.banDialogContent}>
+            {banDialogUser.is_banned ? (
+              <div className={styles.currentBanInfo}>
+                <p>Пользователь <strong>{banDialogUser.displayName}</strong> в настоящее время заблокирован.</p>
+                <button 
+                  className={styles.unbanButton}
+                  onClick={() => handleUnbanUser(banDialogUser.id)}
+                  disabled={banLoading}
+                >
+                  {banLoading ? <FiLoader size={16} /> : <FiCheck size={16} />} Разблокировать пользователя
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleBanUser}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="banReason">Причина блокировки:</label>
+                  <textarea
+                    id="banReason"
+                    value={banReason}
+                    onChange={(e) => setBanReason(e.target.value)}
+                    placeholder="Укажите причину блокировки пользователя"
+                    rows={4}
+                    required
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label htmlFor="banDuration">Длительность блокировки:</label>
+                  <select
+                    id="banDuration"
+                    value={banDuration}
+                    onChange={(e) => setBanDuration(e.target.value)}
+                    required
+                  >
+                    <option value="">Выберите длительность</option>
+                    <option value="30m">30 минут</option>
+                    <option value="2h">2 часа</option>
+                    <option value="6h">6 часов</option>
+                    <option value="24h">24 часа</option>
+                    <option value="7d">7 дней</option>
+                  </select>
+                </div>
+                
+                <div className={styles.banDialogActions}>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    onClick={() => setShowBanDialog(false)}
+                    disabled={banLoading}
+                  >
+                    <FiX size={16} /> Отмена
+                  </button>
+                  <button
+                    type="submit"
+                    className={styles.banButton}
+                    disabled={!banReason.trim() || !banDuration || banLoading}
+                  >
+                    {banLoading ? <FiLoader size={16} /> : <FiUserX size={16} />} Заблокировать
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>,
+      document.getElementById('modal-root') || document.body
+    );
+  };
   
   return (
     <div className={styles.adminPanel}>
@@ -987,15 +1165,30 @@ const AdminPanel = () => {
                       >
                         <td>
                           <div className={styles.userAvatar}>
-                            <img 
-                              src={userItem.avatar || 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23ddd%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%3E%3F%3C%2Ftext%3E%3C%2Fsvg%3E'} 
+                            <Avatar 
+                              avatar={userItem.avatar || AVATARS.GUEST}
                               alt={userItem.displayName}
+                              size={60}
                             />
                           </div>
                         </td>
                         <td>
                           <div className={styles.userInfo}>
-                            <span className={styles.userName}>{userItem.displayName}</span>
+                            <span 
+                              className={styles.userName}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${userItem.id}`);
+                              }}
+                              style={{ 
+                                cursor: 'pointer', 
+                                textDecoration: 'underline',
+                                color: 'var(--accent)'
+                              }}
+                              title="Перейти к профилю пользователя"
+                            >
+                              {userItem.displayName}
+                            </span>
                             <span className={styles.userEmail}>{userItem.email}</span>
                             {userItem.email === 'igoraor79@gmail.com' && (
                               <span className={styles.protectedUser}>Защищенный аккаунт</span>
@@ -1217,86 +1410,7 @@ const AdminPanel = () => {
         </div>
       </div>
       
-      {/* Диалог блокировки пользователя */}
-      {showBanDialog && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.banDialog}>
-            <div className={styles.banDialogHeader}>
-              <h3>{banDialogUser.is_banned ? "Управление блокировкой" : "Блокировка пользователя"}</h3>
-              <button 
-                className={styles.closeButton} 
-                onClick={() => setShowBanDialog(false)}
-              >
-                <FiX />
-              </button>
-            </div>
-            
-            <div className={styles.banDialogContent}>
-              {banDialogUser.is_banned ? (
-                <div className={styles.currentBanInfo}>
-                  <p>Пользователь <strong>{banDialogUser.displayName}</strong> в настоящее время заблокирован.</p>
-                  <button 
-                    className={styles.unbanButton}
-                    onClick={() => handleUnbanUser(banDialogUser.id)}
-                    disabled={banLoading}
-                  >
-                    {banLoading ? <FiLoader size={16} /> : <FiCheck size={16} />} Разблокировать пользователя
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleBanUser}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="banReason">Причина блокировки:</label>
-                    <textarea
-                      id="banReason"
-                      value={banReason}
-                      onChange={(e) => setBanReason(e.target.value)}
-                      placeholder="Укажите причину блокировки пользователя"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  
-                  <div className={styles.formGroup}>
-                    <label htmlFor="banDuration">Длительность блокировки:</label>
-                    <select
-                      id="banDuration"
-                      value={banDuration}
-                      onChange={(e) => setBanDuration(e.target.value)}
-                      required
-                    >
-                      <option value="">Выберите длительность</option>
-                      <option value="30m">30 минут</option>
-                      <option value="2h">2 часа</option>
-                      <option value="6h">6 часов</option>
-                      <option value="24h">24 часа</option>
-                      <option value="7d">7 дней</option>
-                    </select>
-                  </div>
-                  
-                  <div className={styles.banDialogActions}>
-                    <button
-                      type="button"
-                      className={styles.cancelButton}
-                      onClick={() => setShowBanDialog(false)}
-                      disabled={banLoading}
-                    >
-                      <FiX size={16} /> Отмена
-                    </button>
-                    <button
-                      type="submit"
-                      className={styles.banButton}
-                      disabled={!banReason.trim() || !banDuration || banLoading}
-                    >
-                      {banLoading ? <FiLoader size={16} /> : <FiUserX size={16} />} Заблокировать
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {renderBanDialog()}
     </div>
   );
 };

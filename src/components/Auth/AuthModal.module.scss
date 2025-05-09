@@ -3,18 +3,23 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw; // Use viewport units
+  height: 100vh; // Use viewport units
   background: linear-gradient(135deg, rgba(var(--modal-bg-rgb, 33, 33, 38), 0.85) 0%, rgba(var(--modal-bg-end-rgb, 68, 68, 77), 0.85) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000; // Ensure it's above everything
+  z-index: 10000; // Very high z-index to ensure it's above everything
   backdrop-filter: blur(8px);
   perspective: 1000px;
   box-sizing: border-box;
+  overscroll-behavior: contain; // Prevent scroll chaining
+  
+  // Use transform for hardware acceleration
+  transform: translateZ(0);
+  
+  // Ensure it's ontop of everything
+  isolation: isolate;
 }
 
 .modal {
@@ -27,15 +32,23 @@
   border: 1px solid var(--modal-border);
   box-shadow: var(--modal-shadow);
   overflow: hidden;
-  z-index: 2001 !important;
+  z-index: 10001 !important;
   padding: 0;
   transform-style: preserve-3d;
+  margin: auto; // Центрирование по вертикали и горизонтали
+  
+  // Ensure content stays within bounds
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .modalContent {
   padding: 30px;
   position: relative;
   z-index: 5;
+  overflow-y: auto; // Allow scrolling if needed
+  flex: 1; // Take up available space
 }
 
 .closeButton {
@@ -65,6 +78,9 @@
 
 .formWrapper {
   width: 100%;
+  position: relative;
+  z-index: 10; /* Ensure this is above the patternOverlay */
+  
   // Customize the appearance of forms inside the modal
   :global {
     h2 {
@@ -84,6 +100,11 @@
       background: var(--bg-input);
       border: 1px solid var(--border);
       color: var(--text-primary);
+      position: relative;
+      z-index: 15; /* Higher z-index to ensure clickability */
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
       
       &::placeholder {
         color: var(--text-tertiary);
@@ -93,12 +114,23 @@
         box-shadow: 0 0 0 2px var(--accent-light);
         border-color: var(--accent);
         background: var(--bg-highlight);
+        outline: none;
       }
+    }
+    
+    .form-group {
+      position: relative;
+      z-index: 20; /* Ensure form groups are above overlays */
+      margin-bottom: 20px;
     }
     
     label {
       color: var(--text-secondary);
       font-weight: 500;
+      display: block;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 15;
     }
     
     // Style the submit button
@@ -178,6 +210,7 @@
   background-size: 40px 70px;
   mix-blend-mode: overlay;
   z-index: 1;
+  pointer-events: none; /* Ensures clicks go through to elements below */
 }
 
 // Animation
@@ -197,12 +230,21 @@
 
 // Media queries for responsiveness
 @media (max-width: 600px) {
+  .backdrop {
+    align-items: center; // Center vertically on mobile
+    padding: 0;
+  }
+  
   .modal {
-    width: 95%;
+    width: 100%;
+    margin: 0 auto;
+    max-height: min(100vh - 40px, 600px); // Account for padding
+    border-radius: 12px;
     margin: 0 10px;
   }
   
   .modalContent {
-    padding: 20px 15px;
+    padding: 24px 20px;
+    overflow: hidden;
   }
 } 
