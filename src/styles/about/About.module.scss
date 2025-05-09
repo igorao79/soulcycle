@@ -115,7 +115,7 @@
                 }
                 
                 &__link {
-                    color: var(--accent);
+                    color: gray;
                     text-decoration: none;
                     position: relative;
                     transition: all 0.2s ease;
@@ -132,7 +132,7 @@
                         left: 0;
                         right: 0;
                         height: 1px;
-                        background-color: var(--accent);
+                        background-color: gray;
                         transform: scaleX(0);
                         transform-origin: right;
                         transition: transform 0.3s ease;

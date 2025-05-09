@@ -51,17 +51,3 @@
     border-radius: 0.5em;
   }
 
-  @media only screen and (max-width: 760px) {
-    .button {
-      left: -8%;
-      top: 94%;
-      scale: 0.6;
-    }
-  }
-
-  @media (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
-    .button {
-      left: 76%;
-      top: 93%;
-    }
-  }

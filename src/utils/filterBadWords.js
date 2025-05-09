@@ -113,7 +113,7 @@ function getTextVariations(text) {
  * @returns {Object} - Результат анализа
  */
 function analyzeText(text, options = {}) {
-  const { threshold = 0.6, safeContext = false } = options;
+  const { threshold: baseThreshold = 0.6, safeContext = false } = options;
   if (!text) return { hasProfanity: false, score: 0, matches: [] };
   
   let maxScore = 0;
@@ -122,8 +122,9 @@ function analyzeText(text, options = {}) {
   const words = text.split(/\s+/);
   
   // Проверка на контекст
+  let effectiveThreshold = baseThreshold;
   if (safeContext || SAFE_CONTEXTS.some(context => text.includes(context))) {
-    threshold = 0.85; // Higher threshold for safe contexts
+    effectiveThreshold = 0.85; // Higher threshold for safe contexts
   }
   
   // Для каждого слова выполняем проверку
@@ -167,7 +168,7 @@ function analyzeText(text, options = {}) {
     }
   }
   
-  const hasProfanity = maxScore >= threshold;
+  const hasProfanity = maxScore >= effectiveThreshold;
   const overallScore = profanityCount > 0 
     ? Math.min(0.95, maxScore + (0.05 * Math.min(profanityCount, 5))) 
     : 0;
