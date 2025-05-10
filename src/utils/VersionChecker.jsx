@@ -3,6 +3,15 @@ import { useEffect } from 'react';
 // Ключ для хранения версии в localStorage
 const VERSION_KEY = 'app_version';
 
+// Функция для получения базового URL сайта (с учетом GitHub Pages)
+const getBaseUrl = () => {
+  // Определяем, на GitHub Pages мы или локально
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  // Получаем базовый URL из package.json homepage или из текущего пути
+  const repoName = isGitHubPages ? '/soulcycle' : '';
+  return `${window.location.protocol}//${window.location.host}${repoName}`;
+};
+
 // Функция для очистки кэша приложения
 const clearAppCache = () => {
   console.log('Обнаружена новая версия приложения. Очищаем кэш...');
@@ -34,8 +43,10 @@ const VersionChecker = () => {
   useEffect(() => {
     const checkVersion = async () => {
       try {
+        // Получаем базовый URL для нашего сайта
+        const baseUrl = getBaseUrl();
         // Добавляем случайный параметр, чтобы избежать кэширования запроса
-        const response = await fetch(`/version.json?_=${Date.now()}`);
+        const response = await fetch(`${baseUrl}/version.json?_=${Date.now()}`);
         if (!response.ok) {
           console.error('Не удалось получить информацию о версии');
           return;

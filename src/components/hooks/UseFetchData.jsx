@@ -10,6 +10,32 @@ const MIN_REQUEST_INTERVAL = 2000;
 // Для отслеживания времени последнего запроса
 const lastRequestTime = {};
 
+// Определяем, запущено ли приложение на GitHub Pages
+const isGitHubPages = window.location.hostname.includes('github.io');
+
+// Получаем настоящий URL для GitHub Gist в обход CORS
+const getGistUrl = (url) => {
+  // Если это локальный запрос к Gist через прокси
+  if (url.startsWith('/gist/')) {
+    // Если мы на продакшене (GitHub Pages), используем прямой URL
+    if (isGitHubPages) {
+      // Преобразуем локальный путь в прямой URL к Gist
+      // Например, /gist/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/chlore.json
+      // в https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/chlore.json
+      const parts = url.split('/');
+      const username = parts[2];
+      const gistId = parts[3];
+      const filename = parts[parts.length - 1];
+      
+      // Базовый URL для доступа к github gist с учетом ограничений CORS в продакшене
+      return `https://cors-anywhere.herokuapp.com/https://gist.githubusercontent.com/${username}/${gistId}/raw/${filename}`;
+    }
+  }
+  
+  // Для других URL или в режиме разработки возвращаем как есть
+  return url;
+};
+
 // Функция для работы с localStorage, с обработкой ошибок
 const localStorageHelper = {
   get: (key) => {
@@ -84,7 +110,11 @@ const preloadData = async (url, skipCache = false) => {
   lastRequestTime[url] = now;
 
   try {
-    const response = await fetch(url, {
+    // Получаем правильный URL с учетом среды выполнения
+    const fetchUrl = getGistUrl(url);
+    console.log(`Fetching data from: ${fetchUrl}`);
+    
+    const response = await fetch(fetchUrl, {
       cache: skipCache ? 'no-cache' : 'default'
     });
     
