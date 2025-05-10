@@ -13,22 +13,31 @@ const lastRequestTime = {};
 // Определяем, запущено ли приложение на GitHub Pages
 const isGitHubPages = window.location.hostname.includes('github.io');
 
+// Извлекаем информацию из Gist URL
+const parseGistUrl = (url) => {
+  if (url.startsWith('/gist/')) {
+    const parts = url.split('/');
+    return {
+      username: parts[2],
+      gistId: parts[3],
+      filename: parts[parts.length - 1]
+    };
+  }
+  return null;
+};
+
 // Получаем настоящий URL для GitHub Gist в обход CORS
 const getGistUrl = (url) => {
   // Если это локальный запрос к Gist через прокси
   if (url.startsWith('/gist/')) {
-    // Если мы на продакшене (GitHub Pages), используем прямой URL
+    // Если мы на продакшене (GitHub Pages), используем альтернативный подход
     if (isGitHubPages) {
-      // Преобразуем локальный путь в прямой URL к Gist
-      // Например, /gist/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/chlore.json
-      // в https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/chlore.json
-      const parts = url.split('/');
-      const username = parts[2];
-      const gistId = parts[3];
-      const filename = parts[parts.length - 1];
+      // Извлекаем идентификаторы из URL
+      const gistInfo = parseGistUrl(url);
       
-      // Базовый URL для доступа к github gist с учетом ограничений CORS в продакшене
-      return `https://cors-anywhere.herokuapp.com/https://gist.githubusercontent.com/${username}/${gistId}/raw/${filename}`;
+      // Используем GitHub API для получения контента Gist
+      // Этот API поддерживает CORS и не требует прокси
+      return `https://api.github.com/gists/${gistInfo.gistId}`;
     }
   }
   
@@ -67,10 +76,51 @@ const localStorageHelper = {
   }
 };
 
+// Обработка ответа от GitHub API для извлечения содержимого нужного файла
+const processGistResponse = (gistData, originalUrl) => {
+  try {
+    const gistInfo = parseGistUrl(originalUrl);
+    if (!gistInfo || !gistData.files) {
+      return null;
+    }
+    
+    // Ищем нужный файл в ответе Gist API
+    const targetFilename = gistInfo.filename;
+    
+    // Перебираем все файлы и ищем тот, что нам нужен
+    for (const filename in gistData.files) {
+      if (filename === targetFilename || filename.endsWith(`/${targetFilename}`)) {
+        // Если содержимое файла представлено в виде строки, пытаемся распарсить JSON
+        const content = gistData.files[filename].content;
+        if (content) {
+          return JSON.parse(content);
+        }
+      }
+    }
+    
+    // Если конкретный файл не найден, но есть какой-то файл JSON, используем его
+    for (const filename in gistData.files) {
+      if (filename.endsWith('.json')) {
+        const content = gistData.files[filename].content;
+        if (content) {
+          return JSON.parse(content);
+        }
+      }
+    }
+    
+    // Если ничего не нашли, возвращаем все данные Gist
+    return gistData;
+  } catch (error) {
+    console.error('Error processing Gist response:', error);
+    return null;
+  }
+};
+
 // Функция для предварительной загрузки данных с защитой от слишком частых запросов
 const preloadData = async (url, skipCache = false) => {
   // Создаем ключ для кэширования, удаляя параметр времени из URL
   const cacheKey = `data_${url.split('?v=')[0]}`;
+  const isGistUrl = url.startsWith('/gist/');
   
   // Проверяем кэш в localStorage, если не нужно пропускать кэш
   if (!skipCache) {
@@ -112,6 +162,7 @@ const preloadData = async (url, skipCache = false) => {
   try {
     // Получаем правильный URL с учетом среды выполнения
     const fetchUrl = getGistUrl(url);
+    const originalUrl = url; // Сохраняем оригинальный URL для обработки ответа Gist API
     console.log(`Fetching data from: ${fetchUrl}`);
     
     const response = await fetch(fetchUrl, {
@@ -135,15 +186,21 @@ const preloadData = async (url, skipCache = false) => {
     
     const json = await response.json();
     
+    // Если это ответ от GitHub API, извлекаем нужный файл
+    let processedData = json;
+    if (isGistUrl && isGitHubPages) {
+      processedData = processGistResponse(json, originalUrl);
+    }
+    
     // Сохраняем в оба кэша
     const cacheEntry = { 
-      data: json, 
+      data: processedData, 
       timestamp: Date.now() 
     };
     memoryCache[cacheKey] = cacheEntry;
     localStorageHelper.set(cacheKey, cacheEntry);
     
-    return json;
+    return processedData;
   } catch (err) {
     console.error('Preload error:', err);
     
