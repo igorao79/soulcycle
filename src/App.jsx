@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import ThemeToggleButton from './components/theme/ThemeToggleButton';
 import { ThemeContext } from './components/theme/ThemeContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
+import VersionChecker from './utils/VersionChecker';
 
 function App() {
     const { theme } = useContext(ThemeContext);
@@ -87,6 +88,7 @@ function App() {
 
     return (
         <Router>
+            <VersionChecker />
             <div className={styles.page}>
                 <ThemeToggleButton />
                 <HomePage />

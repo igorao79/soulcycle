@@ -4,7 +4,7 @@ import appStyles from '../../../App.module.css';
 import SplitText from '../SplitText';
 import Modal from '../modal/Modal';
 
-const LoreButton = ({ id }) => {
+const LoreButton = ({ id, characters }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -54,7 +54,7 @@ const LoreButton = ({ id }) => {
           </svg>
         </button>
       </div>
-      {mounted && isModalOpen && <Modal isOpen={isModalOpen} onClose={closeModal} id={id} />}
+      {mounted && isModalOpen && <Modal isOpen={isModalOpen} onClose={closeModal} id={id} characters={characters} />}
     </>
   );
 };

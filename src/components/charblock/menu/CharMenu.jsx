@@ -6,7 +6,7 @@ import { getCloudinaryUrl } from '../../../utils/cloudinary.jsx';
 import LoreButton from './LoreButton';
 import SplitText from '../SplitText';
 
-function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?' }) {
+function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lore, characters }) {
   // Определяем, использовать ли локальный путь или Cloudinary
   const isLocalPath = src && (src.startsWith('./') || src.startsWith('http'));
   
@@ -56,7 +56,7 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?' }) 
             </span>
           </div>
         </div>
-        <LoreButton id={id}></LoreButton>
+        <LoreButton id={id} characters={characters}></LoreButton>
       </div>
     </div>
   );

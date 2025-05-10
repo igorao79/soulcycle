@@ -1,5 +1,34 @@
 import React, { useEffect, useRef } from 'react';
 
+// Встроенные стили для HTML-элементов
+const styles = {
+  container: {
+    fontFamily: 'Graphr, sans-serif',
+    lineHeight: '1.5',
+  },
+  paragraph: {
+    marginBottom: '10px',
+    lineHeight: '1.5',
+    position: 'relative',
+  },
+  bulletPoint: {
+    marginBottom: '10px',
+    textIndent: '0',
+    position: 'relative',
+  },
+  blockquote: {
+    margin: '2rem 0rem',
+    borderLeft: '4px solid var(--accent-color)',
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '0 8px 8px 0',
+  },
+  blurredText: {
+    filter: 'blur(4px)',
+    display: 'inline-block',
+  }
+};
+
 const HtmlContent = ({ html, onHeightChange }) => {
   const contentRef = useRef(null);
 
@@ -29,8 +58,29 @@ const HtmlContent = ({ html, onHeightChange }) => {
       const props = {
         key: Math.random().toString(36).substr(2, 9),
         className: node.className || undefined,
-        style: node.style.cssText || undefined,
       };
+
+      // Определяем встроенные стили в зависимости от типа элемента
+      let nodeStyle = {};
+
+      if (node.tagName.toLowerCase() === 'p') {
+        // Проверяем, содержит ли параграф маркер • в начале
+        const content = node.textContent.trim();
+        if (content.startsWith('•')) {
+          nodeStyle = { ...styles.bulletPoint };
+        } else {
+          nodeStyle = { ...styles.paragraph };
+        }
+      } else if (node.tagName.toLowerCase() === 'blockquote') {
+        nodeStyle = { ...styles.blockquote };
+      } else if (node.tagName.toLowerCase() === 'span' && 
+                node.className && 
+                node.className.includes('blur')) {
+        nodeStyle = { ...styles.blurredText };
+      }
+
+      // Добавляем встроенные стили
+      props.style = nodeStyle;
 
       // Копируем все атрибуты
       Array.from(node.attributes).forEach(attr => {
@@ -46,7 +96,7 @@ const HtmlContent = ({ html, onHeightChange }) => {
   };
 
   return (
-    <div ref={contentRef} className="html-content">
+    <div ref={contentRef} style={styles.container}>
       {convertNodeToReact(tempDiv)}
     </div>
   );

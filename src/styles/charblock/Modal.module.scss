@@ -14,9 +14,9 @@
   &__content {
       background-color: var(--background-color); /* Используем переменную */
       color: var(--text-color); /* Цвет текста */
-      padding: 20px;
+      padding: 0px 20px 40px 20px;
       border-radius: 8px;
-      max-width: 1100px;
+      max-width: 1000px;
       width: 100%;
       position: relative;
       z-index: 1001;
@@ -58,7 +58,7 @@
   &__arrowRight,
   &__arrowLeft {
       position: absolute;
-      bottom: 2%;
+      bottom: 1%;
       font-size: 3rem;
       background: none;
       fill: var(--text-color); /* Цвет стрелок */
@@ -95,13 +95,14 @@
 
   &__textBlock {
       min-height: 500px;
+      width: 100%;
 
       &__textCont {
           display: flex;
           flex-direction: column;
           gap: 20px;
           font-size: 1.65rem;
-          line-height: 110%;
+          line-height: 1.6;
           color: var(--text-color); /* Цвет текста */
           transition: opacity 0.3s ease-in-out;
 
@@ -119,7 +120,7 @@
       font-size: 1.5rem;
       color: var(--text-color); /* Цвет индикатора страницы */
       position: absolute;
-      bottom: 3%;
+      bottom: 2%;
   }
 }
 
@@ -146,7 +147,7 @@
 @media only screen and (max-width: 760px) {
   .modalOverlay {
       &__textContent {
-          min-height: 650px;
+          min-height: 700px;
       }
   }
 }

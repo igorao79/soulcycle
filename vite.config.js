@@ -186,6 +186,13 @@ export default defineConfig({
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
       'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+    },
+    proxy: {
+      '/gist': {
+        target: 'https://gist.githubusercontent.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/gist/, '')
+      }
     }
   },
   // Предзагрузка (preload) модулей

@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "update-version": "node scripts/update-version.js",
+    "update-version:minor": "node scripts/update-version.js minor",
+    "update-version:major": "node scripts/update-version.js major",
+    "predeploy": "npm run update-version && npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {

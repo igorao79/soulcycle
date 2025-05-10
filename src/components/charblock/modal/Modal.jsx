@@ -3,20 +3,15 @@ import ReactDOM from 'react-dom';
 import styles from '../../../styles/charblock/Modal.module.scss';
 import { lorefilter, splitLoreIntoPages } from '../../../utils/charblock/lorefilter.js';
 import { usePagination } from './hooks/usePagination.js';
-import { useFetchData } from '../../hooks/UseFetchData.jsx';
 import { getSkilledName } from '../../../utils/charblock/getSkilledName.js';
 import HtmlContent from '../../common/HtmlContent';
 
-const Modal = ({ isOpen, onClose, id }) => {
+const Modal = ({ isOpen, onClose, id, characters }) => {
   const [fade, setFade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [portalContainer, setPortalContainer] = useState(null);
   const [contentHeight, setContentHeight] = useState(0);
   const textBlockRef = useRef(null);
-
-  const { data: characters, loading, error } = useFetchData(
-    'https://gist.githubusercontent.com/igorao79/17a1e2924e5dbee9371956c24be2a31b/raw/24a8ba7d250a00e594387072aa0fc47641c6b8a6/chlore.json'
-  );
 
   const { currentPage, nextPage, prevPage } = usePagination();
 
@@ -49,26 +44,6 @@ const Modal = ({ isOpen, onClose, id }) => {
   // Если модальное окно закрыто или нет данных, не рендерим ничего
   if (!isOpen || !character || pages.length === 0 || !mounted || !portalContainer) {
     return null;
-  }
-
-  // Если идет загрузка, показываем спиннер
-  if (loading) {
-    return ReactDOM.createPortal(
-      <div className={styles.modalOverlay}>
-        <div className={styles.loading}>Loading...</div>
-      </div>,
-      portalContainer
-    );
-  }
-
-  // Если есть ошибка, показываем её
-  if (error) {
-    return ReactDOM.createPortal(
-      <div className={styles.modalOverlay}>
-        <div className={styles.error}>Error: {error}</div>
-      </div>,
-      portalContainer
-    );
   }
 
   const handleNextPage = () => {
