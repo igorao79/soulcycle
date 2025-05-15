@@ -457,6 +457,49 @@
   }
 }
 
+.feedbackButton {
+  &:before {
+    background: rgba(180, 130, 200, 0.6);
+  }
+  
+  svg {
+    color: rgba(180, 130, 200, 0.9);
+    filter: drop-shadow(0 0 2px rgba(180, 130, 200, 0.3));
+  }
+  
+  &:hover {
+    &:before {
+      background: rgba(200, 140, 220, 0.8);
+    }
+    
+    svg {
+      color: rgba(210, 150, 230, 1);
+    }
+  }
+  
+  // Поддержка светлой темы
+  [data-theme="light"] & {
+    &:before {
+      background: rgba(160, 110, 180, 0.5);
+    }
+    
+    svg {
+      color: rgba(160, 110, 180, 0.9);
+      filter: drop-shadow(0 0 1px rgba(160, 110, 180, 0.2));
+    }
+    
+    &:hover {
+      &:before {
+        background: rgba(170, 120, 190, 0.7);
+      }
+      
+      svg {
+        color: rgba(150, 100, 170, 1);
+      }
+    }
+  }
+}
+
 // Адаптивные стили для мобильных устройств
 @media (max-width: 768px) {
   .avatar {

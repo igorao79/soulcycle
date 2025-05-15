@@ -2,8 +2,8 @@ import supabase from './supabaseClient';
 import userProfileService from './userProfileService';
 
 const postService = {
-  // Получение всех постов с информацией об авторах и счетчиками
-  async getPosts() {
+  // Получение постов с пагинацией
+  async getPosts(page = 1, limit = 10) {
     try {
       // Проверяем, существует ли колонка styling в таблице posts
       let hasStylingColumn = false;
@@ -19,12 +19,16 @@ const postService = {
         console.log('Колонка styling отсутствует в таблице posts:', columnsError);
       }
 
-      // Получаем все посты
-      const { data: posts, error: postsError } = await supabase
+      // Вычисляем смещение на основе страницы и лимита
+      const offset = (page - 1) * limit;
+      
+      // Получаем посты с пагинацией
+      const { data: posts, error: postsError, count } = await supabase
         .from('posts')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('is_pinned', { ascending: false }) // Сначала закрепленные
-        .order('created_at', { ascending: false }); // Затем по дате создания
+        .order('created_at', { ascending: false }) // Затем по дате создания
+        .range(offset, offset + limit - 1); // Используем range для пагинации
       
       if (postsError) throw postsError;
 
@@ -113,7 +117,13 @@ const postService = {
         }
       }
       
-      return enrichedPosts;
+      // Возвращаем информацию о пагинации вместе с постами
+      return {
+        posts: enrichedPosts,
+        totalCount: count || 0,
+        hasMore: (offset + posts.length) < (count || 0),
+        nextPage: (offset + posts.length) < (count || 0) ? page + 1 : null
+      };
     } catch (error) {
       console.error('Ошибка при получении постов:', error);
       throw error;
@@ -1198,8 +1208,9 @@ const postService = {
         updateData.content = postData.content;
       }
       
-      if (postData.imageUrl !== undefined) {
-        updateData.image_url = postData.imageUrl || null;
+      // Handle both imageUrl and image_url properties for compatibility
+      if (postData.imageUrl !== undefined || postData.image_url !== undefined) {
+        updateData.image_url = (postData.imageUrl || postData.image_url || null);
       }
       
       if (postData.styling !== undefined) {
@@ -1211,6 +1222,9 @@ const postService = {
       }
       
       console.log('Обновляем пост с данными:', updateData);
+      
+      // Log the update data for debugging
+      console.log('Sending update data to Supabase:', updateData);
       
       // Обновляем пост
       const { data, error } = await supabase
@@ -1224,28 +1238,39 @@ const postService = {
         throw new Error(`Не удалось обновить пост: ${error.message}`);
       }
       
+      console.log('Supabase response after update:', data);
+      
       if (!data || data.length === 0) {
         throw new Error('Не удалось найти пост для обновления');
       }
       
       console.log('Пост успешно обновлен:', data[0]);
       
-      // Получаем дополнительные данные для обновленного поста
-      const { data: postWithAuthors } = await supabase
-        .from('posts')
-        .select(`*, author:profiles(id, displayName:display_name, avatar, perks, activePerk:active_perk)`)
-        .eq('id', postId)
-        .single();
+      // Вместо сложной выборки с автором, возвращаем успешный результат с обновленными данными поста
+      // Обогащаем данные поста основной информацией из базы 
       
-      // Если не удалось получить данные с автором, возвращаем ответ без полных данных
-      if (!postWithAuthors) {
+      try {
+        // Получаем профиль автора через userProfileService
+        const authorProfile = await userProfileService.getUserProfile(data[0].user_id);
+        
+        // Формируем обогащенный пост с данными автора
+        const enrichedPost = {
+          ...data[0],
+          author: {
+            id: data[0].user_id,
+            displayName: authorProfile.displayName,
+            avatar: authorProfile.avatar,
+            activePerk: authorProfile.activePerk || 'user',
+            id: data[0].user_id
+          },
+        };
+        
+        return { success: true, post: enrichedPost };
+      } catch (profileError) {
+        console.error('Ошибка при получении профиля автора:', profileError);
+                 // В случае ошибки возвращаем только данные поста без информации об авторе
         return { success: true, post: data[0] };
       }
-      
-      // Трансформируем данные поста для клиента
-      const transformedPost = transformPost(postWithAuthors);
-      
-      return { success: true, post: transformedPost };
     } catch (error) {
       console.error('Ошибка при редактировании поста:', error);
       throw error;

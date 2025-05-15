@@ -28,7 +28,8 @@
     "react-lottie-lightweight": "^0.0.1",
     "react-polls": "^1.2.0",
     "react-router-dom": "^7.3.0",
-    "styled-components": "^6.1.17"
+    "styled-components": "^6.1.17",
+    "uploadthing": "^7.7.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

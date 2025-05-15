@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import postService from '../../services/postService';
 import PostItem from './PostItem';
 import CreatePostForm from './CreatePostForm';
@@ -10,13 +10,24 @@ import {
   FiFileText, FiInbox, FiBookOpen
 } from 'react-icons/fi';
 
+const POST_LIMIT = 10; // Limit posts per page
+
 const PostsList = () => {
   const { user, isAuthenticated } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  
+  // Ref for intersection observer
+  const observer = useRef();
+  // Ref for the loader element
+  const loaderRef = useRef();
   
   // Проверка, является ли пользователь администратором
   const isAdmin = isAuthenticated && user && (
@@ -25,45 +36,103 @@ const PostsList = () => {
     user.activePerk === 'admin'
   );
   
-  // Загрузка постов
-  const fetchPosts = async () => {
+  // Загрузка постов - обновлено для поддержки пагинации
+  const fetchPosts = async (pageNum = 1, shouldAppend = false) => {
     try {
-      setLoading(true);
-      const postsData = await postService.getPosts();
+      if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       
-      // Посты уже отсортированы по серверу (закрепленные сверху, затем по дате)
-      setPosts(postsData);
-      setError('');
+      const response = await postService.getPosts(pageNum, POST_LIMIT);
+      
+      if (response && response.posts) {
+        if (shouldAppend) {
+          // Append new posts to existing list
+          setPosts(prev => [...prev, ...response.posts]);
+        } else {
+          // Replace existing posts
+          setPosts(response.posts);
+        }
+        
+        // Update pagination info
+        setHasMore(response.hasMore);
+        setTotalCount(response.totalCount);
+        
+        setError('');
+      } else {
+        throw new Error('Не удалось получить данные постов');
+      }
     } catch (err) {
       console.error('Ошибка при загрузке постов:', err);
       setError('Не удалось загрузить посты. Попробуйте позже.');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
   
+  // Function to load more posts
+  const loadMorePosts = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchPosts(nextPage, true);
+    }
+  }, [page, loadingMore, hasMore]);
+  
+  // Intersection Observer setup for infinite scrolling
+  useEffect(() => {
+    // Disconnect previous observer if exists
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      // If the loader is visible and we're not already loading and we have more posts
+      if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+        loadMorePosts();
+      }
+    }, { 
+      rootMargin: '100px',
+      threshold: 0.1 
+    });
+    
+    // Observe the loader element
+    const currentLoaderRef = loaderRef.current;
+    if (currentLoaderRef) {
+      observer.current.observe(currentLoaderRef);
+    }
+    
+    return () => {
+      if (currentLoaderRef) {
+        observer.current.unobserve(currentLoaderRef);
+      }
+    };
+  }, [loadMorePosts, hasMore, loadingMore, loading]);
+  
   // Загружаем посты при монтировании компонента или при обновлении
   useEffect(() => {
-    fetchPosts();
+    setPage(1); // Reset to first page
+    fetchPosts(1, false);
   }, [refreshTrigger]);
   
   // Обработчик создания нового поста
   const handlePostCreated = (newPost) => {
-    // Добавляем новый пост с учетом закрепления
-    if (newPost.is_pinned) {
-      // Если пост закреплен, добавляем его в начало
-      setPosts([newPost, ...posts]);
-    } else {
-      // Если пост не закреплен, добавляем его после закрепленных
-      const pinnedPosts = posts.filter(post => post.is_pinned);
-      const unpinnedPosts = posts.filter(post => !post.is_pinned);
-      setPosts([...pinnedPosts, newPost, ...unpinnedPosts]);
-    }
+    // Добавляем новый пост в начало списка
+    setPosts(prevPosts => {
+      // Если пост закреплен, добавляем в начало
+      if (newPost.is_pinned) {
+        return [newPost, ...prevPosts];
+      }
+      
+      // Если не закреплен, добавляем после закрепленных
+      const pinnedPosts = prevPosts.filter(post => post.is_pinned);
+      const unpinnedPosts = prevPosts.filter(post => !post.is_pinned);
+      return [...pinnedPosts, newPost, ...unpinnedPosts];
+    });
     
-    // Обновляем счетчики лайков и просмотров для всех постов с задержкой
-    setTimeout(() => {
-      setRefreshTrigger(prev => prev + 1);
-    }, 2000);
+    // Обновляем общее количество
+    setTotalCount(prev => prev + 1);
   };
   
   // Обработчик изменения лайка
@@ -85,6 +154,8 @@ const PostsList = () => {
       if (result.success) {
         // Только если запрос успешен, удаляем пост из локального состояния
         setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+        // Уменьшаем общее количество
+        setTotalCount(prev => prev - 1);
       }
     } catch (error) {
       console.error('Ошибка при удалении поста:', error);
@@ -122,6 +193,7 @@ const PostsList = () => {
   
   // Обработчик обновления данных
   const handleRefresh = () => {
+    setPage(1); // Reset to first page
     setRefreshTrigger(prev => prev + 1);
   };
 
@@ -130,11 +202,22 @@ const PostsList = () => {
     setIsRulesModalOpen(prev => !prev);
   };
   
+  // Add a handler for post updates
+  const handlePostUpdate = (updatedPost) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === updatedPost.id 
+          ? { ...post, ...updatedPost }
+          : post
+      )
+    );
+  };
+  
   return (
     <div className={styles.postsContainer}>
       <div className={styles.postsHeader}>
         <h2>
-          <FiFileText /> Лента постов
+          <FiFileText /> Лента постов {totalCount > 0 && `(${posts.length}/${totalCount})`}
         </h2>
         <div className={styles.headerButtons}>
           <button 
@@ -162,22 +245,39 @@ const PostsList = () => {
         </div>
       )}
       
-      {loading ? (
+      {loading && page === 1 ? (
         <div className={styles.loading}>
           <FiLoader /> Загрузка постов...
         </div>
       ) : posts.length > 0 ? (
-        <div className={styles.postsList}>
-          {posts.map(post => (
-            <PostItem 
-              key={post.id} 
-              post={post} 
-              onLikeToggle={handleLikeToggle}
-              onDelete={handlePostDelete}
-              onPinChange={handlePinChange}
-            />
-          ))}
-        </div>
+        <>
+          <div className={styles.postsList}>
+            {posts.map(post => (
+              <PostItem 
+                key={post.id} 
+                post={post} 
+                onLikeToggle={handleLikeToggle}
+                onDelete={handlePostDelete}
+                onPinChange={handlePinChange}
+                onUpdate={handlePostUpdate}
+              />
+            ))}
+          </div>
+          
+          {/* Loader at the bottom for infinite scrolling */}
+          <div ref={loaderRef} className={styles.loadMoreContainer}>
+            {loadingMore && (
+              <div className={styles.loadMoreSpinner}>
+                <FiLoader /> Загрузка старых постов...
+              </div>
+            )}
+            {!hasMore && posts.length >= totalCount && (
+              <div className={styles.noMorePosts}>
+                Вы загрузили все посты
+              </div>
+            )}
+          </div>
+        </>
       ) : (
         <div className={styles.noPosts}>
           <FiInbox />

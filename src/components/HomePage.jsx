@@ -11,6 +11,7 @@ import AdminPanel from './Admin/AdminPanel';
 import ResetPassword from './Auth/ResetPassword';
 import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/hp/HomePage.module.scss';
+import FeedbackForm from './Feedback/FeedbackForm';
 
 function HomePage() {
   const { user } = useAuth();
@@ -203,6 +204,16 @@ function AnimatedRoutes() {
             transition={{ duration: 0.3 }}
           >
             <AdminPanel />
+          </motion.div>
+        } />
+        <Route path="/feedback" element={
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FeedbackForm />
           </motion.div>
         } />
       </Routes>

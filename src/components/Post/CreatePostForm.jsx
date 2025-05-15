@@ -11,6 +11,25 @@ import { AiOutlinePushpin } from 'react-icons/ai';
 import { HexColorPicker } from 'react-colorful';
 import { Link } from 'react-router-dom';
 
+// Cloudinary configuration for image optimization with advanced parameters
+const CLOUDINARY_URL = 'https://res.cloudinary.com/do9t8preg/image/fetch/f_auto,q_auto:best,dpr_auto,w_auto,c_limit,w_800/';
+
+// Функция для оптимизации изображений через Cloudinary
+const optimizeImageUrl = (url) => {
+  if (!url) return null;
+  
+  // Пропускаем уже оптимизированные URL
+  if (url.includes('cloudinary.com')) return url;
+  
+  try {
+    // Кодируем URL и оборачиваем в Cloudinary
+    return `${CLOUDINARY_URL}${encodeURIComponent(url)}`;
+  } catch (error) {
+    console.error('Ошибка при оптимизации изображения:', error);
+    return url; // Возвращаем оригинальный URL в случае ошибки
+  }
+};
+
 // Доступные шрифты
 const FONT_OPTIONS = [
   { name: 'По умолчанию', value: 'inherit' },
@@ -62,6 +81,26 @@ const formOptionsStyle = `
     margin-top: 5px;
     align-self: flex-end;
   }
+
+  .${styles.imagePreview} {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+  }
+  
+  .${styles.imagePreview} img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  .${styles.imageNote} {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+  }
   
   @media (max-width: 768px) {
     .${styles.formOptions} {
@@ -90,20 +129,10 @@ const CreatePostForm = ({ onPostCreated }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [optimizedImageUrl, setOptimizedImageUrl] = useState('');
+  const [imagePreviewLoading, setImagePreviewLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
-  // Проверяем права администратора
-  const isAdmin = isAuthenticated && user && (
-    user.email === 'igoraor79@gmail.com' || 
-    user.perks?.includes('admin') || 
-    user.activePerk === 'admin'
-  );
-  
-  // Если пользователь не администратор, не отображаем форму
-  if (!isAdmin) {
-    return null;
-  }
   
   // Poll state
   const [showPoll, setShowPoll] = useState(false);
@@ -122,6 +151,30 @@ const CreatePostForm = ({ onPostCreated }) => {
   const [showTitleColorPicker, setShowTitleColorPicker] = useState(false);
   const [showContentColorPicker, setShowContentColorPicker] = useState(false);
   const [showOptionsColorPicker, setShowOptionsColorPicker] = useState(false);
+  
+  // Обновляем оптимизированную ссылку при изменении URL картинки
+  useEffect(() => {
+    if (!imageUrl) {
+      setOptimizedImageUrl('');
+      return;
+    }
+    
+    setImagePreviewLoading(true);
+    const optimized = optimizeImageUrl(imageUrl);
+    setOptimizedImageUrl(optimized);
+  }, [imageUrl]);
+  
+  // Проверяем права администратора
+  const isAdmin = isAuthenticated && user && (
+    user.email === 'igoraor79@gmail.com' || 
+    user.perks?.includes('admin') || 
+    user.activePerk === 'admin'
+  );
+  
+  // Если пользователь не администратор, не отображаем форму
+  if (!isAdmin) {
+    return null;
+  }
   
   // Handle adding a new poll option
   const handleAddPollOption = () => {
@@ -215,11 +268,11 @@ const CreatePostForm = ({ onPostCreated }) => {
         }
       } : null;
       
-      // Create post data object
+      // Create post data object with optimized image URL
       const postData = {
         title: title.trim() || null, 
         content: content.trim(),
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl ? optimizedImageUrl : null, // Используем оптимизированный URL
         userId: user.id,
         styling: {
           titleColor: titleColor, 
@@ -239,6 +292,7 @@ const CreatePostForm = ({ onPostCreated }) => {
       setTitle('');
       setContent('');
       setImageUrl('');
+      setOptimizedImageUrl('');
       setShowPoll(false);
       setPollOptions(['', '']);
       setShowStylingOptions(false);
@@ -257,9 +311,9 @@ const CreatePostForm = ({ onPostCreated }) => {
       
       // Показываем более подробную информацию об ошибке
       if (err.message) {
-        setError(`Не удалось создать пост: ${err.message}`);
+        setError("Не удалось создать пост: " + err.message);
       } else if (err.details) {
-        setError(`Ошибка: ${err.details}`);
+        setError("Ошибка: " + err.details);
       } else {
         setError('Не удалось создать пост. Попробуйте позже.');
       }
@@ -287,6 +341,16 @@ const CreatePostForm = ({ onPostCreated }) => {
     
     // Return true if the color is dark (luminance < 0.5)
     return luminance < 0.5;
+  };
+  
+  // Обработчик загрузки превью изображения
+  const handleImageLoad = () => {
+    setImagePreviewLoading(false);
+  };
+  
+  const handleImageError = () => {
+    setImagePreviewLoading(false);
+    setError('Ошибка загрузки изображения. Проверьте URL.');
   };
   
   return (
@@ -327,14 +391,32 @@ const CreatePostForm = ({ onPostCreated }) => {
         />
         
         {!showPoll && (
-          <input
-            type="text"
-            className={styles.imageUrlInput}
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="URL изображения (необязательно)"
-            disabled={isSubmitting}
-          />
+          <>
+            <input
+              type="text"
+              className={styles.imageUrlInput}
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="URL изображения (необязательно)"
+              disabled={isSubmitting}
+            />
+            
+            {imageUrl && (
+              <div className={styles.imagePreview}>
+                {imagePreviewLoading && <div className={styles.imageLoading}>Загрузка...</div>}
+                <img 
+                  src={optimizedImageUrl || imageUrl} 
+                  alt="Предпросмотр" 
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
+                  style={{display: imagePreviewLoading ? 'none' : 'block'}}
+                />
+                <div className={styles.imageNote}>
+                  <FiImage /> Изображение будет автоматически оптимизировано для быстрой загрузки
+                </div>
+              </div>
+            )}
+          </>
         )}
         
         {showPoll && (

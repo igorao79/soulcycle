@@ -5,7 +5,7 @@ import styles from './AuthButton.module.scss';
 import AuthModal from './AuthModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_UPDATED_EVENT } from '../../contexts/AuthContext';
-import { FiLogIn, FiUser, FiSettings, FiLogOut, FiChevronDown } from 'react-icons/fi';
+import { FiLogIn, FiUser, FiSettings, FiLogOut, FiChevronDown, FiMessageSquare } from 'react-icons/fi';
 import perkStyles from '../../styles/Perks.module.scss';
 import OptimizedAvatar from '../shared/OptimizedAvatar';
 import userProfileService from '../../services/userProfileService';
@@ -158,6 +158,12 @@ const AuthButton = () => {
     setUserMenuOpen(false);
   };
 
+  const handleFeedbackClick = () => {
+    // Открытие формы обратной связи в новой вкладке
+    navigate('/feedback');
+    setUserMenuOpen(false);
+  };
+
   const toggleUserMenu = () => {
     setUserMenuOpen(!userMenuOpen);
   };
@@ -256,6 +262,15 @@ const AuthButton = () => {
                       whileHover={{ x: 5 }}
                     >
                       <FiUser /> Профиль
+                    </motion.button>
+                  </motion.li>
+                  <motion.li variants={menuItemVariants}>
+                    <motion.button 
+                      className={`${styles.menuItem} ${styles.feedbackButton}`}
+                      onClick={handleFeedbackClick}
+                      whileHover={{ x: 5 }}
+                    >
+                      <FiMessageSquare /> Обратная связь
                     </motion.button>
                   </motion.li>
                   {isAdmin && (

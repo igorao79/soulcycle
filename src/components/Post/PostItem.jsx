@@ -10,13 +10,54 @@ import {
   FiHeart, FiMessageSquare, FiClock, FiTrash2, 
   FiSend, FiAlertCircle, FiLoader, FiMessageCircle,
   FiCornerDownRight, FiX, FiBarChart2, FiCheck,
-  FiAlertTriangle, FiInfo, FiMoreVertical
+  FiAlertTriangle, FiInfo, FiMoreVertical, FiEdit, FiPlus
 } from 'react-icons/fi';
 import { AiOutlinePushpin } from 'react-icons/ai';
 import filterBadWords from '../../utils/filterBadWords';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import OptimizedAvatar from '../shared/OptimizedAvatar';
+import { FiImage } from 'react-icons/fi';
+
+// Cloudinary URL for image optimization with advanced parameters
+const CLOUDINARY_URL = 'https://res.cloudinary.com/do9t8preg/image/fetch/f_auto,q_auto:best,dpr_auto,w_auto,c_limit,w_800/';
+
+// Global cache for optimized URLs to prevent duplicate transformations
+const optimizedUrlCache = new Map();
+
+// Function to get optimized URL with caching
+const getOptimizedUrl = (originalUrl) => {
+  if (!originalUrl || typeof originalUrl !== 'string') {
+    return null;
+  }
+  
+  // Return cached URL if available
+  if (optimizedUrlCache.has(originalUrl)) {
+    return optimizedUrlCache.get(originalUrl);
+  }
+  
+  // Skip URLs that are already optimized
+  if (originalUrl.includes('res.cloudinary.com/do9t8preg/image/fetch')) {
+    optimizedUrlCache.set(originalUrl, originalUrl);
+    return originalUrl;
+  }
+  
+  // Skip data URLs
+  if (originalUrl.startsWith('data:image/')) {
+    optimizedUrlCache.set(originalUrl, originalUrl);
+    return originalUrl;
+  }
+  
+  try {
+    // Generate optimized URL
+    const optimizedUrl = `${CLOUDINARY_URL}${encodeURIComponent(originalUrl)}`;
+    optimizedUrlCache.set(originalUrl, optimizedUrl);
+    return optimizedUrl;
+  } catch (error) {
+    console.error('Error generating optimized URL:', error);
+    return originalUrl;
+  }
+};
 
 // Функция для форматирования даты
 const formatRelativeTime = (dateString, isMobile = false) => {
@@ -1360,7 +1401,389 @@ const PinnedPostContainer = styled.div`
   }
 `;
 
-const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange }) => {
+// Компонент для оптимизации изображений
+const OptimizedImage = ({ src, alt, className, style }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
+  
+  // Get optimized URL once using memoization
+  const { displaySrc, originalSrc } = useMemo(() => {
+    const optimized = getOptimizedUrl(src);
+    return {
+      displaySrc: optimized || src,
+      originalSrc: src
+    };
+  }, [src]);
+  
+  // Handle successful image load
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setError(false);
+  };
+  
+  // Handle image loading error
+  const handleImageError = () => {
+    // If optimized image failed and we haven't tried the original yet
+    if (!useFallback && displaySrc !== originalSrc) {
+      setUseFallback(true);
+    } else {
+      // Both optimized and original failed
+      setIsLoading(false);
+      setError(true);
+    }
+  };
+  
+  // Reset loading state on component unmount
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (isLoading) {
+        setIsLoading(false);
+      }
+    }, 5000);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
+  
+  return (
+    <div className={className || ''} style={style}>
+      {isLoading && <div className={styles.imageLoading}>Загрузка...</div>}
+      {error && <div className={styles.imageError}>Ошибка загрузки</div>}
+      {displaySrc && (
+        <img 
+          src={useFallback ? originalSrc : displaySrc} 
+          alt={alt} 
+          style={{ 
+            display: isLoading ? 'none' : 'block',
+            maxWidth: '100%',
+            height: 'auto',
+            borderRadius: '8px'
+          }}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          loading="lazy"
+        />
+      )}
+    </div>
+  );
+};
+
+// Add an EditPostForm component that will be shown when editing a post
+const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
+  const [title, setTitle] = useState(post.title || '');
+  const [content, setContent] = useState(post.content || '');
+  const [imageUrl, setImageUrl] = useState(post.image_url || '');
+  const [optimizedImageUrl, setOptimizedImageUrl] = useState('');
+  const [imagePreviewLoading, setImagePreviewLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  // Update optimized image URL when image URL changes
+  useEffect(() => {
+    if (!imageUrl) {
+      setOptimizedImageUrl('');
+      setImagePreviewLoading(false);
+      return;
+    }
+    
+    setImagePreviewLoading(true);
+    
+    // Use the global optimization function with caching
+    const optimized = getOptimizedUrl(imageUrl);
+    setOptimizedImageUrl(optimized || imageUrl);
+    
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setImagePreviewLoading(false);
+    }, 3000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [imageUrl]);
+  
+  // Handle image load events
+  const handleImageLoad = () => {
+    setImagePreviewLoading(false);
+  };
+  
+  const handleImageError = () => {
+    setImagePreviewLoading(false);
+    setError('Ошибка загрузки изображения. Проверьте URL.');
+  };
+  
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!content.trim()) {
+      setError('Текст поста не может быть пустым');
+      return;
+    }
+    
+    const updatedPost = {
+      title: title.trim() || null,
+      content: content.trim(),
+      imageUrl: imageUrl || null,
+      // Also include image_url for backward compatibility
+      image_url: imageUrl || null
+    };
+    
+    onSave(updatedPost);
+  };
+  
+  return (
+    <div className={styles.editPostForm}>
+      {error && (
+        <div className={styles.errorMessage}>
+          <FiAlertCircle /> {error}
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className={styles.titleInput}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Заголовок поста"
+          disabled={isSubmitting}
+        />
+        
+        <textarea
+          className={styles.contentInput}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Текст вашего поста..."
+          rows={4}
+          disabled={isSubmitting}
+          required
+        />
+        
+        <input
+          type="text"
+          className={styles.imageUrlInput}
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="URL изображения (необязательно)"
+          disabled={isSubmitting}
+        />
+        
+        {imageUrl && (
+          <div className={styles.imagePreview}>
+            {imagePreviewLoading && <div className={styles.imageLoading}>Загрузка...</div>}
+            <img 
+              src={optimizedImageUrl || imageUrl} 
+              alt="Предпросмотр" 
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              style={{
+                display: imagePreviewLoading ? 'none' : 'block',
+                maxWidth: '100%',
+                height: 'auto'
+              }}
+            />
+            <div className={styles.imageNote}>
+              <FiImage /> Изображение будет автоматически оптимизировано
+            </div>
+          </div>
+        )}
+        
+        <div className={styles.formOptions}>
+          <button 
+            type="button" 
+            className={styles.cancelEditButton}
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            <FiX /> Отмена
+          </button>
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <FiLoader /> Сохранение...
+              </>
+            ) : (
+              <>
+                <FiSend /> Сохранить
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+// Add a PollEditForm component that will be shown when editing a poll post
+const PollEditForm = ({ post, onSave, onCancel, isSubmitting }) => {
+  const [title, setTitle] = useState(post.title || '');
+  const [question, setQuestion] = useState(post.poll_data?.question || '');
+  const [options, setOptions] = useState(post.poll_data?.options || ['', '']);
+  const [error, setError] = useState('');
+  
+  // Use the title as question if no separate question is provided
+  useEffect(() => {
+    if (question === '' && title !== '') {
+      setQuestion(title);
+    }
+  }, [title, question]);
+  
+  // Handle adding a new poll option
+  const handleAddOption = () => {
+    if (options.length < 10) {
+      setOptions([...options, '']);
+    }
+  };
+  
+  // Handle removing a poll option
+  const handleRemoveOption = (index) => {
+    if (options.length > 2) {
+      const newOptions = [...options];
+      newOptions.splice(index, 1);
+      setOptions(newOptions);
+    }
+  };
+  
+  // Handle option text change
+  const handleOptionChange = (index, value) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
+  };
+  
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!title.trim() && !question.trim()) {
+      setError('Заголовок или вопрос опроса не может быть пустым');
+      return;
+    }
+    
+    // Validate options: need at least 2 non-empty options
+    const validOptions = options.filter(opt => opt.trim() !== '');
+    if (validOptions.length < 2) {
+      setError('Требуется минимум два варианта ответа для опроса');
+      return;
+    }
+    
+    // Create updated poll data
+    const pollData = {
+      question: question.trim() || title.trim(),
+      options: options.filter(opt => opt.trim() !== '')
+    };
+    
+    // Create the updated post object
+    const updatedPost = {
+      title: title.trim(),
+      content: post.content || '',
+      poll: pollData
+    };
+    
+    onSave(updatedPost);
+  };
+  
+  return (
+    <div className={styles.editPostForm}>
+      {error && (
+        <div className={styles.errorMessage}>
+          <FiAlertCircle /> {error}
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className={styles.titleInput}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Заголовок опроса"
+          disabled={isSubmitting}
+        />
+        
+        <div className={styles.pollContainer}>
+          <input
+            type="text"
+            className={styles.pollQuestionInput}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Вопрос опроса (если отличается от заголовка)"
+            disabled={isSubmitting}
+          />
+          
+          <div className={styles.pollOptions}>
+            {options.map((option, index) => (
+              <div key={index} className={styles.pollOptionInputWrapper}>
+                <input
+                  type="text"
+                  className={styles.pollOptionInput}
+                  value={option}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  placeholder={`Вариант ${index + 1}`}
+                  disabled={isSubmitting}
+                  required={index < 2}
+                />
+                {options.length > 2 && (
+                  <button
+                    type="button"
+                    className={styles.removeOptionButton}
+                    onClick={() => handleRemoveOption(index)}
+                    disabled={isSubmitting}
+                  >
+                    <FiX />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          {options.length < 10 && (
+            <button
+              type="button"
+              className={styles.addOptionButton}
+              onClick={handleAddOption}
+              disabled={isSubmitting}
+            >
+              <FiPlus /> Добавить вариант
+            </button>
+          )}
+        </div>
+        
+        <div className={styles.formOptions}>
+          <button 
+            type="button" 
+            className={styles.cancelEditButton}
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            <FiX /> Отмена
+          </button>
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <FiLoader /> Сохранение...
+              </>
+            ) : (
+              <>
+                <FiSend /> Сохранить
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange, onUpdate }) => {
   const { user, isAuthenticated } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
@@ -1377,6 +1800,8 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
   const [showAuthWarning, setShowAuthWarning] = useState('');
   const [isPinned, setIsPinned] = useState(post.is_pinned || false);
   const [isPinning, setIsPinning] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
   
   // Новое состояние для отслеживания прямых комментариев и общего количества
   const [directCommentsCount, setDirectCommentsCount] = useState(0);
@@ -1890,144 +2315,225 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
     };
   }, [post.created_at, isMobile]);
   
+  // Функция для обработки редактирования поста
+  const handleEditPost = async (updatedPost) => {
+    if (!isAdmin) return;
+    
+    try {
+      setIsSubmittingEdit(true);
+      
+      console.log('Updating post with data:', updatedPost);
+      
+      // Call the update function passed from the parent
+      const result = await postService.updatePost(post.id, updatedPost);
+      
+      if (result && result.success) {
+        console.log('Post updated successfully:', result.post);
+        
+        // Update local post data with the response
+        if (onUpdate) {
+          onUpdate(result.post);
+        }
+        
+        setIsEditing(false);
+      } else {
+        throw new Error('Не удалось обновить пост');
+      }
+    } catch (error) {
+      console.error('Ошибка при обновлении поста:', error);
+      alert('Не удалось обновить пост: ' + (error.message || 'Неизвестная ошибка'));
+    } finally {
+      setIsSubmittingEdit(false);
+    }
+  };
+  
+  // Function to toggle edit mode
+  const toggleEditMode = () => {
+    if (!isAdmin) return;
+    setIsEditing(!isEditing);
+  };
+  
+  // Check if post is a poll post
+  const isPollPost = !!post.poll_data;
+  
+  // State to track if poll has votes (used to determine if poll is editable)
+  const [pollHasVotes, setPollHasVotes] = useState(false);
+  
+  // Check if poll has votes when component mounts
+  useEffect(() => {
+    const checkPollVotes = async () => {
+      if (isPollPost) {
+        try {
+          const { results } = await postService.getPollResults(post.id);
+          // Check if any option has votes
+          const hasVotes = results.some(result => result.votes > 0);
+          setPollHasVotes(hasVotes);
+        } catch (error) {
+          console.error('Error checking poll votes:', error);
+        }
+      }
+    };
+    
+    if (isPollPost) {
+      checkPollVotes();
+    }
+  }, [post.id, isPollPost]);
+
   return (
     <>
       {isPinned ? (
         <PinnedPostContainer>
           <div className={styles.postItem}>
-            <div className={styles.postHeader}>
-              <Link to={`/profile/${post.user_id}`} className={styles.authorInfo}>
-                <OptimizedAvatar src={post.author.avatar} alt={post.author.displayName} className={styles.avatar} />
-                <span 
-                  className={
-                    post.author.activePerk === 'early_user' 
-                      ? perkStyles.earlyUserPerk
-                      : post.author.activePerk === 'sponsor' 
-                      ? perkStyles.sponsorPerk
-                      : post.author.activePerk === 'admin' 
-                      ? perkStyles.adminPerk
-                      : perkStyles.userPerk
-                  }
-                  style={{
-                    display: 'inline-block',
-                    margin: 0,
-                    padding: 0
-                  }}
-                >
-                  {post.author.displayName}
-                </span>
-              </Link>
-              <div className={styles.postMeta}>
-                {isPinned && (
-                  <PinnedBadge>
-                    <AiOutlinePushpin /> Закреплено
-                  </PinnedBadge>
-                )}
-                <span className={styles.postDate}>
-                  <FiClock /> {timeAgo}
-                </span>
-              </div>
-            </div>
-            
-            {/* Заголовок поста - новый элемент */}
-            {hasTitle && (
-              <h2 
-                className={styles.postTitle}
-                style={{ 
-                  color: titleColor, 
-                  fontFamily: fontFamily 
-                }}
-              >
-                <span className={isTitleDark ? styles.darkTextConversion : ''}>
-                  {post.title}
-                </span>
-              </h2>
-            )}
-            
-            <div 
-              className={styles.postContent}
-              style={{ 
-                color: contentColor, 
-                fontFamily: fontFamily 
-              }}
-            >
-              <span className={isContentDark ? styles.darkTextConversion : ''}>
-                {post.content}
-              </span>
-            </div>
-            
-            {post.image_url && (
-              <div className={styles.postImage}>
-                <img 
-                  src={post.image_url} 
-                  alt="Изображение к посту" 
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-            
-            {post.poll_data && (
-              <div className={styles.pollContainer}>
-                <PollComponent 
-                  poll={{
-                    ...post.poll_data,
-                    hideQuestion: post.title && post.poll_data.question === post.title
-                  }}
-                  postId={post.id}
-                  onVote={handlePollVote}
-                  hasVoted={hasVoted}
-                  votedOption={votedOption}
-                  results={pollResults}
-                  isAdmin={isAdmin}
-                  user={user}
-                />
-              </div>
-            )}
-            
-            <div className={styles.postActions}>
-              <div className={styles.actionButtons}>
-                <button 
-                  id={`like-${post.id}`}
-                  className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
-                  onClick={handleLikeClick}
-                >
-                  <FiHeart /> <span className={styles.likeCount}>{likesCount}</span>
-                </button>
+            {/* If in edit mode, show edit form, otherwise show post content */}
+            {isEditing ? (
+              <EditPostForm 
+                post={post}
+                onSave={handleEditPost}
+                onCancel={() => setIsEditing(false)}
+                isSubmitting={isSubmittingEdit}
+              />
+            ) : (
+              <>
+                <div className={styles.postHeader}>
+                  <Link to={`/profile/${post.user_id}`} className={styles.authorInfo}>
+                    <OptimizedAvatar src={post.author.avatar} alt={post.author.displayName} className={styles.avatar} />
+                    <span 
+                      className={
+                        post.author.activePerk === 'early_user' 
+                          ? perkStyles.earlyUserPerk
+                          : post.author.activePerk === 'sponsor' 
+                          ? perkStyles.sponsorPerk
+                          : post.author.activePerk === 'admin' 
+                          ? perkStyles.adminPerk
+                          : perkStyles.userPerk
+                      }
+                      style={{
+                        display: 'inline-block',
+                        margin: 0,
+                        padding: 0
+                      }}
+                    >
+                      {post.author.displayName}
+                    </span>
+                  </Link>
+                  <div className={styles.postMeta}>
+                    {isPinned && (
+                      <PinnedBadge>
+                        <AiOutlinePushpin /> Закреплено
+                      </PinnedBadge>
+                    )}
+                    <span className={styles.postDate}>
+                      <FiClock /> {timeAgo}
+                    </span>
+                  </div>
+                </div>
                 
-                <button 
-                  className={styles.commentButton}
-                  onClick={toggleComments}
+                {/* Заголовок поста - новый элемент */}
+                {hasTitle && (
+                  <h2 
+                    className={styles.postTitle}
+                    style={{ 
+                      color: titleColor, 
+                      fontFamily: fontFamily 
+                    }}
+                  >
+                    <span className={isTitleDark ? styles.darkTextConversion : ''}>
+                      {post.title}
+                    </span>
+                  </h2>
+                )}
+                
+                <div 
+                  className={styles.postContent}
+                  style={{ 
+                    color: contentColor, 
+                    fontFamily: fontFamily 
+                  }}
                 >
-                  <FiMessageSquare /> <span>{commentsCount}</span>
-                </button>
+                  <span className={isContentDark ? styles.darkTextConversion : ''}>
+                    {post.content}
+                  </span>
+                </div>
+                
+                {post.image_url && (
+                  <div className={styles.postImage}>
+                    <OptimizedImage src={post.image_url} alt="Изображение к посту" className={styles.postImage} style={{ display: 'block' }} />
+                  </div>
+                )}
+                
+                {post.poll_data && (
+                  <div className={styles.pollContainer}>
+                    <PollComponent 
+                      poll={{
+                        ...post.poll_data,
+                        hideQuestion: post.title && post.poll_data.question === post.title
+                      }}
+                      postId={post.id}
+                      onVote={handlePollVote}
+                      hasVoted={hasVoted}
+                      votedOption={votedOption}
+                      results={pollResults}
+                      isAdmin={isAdmin}
+                      user={user}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            
+            {/* Only show actions if not in edit mode */}
+            {!isEditing && (
+              <div className={styles.postActions}>
+                <div className={styles.actionButtons}>
+                  <button 
+                    id={`like-${post.id}`}
+                    className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+                    onClick={handleLikeClick}
+                  >
+                    <FiHeart /> <span className={styles.likeCount}>{likesCount}</span>
+                  </button>
+                  
+                  <button 
+                    className={styles.commentButton}
+                    onClick={toggleComments}
+                  >
+                    <FiMessageSquare /> <span>{commentsCount}</span>
+                  </button>
+                  
+                  {isAuthenticated && isAdmin && (
+                    <PinButton
+                      onClick={handleTogglePin}
+                      disabled={isPinning}
+                      $isPinned={isPinned}
+                    >
+                      <AiOutlinePushpin /> {isPinned ? "Открепить" : "Закрепить"}
+                    </PinButton>
+                  )}
+                </div>
                 
                 {isAuthenticated && isAdmin && (
-                  <PinButton
-                    onClick={handleTogglePin}
-                    disabled={isPinning}
-                    $isPinned={isPinned}
-                  >
-                    <AiOutlinePushpin /> {isPinned ? "Открепить" : "Закрепить"}
-                  </PinButton>
+                  <div className={styles.adminActions}>
+                    {/* Add edit button for regular posts */}
+                    {!isPollPost && (
+                      <button 
+                        className={styles.editButton}
+                        onClick={toggleEditMode}
+                        disabled={isEditing}
+                      >
+                        <FiEdit /> Изменить
+                      </button>
+                    )}
+                    <button 
+                      className={styles.deleteButton}
+                      onClick={openDeleteConfirm}
+                      disabled={isDeleting}
+                    >
+                      <FiTrash2 /> {isDeleting ? 'Удаление...' : 'Удалить'}
+                    </button>
+                  </div>
                 )}
               </div>
-              
-              {isAuthenticated && user && (
-                user.email === 'igoraor79@gmail.com' || 
-                user.perks?.includes('admin') || 
-                user.activePerk === 'admin'
-              ) && (
-                <button 
-                  className={styles.deleteButton}
-                  onClick={openDeleteConfirm}
-                  disabled={isDeleting}
-                >
-                  <FiTrash2 /> {isDeleting ? 'Удаление...' : 'Удалить'}
-                </button>
-              )}
-            </div>
+            )}
             
             {/* Post Delete confirmation dialog */}
             <ConfirmDialog
@@ -2132,241 +2638,267 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange 
         </PinnedPostContainer>
       ) : (
         <div className={styles.postItem}>
-          <div className={styles.postHeader}>
-            <Link to={`/profile/${post.user_id}`} className={styles.authorInfo}>
-              <OptimizedAvatar src={post.author.avatar} alt={post.author.displayName} className={styles.avatar} />
-              <span 
-                className={
-                  post.author.activePerk === 'early_user' 
-                    ? perkStyles.earlyUserPerk
-                    : post.author.activePerk === 'sponsor' 
-                    ? perkStyles.sponsorPerk
-                    : post.author.activePerk === 'admin' 
-                    ? perkStyles.adminPerk
-                    : perkStyles.userPerk
-                }
-                style={{
-                  display: 'inline-block',
-                  margin: 0,
-                  padding: 0
-                }}
-              >
-                {post.author.displayName}
-              </span>
-            </Link>
-            <div className={styles.postMeta}>
-              {isPinned && (
-                <PinnedBadge>
-                  <AiOutlinePushpin /> Закреплено
-                </PinnedBadge>
-              )}
-              <span className={styles.postDate}>
-                <FiClock /> {timeAgo}
-              </span>
-            </div>
-          </div>
-          
-          {/* Заголовок поста - новый элемент */}
-          {hasTitle && (
-            <h2 
-              className={styles.postTitle}
-              style={{ 
-                color: titleColor, 
-                fontFamily: fontFamily 
-              }}
-            >
-              <span className={isTitleDark ? styles.darkTextConversion : ''}>
-                {post.title}
-              </span>
-            </h2>
-          )}
-          
-          <div 
-            className={styles.postContent}
-            style={{ 
-              color: contentColor, 
-              fontFamily: fontFamily 
-            }}
-          >
-            <span className={isContentDark ? styles.darkTextConversion : ''}>
-              {post.content}
-            </span>
-          </div>
-          
-          {post.image_url && (
-            <div className={styles.postImage}>
-              <img 
-                src={post.image_url} 
-                alt="Изображение к посту" 
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
+          {/* If in edit mode, show appropriate edit form based on post type */}
+          {isEditing ? (
+            isPollPost ? (
+              <PollEditForm 
+                post={post}
+                onSave={handleEditPost}
+                onCancel={() => setIsEditing(false)}
+                isSubmitting={isSubmittingEdit}
               />
-            </div>
-          )}
-          
-          {post.poll_data && (
-            <div className={styles.pollContainer}>
-              <PollComponent 
-                poll={{
-                  ...post.poll_data,
-                  hideQuestion: post.title && post.poll_data.question === post.title
-                }}
-                postId={post.id}
-                onVote={handlePollVote}
-                hasVoted={hasVoted}
-                votedOption={votedOption}
-                results={pollResults}
-                isAdmin={isAdmin}
-                user={user}
+            ) : (
+              <EditPostForm 
+                post={post}
+                onSave={handleEditPost}
+                onCancel={() => setIsEditing(false)}
+                isSubmitting={isSubmittingEdit}
               />
-            </div>
+            )
+          ) : (
+            <>
+              <div className={styles.postHeader}>
+                <Link to={`/profile/${post.user_id}`} className={styles.authorInfo}>
+                  <OptimizedAvatar src={post.author.avatar} alt={post.author.displayName} className={styles.avatar} />
+                  <span 
+                    className={
+                      post.author.activePerk === 'early_user' 
+                        ? perkStyles.earlyUserPerk
+                        : post.author.activePerk === 'sponsor' 
+                        ? perkStyles.sponsorPerk
+                        : post.author.activePerk === 'admin' 
+                        ? perkStyles.adminPerk
+                        : perkStyles.userPerk
+                    }
+                    style={{
+                      display: 'inline-block',
+                      margin: 0,
+                      padding: 0
+                    }}
+                  >
+                    {post.author.displayName}
+                  </span>
+                </Link>
+                <div className={styles.postMeta}>
+                  {isPinned && (
+                    <PinnedBadge>
+                      <AiOutlinePushpin /> Закреплено
+                    </PinnedBadge>
+                  )}
+                  <span className={styles.postDate}>
+                    <FiClock /> {timeAgo}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Заголовок поста - новый элемент */}
+              {hasTitle && (
+                <h2 
+                  className={styles.postTitle}
+                  style={{ 
+                    color: titleColor, 
+                    fontFamily: fontFamily 
+                  }}
+                >
+                  <span className={isTitleDark ? styles.darkTextConversion : ''}>
+                    {post.title}
+                  </span>
+                </h2>
+              )}
+              
+              <div 
+                className={styles.postContent}
+                style={{ 
+                  color: contentColor, 
+                  fontFamily: fontFamily 
+                }}
+              >
+                <span className={isContentDark ? styles.darkTextConversion : ''}>
+                  {post.content}
+                </span>
+              </div>
+              
+              {post.image_url && (
+                <div className={styles.postImage}>
+                  <OptimizedImage src={post.image_url} alt="Изображение к посту" className={styles.postImage} style={{ display: 'block' }} />
+                </div>
+              )}
+              
+              {post.poll_data && (
+                <div className={styles.pollContainer}>
+                  <PollComponent 
+                    poll={{
+                      ...post.poll_data,
+                      hideQuestion: post.title && post.poll_data.question === post.title
+                    }}
+                    postId={post.id}
+                    onVote={handlePollVote}
+                    hasVoted={hasVoted}
+                    votedOption={votedOption}
+                    results={pollResults}
+                    isAdmin={isAdmin}
+                    user={user}
+                  />
+                </div>
+              )}
+            </>
           )}
           
-          <div className={styles.postActions}>
-            <div className={styles.actionButtons}>
-              <button 
-                id={`like-${post.id}`}
-                className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
-                onClick={handleLikeClick}
-              >
-                <FiHeart /> <span className={styles.likeCount}>{likesCount}</span>
-              </button>
-              
-              <button 
-                className={styles.commentButton}
-                onClick={toggleComments}
-              >
-                <FiMessageSquare /> <span>{commentsCount}</span>
-              </button>
-              
-              {isAuthenticated && isAdmin && (
-                <PinButton
-                  onClick={handleTogglePin}
-                  disabled={isPinning}
-                  $isPinned={isPinned}
+          {/* Only show actions if not in edit mode */}
+          {!isEditing && (
+            <div className={styles.postActions}>
+              <div className={styles.actionButtons}>
+                <button 
+                  id={`like-${post.id}`}
+                  className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+                  onClick={handleLikeClick}
                 >
-                  <AiOutlinePushpin /> {isPinned ? "Открепить" : "Закрепить"}
-                </PinButton>
-              )}
-            </div>
-            
-            {isAuthenticated && user && (
-              user.email === 'igoraor79@gmail.com' || 
-              user.perks?.includes('admin') || 
-              user.activePerk === 'admin'
-            ) && (
-              <button 
-                className={styles.deleteButton}
-                onClick={openDeleteConfirm}
-                disabled={isDeleting}
-              >
-                <FiTrash2 /> {isDeleting ? 'Удаление...' : 'Удалить'}
-              </button>
-            )}
-          </div>
-          
-            {/* Post Delete confirmation dialog */}
-            <ConfirmDialog
-              isOpen={showDeleteConfirm}
-              onClose={closeDeleteConfirm}
-              onConfirm={handleDeletePost}
-              title="Удаление поста"
-              message="Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить."
-              confirmText="Удалить"
-              cancelText="Отмена"
-              isDanger={true}
-            />
-            
-            <AnimatePresence>
-            {showComments && (
-                <CommentSection
-                  variants={commentSectionVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-              <div className={styles.commentsSection}>
-                <h4 className={styles.commentsHeading}>
-                  <FiMessageCircle /> Комментарии ({commentsCount})
-                </h4>
+                  <FiHeart /> <span className={styles.likeCount}>{likesCount}</span>
+                </button>
                 
-                {isLoadingComments ? (
-                  <div className={styles.loadingComments}>
-                    <FiLoader /> Загрузка комментариев...
-                  </div>
-                ) : (
-                  <>
-                    {comments && comments.length > 0 ? (
-                      <div className={styles.commentsList}>
-                        {comments.map(comment => (
-                          <CommentItem 
-                            key={comment.id} 
-                            comment={comment}
-                            onReply={handleReplyToComment}
-                            onDelete={handleCommentDeleted}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className={styles.noComments}>
-                        Комментариев пока нет. Будьте первым!
-                      </div>
-                    )}
-                    
-                    {isAuthenticated && (
-                      <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
-                        {commentError && (
-                          <div className={styles.errorMessage}>
-                            <FiAlertCircle /> {commentError}
-                          </div>
-                        )}
-                        
-                        <textarea
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          placeholder="Напишите комментарий..."
-                          disabled={isSubmittingComment}
-                        />
-                        
-                        <button type="submit" disabled={isSubmittingComment}>
-                          {isSubmittingComment ? (
-                            <>
-                              <FiLoader /> Отправка...
-                            </>
-                          ) : (
-                            <>
-                              <FiSend /> Отправить
-                            </>
-                          )}
-                        </button>
-                      </form>
-                    )}
-                  </>
+                <button 
+                  className={styles.commentButton}
+                  onClick={toggleComments}
+                >
+                  <FiMessageSquare /> <span>{commentsCount}</span>
+                </button>
+                
+                {isAuthenticated && isAdmin && (
+                  <PinButton
+                    onClick={handleTogglePin}
+                    disabled={isPinning}
+                    $isPinned={isPinned}
+                  >
+                    <AiOutlinePushpin /> {isPinned ? "Открепить" : "Закрепить"}
+                  </PinButton>
                 )}
               </div>
-                </CommentSection>
-            )}
-            </AnimatePresence>
-            
-            {showAuthWarning && (
-              <WarningMessage 
-                variants={animationVariants}
+              
+              {isAuthenticated && isAdmin && (
+                <div className={styles.adminActions}>
+                  {/* Display edit button for regular posts */}
+                  {!isPollPost && (
+                    <button 
+                      className={styles.editButton}
+                      onClick={toggleEditMode}
+                      disabled={isEditing}
+                    >
+                      <FiEdit /> Изменить
+                    </button>
+                  )}
+                  <button 
+                    className={styles.deleteButton}
+                    onClick={openDeleteConfirm}
+                    disabled={isDeleting}
+                  >
+                    <FiTrash2 /> {isDeleting ? 'Удаление...' : 'Удалить'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Post Delete confirmation dialog */}
+          <ConfirmDialog
+            isOpen={showDeleteConfirm}
+            onClose={closeDeleteConfirm}
+            onConfirm={handleDeletePost}
+            title="Удаление поста"
+            message="Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить."
+            confirmText="Удалить"
+            cancelText="Отмена"
+            isDanger={true}
+          />
+          
+          <AnimatePresence>
+          {showComments && (
+              <CommentSection
+                variants={commentSectionVariants}
                 initial="initial"
                 animate="animate"
                 exit="exit"
               >
-                <FiInfo />
-                <span>
-                  {showAuthWarning === 'like' && 'Войдите, чтобы поставить лайк'}
-                  {showAuthWarning === 'poll' && 'Войдите, чтобы проголосовать'}
-                  {showAuthWarning === 'reply' && 'Войдите, чтобы ответить на комментарий'}
-                </span>
-                <button onClick={() => setShowAuthWarning('')}>Скрыть</button>
-              </WarningMessage>
-            )}
-          </div>
-        )}
+            <div className={styles.commentsSection}>
+              <h4 className={styles.commentsHeading}>
+                <FiMessageCircle /> Комментарии ({commentsCount})
+              </h4>
+              
+              {isLoadingComments ? (
+                <div className={styles.loadingComments}>
+                  <FiLoader /> Загрузка комментариев...
+                </div>
+              ) : (
+                <>
+                  {comments && comments.length > 0 ? (
+                    <div className={styles.commentsList}>
+                      {comments.map(comment => (
+                        <CommentItem 
+                          key={comment.id} 
+                          comment={comment}
+                          onReply={handleReplyToComment}
+                          onDelete={handleCommentDeleted}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={styles.noComments}>
+                      Комментариев пока нет. Будьте первым!
+                    </div>
+                  )}
+                  
+                  {isAuthenticated && (
+                    <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
+                      {commentError && (
+                        <div className={styles.errorMessage}>
+                          <FiAlertCircle /> {commentError}
+                        </div>
+                      )}
+                      
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Напишите комментарий..."
+                        disabled={isSubmittingComment}
+                      />
+                      
+                      <button type="submit" disabled={isSubmittingComment}>
+                        {isSubmittingComment ? (
+                          <>
+                            <FiLoader /> Отправка...
+                          </>
+                        ) : (
+                          <>
+                            <FiSend /> Отправить
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  )}
+                </>
+              )}
+            </div>
+              </CommentSection>
+          )}
+          </AnimatePresence>
+          
+          {showAuthWarning && (
+            <WarningMessage 
+              variants={animationVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <FiInfo />
+              <span>
+                {showAuthWarning === 'like' && 'Войдите, чтобы поставить лайк'}
+                {showAuthWarning === 'poll' && 'Войдите, чтобы проголосовать'}
+                {showAuthWarning === 'reply' && 'Войдите, чтобы ответить на комментарий'}
+              </span>
+              <button onClick={() => setShowAuthWarning('')}>Скрыть</button>
+            </WarningMessage>
+          )}
+        </div>
+      )}
     </>
   );
 };

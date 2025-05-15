@@ -686,15 +686,15 @@
 
 // Блок с изображением
 .postImage {
-  margin: 16px 0;
+  width: 100%;
+  margin: 10px 0;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   
   img {
     width: 100%;
-    max-height: 500px;
-    object-fit: contain;
+    height: auto;
+    border-radius: 8px;
     display: block;
   }
 }
@@ -1727,4 +1727,222 @@ textarea {
     flex: 1;
     justify-content: center;
   }
+}
+
+.imageLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 20px;
+  animation: pulse 1.5s infinite ease-in-out;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.imageError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  background-color: rgba(255, 0, 0, 0.05);
+  border-radius: 8px;
+  color: var(--error);
+  font-size: 14px;
+  padding: 10px;
+  border: 1px dashed var(--error-light);
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+// Styles for the edit post form
+.editPostForm {
+  background-color: var(--bg-highlight);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border);
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .errorMessage {
+    margin-bottom: 15px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+.cancelEditButton {
+  padding: 10px 18px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+}
+
+// Admin actions container
+.adminActions {
+  display: flex;
+  gap: 8px;
+  
+  @media (max-width: 576px) {
+    width: 100%;
+    margin-top: 10px;
+    
+    button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+}
+
+.imagePreview {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+  }
+  
+  .imageNote {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    padding: 6px 8px;
+    background-color: var(--bg-highlight);
+    
+    svg {
+      font-size: 14px;
+      color: var(--accent);
+    }
+  }
+}
+
+.imageLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  background-color: var(--bg-highlight);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 10px;
+  animation: pulse 1.5s infinite;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// Styles for infinite scroll loading
+.loadMoreContainer {
+  text-align: center;
+  padding: 25px 0;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadMoreSpinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 18px;
+  color: var(--text-secondary);
+  padding: 15px 20px;
+  border-radius: 10px;
+  background-color: var(--bg-highlight);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: auto;
+  min-width: 250px;
+  
+  svg {
+    font-size: 24px;
+    animation: spin 1.5s linear infinite;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.noMorePosts {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 15px 0;
+  padding: 15px 20px;
+  background-color: var(--bg-highlight);
+  border-radius: 10px;
+  text-align: center;
+  width: auto;
+  min-width: 250px;
+  
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 } 
