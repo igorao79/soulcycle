@@ -261,9 +261,7 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
                   >
                     <FiX />
                   </button>
-                  {isDesktop && (
-                    <span className={styles.zoomHint}>Нажмите для увеличения</span>
-                  )}
+                                    {/* Zoom hint removed */}
                 </div>
                 {errors[index] && (
                   <div className={styles.errorNote}>
@@ -273,7 +271,7 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
               </div>
             ))}
             <div className={styles.imageNote}>
-              <FiImage /> Максимум {MAX_IMAGES} изображений. {isDesktop && 'Нажмите на изображение для увеличения.'}
+              <FiImage /> Максимум {MAX_IMAGES} изображений.
             </div>
           </div>
         )}

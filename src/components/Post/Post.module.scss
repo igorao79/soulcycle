@@ -1923,15 +1923,15 @@ textarea {
     object-fit: cover;
     display: block;
     border-radius: 8px;
+    border: none; // Remove border
+    box-shadow: none; // Remove any box shadow
     transition: transform 0.2s ease;
   }
   
   @media (min-width: 1024px) {
     &:hover {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      
       img {
-        transform: scale(1.03);
+        transform: scale(1.02);
       }
     }
   }
@@ -2043,16 +2043,43 @@ textarea {
 
 .imageGalleryContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 15px;
   margin: 15px 0;
   
+  // Responsive grid based on number of images
+  // Make grid adaptive to image count, not just screen size
+  grid-template-columns: repeat(1, 1fr);
+  
+  // First image always full width on mobile
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
   
-  @media (min-width: 769px) and (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
+  // Tablet and above: dynamic sizing
+  @media (min-width: 769px) {
+    &:has(.imagePreviewItem:nth-child(1):nth-last-child(1)) {
+      // Just one image - make it larger
+      grid-template-columns: minmax(300px, 65%);
+      justify-content: center;
+    }
+    
+    &:has(.imagePreviewItem:nth-child(1):nth-last-child(2)),
+    &:has(.imagePreviewItem:nth-child(2):nth-last-child(1)) {
+      // Two images - make them equal sized
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    &:has(.imagePreviewItem:nth-child(1):nth-last-child(3)),
+    &:has(.imagePreviewItem:nth-child(2):nth-last-child(2)),
+    &:has(.imagePreviewItem:nth-child(3):nth-last-child(1)) {
+      // Three images - make them equal sized
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    &:has(.imagePreviewItem:nth-last-child(n+4)) {
+      // Four or more images - adaptive grid
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
   }
 }
 
@@ -2061,18 +2088,40 @@ textarea {
   cursor: pointer;
   overflow: hidden;
   border-radius: 8px;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
+  min-height: 150px; // Ensure minimum height
   
+  // Remove transform and box-shadow effects
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  // Adjust height based on number of images
+  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(1)) & {
+    // Single image - taller
+    min-height: 300px;
+  }
+  
+  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(2)),
+  .imageGalleryContainer:has(&:nth-child(2):nth-last-child(1)) & {
+    // Two images - medium tall
+    min-height: 250px;
+  }
+  
+  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(3)),
+  .imageGalleryContainer:has(&:nth-child(2):nth-last-child(2)),
+  .imageGalleryContainer:has(&:nth-child(3):nth-last-child(1)) & {
+    // Three images
+    min-height: 200px;
   }
   
   // Add a special touch styling for mobile
   @media (max-width: 768px) {
     &:active {
-      opacity: 0.8;
+      opacity: 0.9;
     }
+    min-height: 200px; // Taller on mobile
   }
 }
 
@@ -2097,6 +2146,11 @@ textarea {
   &:hover {
     background: rgba(0, 0, 0, 0.7);
   }
+}
+
+// Hide zoom hint text
+.zoomHint {
+  display: none;
 }
 
 .errorNote {
