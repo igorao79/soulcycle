@@ -1,0 +1,124 @@
+.notification {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+  
+  // Theme support
+  [data-theme="dark"] & {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.messageContainer {
+  flex-grow: 1;
+  margin-right: 8px;
+  word-break: break-word;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  &:focus {
+    outline: none;
+  }
+}
+
+// Success notification
+.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  border-left: 4px solid #2ecc71;
+  color: #27ae60;
+  
+  .iconContainer {
+    color: #2ecc71;
+  }
+  
+  .closeButton {
+    color: #27ae60;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+  }
+}
+
+// Error notification
+.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid #e74c3c;
+  color: #c0392b;
+  
+  .iconContainer {
+    color: #e74c3c;
+  }
+  
+  .closeButton {
+    color: #c0392b;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+  }
+}
+
+// Info notification
+.info {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-left: 4px solid #3498db;
+  color: #2980b9;
+  
+  .iconContainer {
+    color: #3498db;
+  }
+  
+  .closeButton {
+    color: #2980b9;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .notification {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+} 

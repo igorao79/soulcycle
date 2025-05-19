@@ -46,11 +46,16 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin }) => {
       setError(''); // Reset error before submission
       
       // Register user through context
-      await register({
+      const response = await register({
         email,
         password,
         displayName
       });
+      
+      console.log('Регистрация успешна:', response);
+      
+      // Wait a moment for Supabase session to be fully established
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // After successful registration, switch to login form
       if (onSuccess) {

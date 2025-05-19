@@ -4,6 +4,7 @@ import styles from './AuthForms.module.scss';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
 import InputMask from 'react-input-mask';
+import Notification from '../common/Notification';
 
 const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
   const { login, loading } = useAuth();
@@ -64,19 +65,11 @@ const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
         Вход в аккаунт
       </motion.h2>
       
-      {error && (
-        <motion.div 
-          className={styles.errorMessage}
-          initial={{ opacity: 0, y: -10, height: 0 }}
-          animate={{ opacity: 1, y: 0, height: 'auto' }}
-          transition={{ 
-            duration: 0.3,
-            ease: "easeOut"
-          }}
-        >
-          {error}
-        </motion.div>
-      )}
+      <Notification 
+        type="error" 
+        message={error} 
+        show={!!error}
+      />
       
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>

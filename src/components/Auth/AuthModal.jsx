@@ -49,8 +49,23 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
   };
 
   const handleRegisterSuccess = () => {
-    console.log("Registration successful, closing modal");
-    setTimeout(() => onClose(), 500); // Задержка для лучшего UX
+    console.log("Registration successful, waiting for auth synchronization");
+    
+    // Longer delay to ensure all auth processes complete
+    setTimeout(() => {
+      console.log("Auth sync completed, closing modal");
+      
+      // Force a state refresh by dispatching a custom event
+      try {
+        window.dispatchEvent(new CustomEvent('auth:refresh'));
+        
+        // Reload window state instead of just closing modal
+        window.location.reload();
+      } catch (error) {
+        console.error("Error during auth refresh:", error);
+        onClose();
+      }
+    }, 1500);
   };
   
   if (!isOpen) return null;

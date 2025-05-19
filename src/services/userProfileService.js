@@ -24,6 +24,17 @@ const addListener = (eventName, callback) => {
   };
 };
 
+// Функция для удаления слушателя события
+const removeListener = (eventName, callback) => {
+  if (eventListeners[eventName]) {
+    eventListeners[eventName] = eventListeners[eventName].filter(
+      listener => listener !== callback
+    );
+    return true;
+  }
+  return false;
+};
+
 // Функция для генерации события
 const emitEvent = (eventName, data) => {
   if (eventListeners[eventName]) {
@@ -270,6 +281,6 @@ const userProfileService = {
 };
 
 // Экспортируем функционал событий
-export { addListener, emitEvent };
+export { addListener, removeListener, emitEvent };
 
 export default userProfileService; 

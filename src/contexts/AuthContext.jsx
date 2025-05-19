@@ -1,79 +1,149 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import authService from '../services/authService';
 import supabase from '../services/supabaseClient';
 import userProfileService, { addListener } from '../services/userProfileService';
 import BanModal from '../components/Auth/BanModal';
+import translateAuthError from '../utils/authErrorTranslator';
 
 // Кастомное событие для синхронизации обновлений UI
 export const USER_UPDATED_EVENT = 'app:user:updated';
 
 // Функция для создания события обновления пользователя
 export const triggerUserUpdate = (userData) => {
-  const event = new CustomEvent(USER_UPDATED_EVENT, { detail: userData });
+  // Get current user data from localStorage to ensure we have the full object
+  let completeUserData = userData;
+  
+  try {
+    const currentUserStr = localStorage.getItem('user');
+    if (currentUserStr) {
+      const currentUser = JSON.parse(currentUserStr);
+      // Merge the current user data with the updated fields
+      completeUserData = { ...currentUser, ...userData };
+    }
+  } catch (error) {
+    console.error('Error merging user data in triggerUserUpdate:', error);
+  }
+  
+  // Create and dispatch the event with complete user data
+  const event = new CustomEvent(USER_UPDATED_EVENT, { detail: completeUserData });
   window.dispatchEvent(event);
+  
+  console.log('triggerUserUpdate: Dispatched event with data:', completeUserData);
 };
 
 // Создаем контекст
 const AuthContext = createContext(null);
+
+// Создаем отдельный контекст для имени пользователя для мгновенных обновлений
+export const UserDisplayNameContext = createContext({
+  displayName: '',
+  setDisplayName: () => {}
+});
+
+// Время последнего UI обновления имени пользователя
+let lastUIDisplayNameUpdateTime = 0;
+let manuallySetDisplayName = null;
 
 // Провайдер контекста
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [banInfo, setBanInfo] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Создаем отдельное состояние для имени пользователя
+  const [displayName, setDisplayName] = useState('');
+  
+  // Ref для отслеживания изменений и предотвращения повторных обновлений
+  const previousDisplayNameRef = useRef('');
 
-  // Загружаем пользователя при инициализации
+  // Эффект для инициализации пользователя при загрузке
   useEffect(() => {
-    const initAuth = async () => {
-      setLoading(true);
+    const initUser = async () => {
       try {
-        // Проверяем, действительна ли сессия Supabase
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        setLoading(true);
         
-        // Если сессии нет или она невалидна, очищаем localStorage и не авторизуем пользователя
-        if (sessionError || !sessionData.session) {
-          localStorage.removeItem('user');
-          setUser(null);
-          setLoading(false);
-          return;
+        // Получаем текущего пользователя из локального хранилища
+        const userStr = localStorage.getItem('user');
+        
+        if (userStr) {
+          const localUser = JSON.parse(userStr);
+          setUser(localUser);
+          setIsAuthenticated(true);
+          
+          // Устанавливаем имя пользователя
+          if (localUser.displayName) {
+            setDisplayName(localUser.displayName);
+            previousDisplayNameRef.current = localUser.displayName;
+          }
+          
+          // Обновляем данные пользователя из Supabase для получения актуальной информации
+          const refreshedUser = await authService.refreshCurrentUser();
+          if (refreshedUser) {
+            setUser(refreshedUser);
+            
+            // Обновляем имя пользователя, если оно изменилось
+            if (refreshedUser.displayName !== previousDisplayNameRef.current) {
+              setDisplayName(refreshedUser.displayName);
+              previousDisplayNameRef.current = refreshedUser.displayName;
+            }
+          }
         }
         
-        // Проверяем, не заблокирован ли пользователь
-        const banStatus = await authService.checkUserBan(sessionData.session.user.id);
-        if (banStatus.is_banned) {
-          setBanInfo(banStatus);
-          await authService.logout();
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-        
-        // Получаем данные пользователя
+        // Проверяем сессию в Supabase
         const currentUser = await authService.getCurrentUser();
+        
         if (currentUser) {
           setUser(currentUser);
+          setIsAuthenticated(true);
+          
+          // Обновляем имя пользователя
+          if (currentUser.displayName !== previousDisplayNameRef.current) {
+            setDisplayName(currentUser.displayName);
+            previousDisplayNameRef.current = currentUser.displayName;
+          }
         } else {
-          // Если пользователь не найден, выполняем выход
-          await authService.logout();
+          // Если сессия отсутствует, сбрасываем состояние
+          setUser(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem('user');
+          setDisplayName('');
+          previousDisplayNameRef.current = '';
         }
       } catch (error) {
-        console.error("Ошибка при инициализации auth:", error);
-        // При ошибке очищаем данные пользователя
-        localStorage.removeItem('user');
+        console.error('Ошибка при инициализации пользователя:', error);
+        setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
-
-    initAuth();
+    
+    initUser();
   }, []);
 
+  // Синхронизация имени пользователя с любыми обновлениями user
+  useEffect(() => {
+    if (user && user.displayName && user.displayName !== previousDisplayNameRef.current) {
+      setDisplayName(user.displayName);
+      previousDisplayNameRef.current = user.displayName;
+      console.log('AuthContext: Синхронизация displayName с user:', user.displayName);
+    }
+  }, [user]);
+  
   // Функция для обновления данных текущего пользователя
   const refreshUser = async () => {
     if (!user) return;
     
     try {
       setLoading(true);
+      
+      // Получаем текущее отображаемое имя
+      const currentUIDisplayName = manuallySetDisplayName || user.displayName;
+      const currentTime = Date.now();
+      
+      console.log("refreshUser: Текущее имя в UI:", currentUIDisplayName);
+      console.log("refreshUser: Прошло с последнего UI обновления:", currentTime - lastUIDisplayNameUpdateTime, "мс");
       
       // Проверяем, не заблокирован ли пользователь
       const banStatus = await authService.checkUserBan(user.id);
@@ -82,6 +152,9 @@ export const AuthProvider = ({ children }) => {
         await authService.logout();
         setUser(null);
         setLoading(false);
+        setDisplayName('');
+        previousDisplayNameRef.current = '';
+        manuallySetDisplayName = null;
         return;
       }
       
@@ -97,6 +170,8 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       
+      console.log("Получены данные профиля для обновления:", profileData);
+      
       // Если отсутствуют перки, устанавливаем базовый "user"
       if (!profileData.perks || profileData.perks.length === 0) {
         profileData.perks = ['user'];
@@ -109,10 +184,35 @@ export const AuthProvider = ({ children }) => {
         profileData.active_perk = profileData.perks[0] || 'user';
       }
       
+      // Определяем, какое имя использовать
+      let finalDisplayName;
+      const dbDisplayName = profileData.display_name;
+      
+      // Если имя было обновлено через UI менее 10 секунд назад, приоритет за ним
+      const isRecentUIUpdate = (currentTime - lastUIDisplayNameUpdateTime) < 10000;
+      
+      if (manuallySetDisplayName && isRecentUIUpdate) {
+        // Используем имя, установленное через UI
+        console.log("refreshUser: Используем недавно установленное имя из UI:", manuallySetDisplayName);
+        finalDisplayName = manuallySetDisplayName;
+      } else {
+        // Иначе берем имя из базы данных
+        console.log("refreshUser: Используем имя из базы данных:", dbDisplayName);
+        finalDisplayName = dbDisplayName;
+        // Сбрасываем вручную установленное имя
+        manuallySetDisplayName = null;
+      }
+      
+      if (finalDisplayName !== previousDisplayNameRef.current) {
+        setDisplayName(finalDisplayName);
+        previousDisplayNameRef.current = finalDisplayName;
+        console.log('AuthContext: Обновление displayName:', finalDisplayName);
+      }
+      
       // Обновляем пользователя
       const updatedUser = {
         ...user,
-        displayName: profileData.display_name || user.displayName,
+        displayName: finalDisplayName,
         avatar: profileData.avatar || user.avatar,
         perks: profileData.perks,
         activePerk: profileData.active_perk
@@ -122,10 +222,21 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
       // Вызываем глобальное событие для синхронизации всех компонентов
+      console.log("Обновляем пользователя через refreshUser:", updatedUser);
       triggerUserUpdate(updatedUser);
       
       // Обновляем состояние
       setUser(updatedUser);
+      
+      // Генерируем локальное событие storage для имитации изменения localStorage
+      if (typeof window !== 'undefined') {
+        const storageEvent = new StorageEvent('storage', {
+          key: 'user',
+          newValue: JSON.stringify(updatedUser),
+          url: window.location.href
+        });
+        window.dispatchEvent(storageEvent);
+      }
     } catch (error) {
       console.error("Ошибка при обновлении данных пользователя:", error);
     } finally {
@@ -145,7 +256,7 @@ export const AuthProvider = ({ children }) => {
       });
       
       if (authError) {
-        throw new Error(authError.message);
+        throw new Error(translateAuthError(authError.message));
       }
       
       // Затем проверяем, не заблокирован ли пользователь
@@ -161,8 +272,13 @@ export const AuthProvider = ({ children }) => {
       // Если все в порядке, продолжаем стандартный вход
       const response = await authService.login(credentials);
       setUser(response.user);
+      setIsAuthenticated(true);
       return response;
     } catch (error) {
+      // Translate error if it's a string message
+      if (error.message) {
+        error.message = translateAuthError(error.message);
+      }
       throw error;
     } finally {
       setLoading(false);
@@ -175,16 +291,50 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const response = await authService.register(userData);
       
+      console.log('Получен ответ от authService.register:', response);
+      
+      // Проверяем сессию Supabase напрямую
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Текущая сессия Supabase:', sessionData);
+      
       // Автоматически устанавливаем пользователя после регистрации
       if (response && response.user) {
+        // Полностью инициализируем пользователя
         setUser(response.user);
+        setIsAuthenticated(true);
         
         // Сохраняем данные пользователя в localStorage
         localStorage.setItem('user', JSON.stringify(response.user));
+        
+        // Вызываем глобальное событие для синхронизации всех компонентов
+        triggerUserUpdate(response.user);
+        
+        // Обновляем данные пользователя из базы данных для получения всех настроек
+        await refreshUser();
+        
+        // Еще одна проверка сессии после refreshUser
+        const { data: afterRefreshSession } = await supabase.auth.getSession();
+        console.log('Сессия после refreshUser:', afterRefreshSession);
+        
+        // Проверка доступа к профилю
+        const { data: profileCheck, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, display_name, perks')
+          .eq('id', response.user.id)
+          .single();
+          
+        console.log('Проверка профиля:', profileCheck, profileError);
+        
+        console.log('Register: Пользователь зарегистрирован и данные синхронизированы');
       }
       
       return response;
     } catch (error) {
+      console.error('Ошибка при регистрации в AuthContext:', error);
+      // Translate error if it's a string message
+      if (error.message) {
+        error.message = translateAuthError(error.message);
+      }
       throw error;
     } finally {
       setLoading(false);
@@ -229,6 +379,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       await authService.logout();
       setUser(null);
+      setIsAuthenticated(false);
+      
+      // Добавляем перезагрузку страницы после выхода для сброса всех состояний
+      window.location.href = '/';
     } catch (error) {
       console.error("Ошибка при выходе:", error);
     } finally {
@@ -309,6 +463,73 @@ export const AuthProvider = ({ children }) => {
     setBanInfo(null);
   };
 
+  // После обновления аватара в профиле
+  const updateUserAvatar = async (avatarUrl) => {
+    if (!user) return;
+    
+    try {
+      // Обновляем локальное состояние
+      const updatedUser = {
+        ...user,
+        avatar: avatarUrl
+      };
+      
+      // Обновляем localStorage
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Устанавливаем новое состояние
+      setUser(updatedUser);
+      
+      // Оповещаем все компоненты через событие для синхронизации UI
+      const event = new CustomEvent(USER_UPDATED_EVENT, { detail: updatedUser });
+      window.dispatchEvent(event);
+      
+      // Также используем событие storage для оповещения других вкладок
+      const storageEvent = new StorageEvent('storage', {
+        key: 'user',
+        newValue: JSON.stringify(updatedUser),
+        url: window.location.href
+      });
+      window.dispatchEvent(storageEvent);
+      
+      return updatedUser;
+    } catch (error) {
+      console.error('Ошибка при обновлении аватара пользователя:', error);
+      return null;
+    }
+  };
+
+  // Обновляем функцию updateUserDisplayName для мгновенного обновления имени
+  const updateUserDisplayName = (newDisplayName) => {
+    if (!user) return false;
+    
+    // Немедленно обновляем имя в UI
+    setDisplayName(newDisplayName);
+    previousDisplayNameRef.current = newDisplayName;
+    
+    // Запоминаем вручную установленное имя
+    manuallySetDisplayName = newDisplayName;
+    // Обновляем время последнего UI обновления
+    lastUIDisplayNameUpdateTime = Date.now();
+    
+    console.log(`AuthContext: Установлено новое имя через UI: ${newDisplayName}, время: ${lastUIDisplayNameUpdateTime}`);
+    
+    // Обновляем локальное состояние пользователя
+    const updatedUser = {
+      ...user,
+      displayName: newDisplayName
+    };
+    
+    // Обновляем данные в localStorage
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    // Обновляем глобальное состояние
+    setUser(updatedUser);
+    
+    console.log('AuthContext: Мгновенное обновление имени пользователя:', newDisplayName);
+    return true;
+  };
+
   // Предоставляем контекст
   return (
     <AuthContext.Provider
@@ -320,13 +541,20 @@ export const AuthProvider = ({ children }) => {
         loginWithProvider,
         loading,
         refreshUser,
-        isAuthenticated: !!user
+        isAuthenticated,
+        checkUserBan: authService.checkUserBan,
+        banInfo,
+        closeBanModal,
+        updateUserAvatar,
+        updateUserDisplayName
       }}
     >
-      {children}
-      
-      {/* Модальное окно с информацией о блокировке */}
-      {banInfo && <BanModal banInfo={banInfo} onClose={closeBanModal} />}
+      <UserDisplayNameContext.Provider value={{ displayName, setDisplayName }}>
+        {children}
+        
+        {/* Модальное окно с информацией о блокировке */}
+        {banInfo && <BanModal banInfo={banInfo} onClose={closeBanModal} />}
+      </UserDisplayNameContext.Provider>
     </AuthContext.Provider>
   );
 };
@@ -336,6 +564,15 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === null) {
     throw new Error('useAuth должен использоваться внутри AuthProvider');
+  }
+  return context;
+};
+
+// Хук для доступа к имени пользователя
+export const useUserDisplayName = () => {
+  const context = useContext(UserDisplayNameContext);
+  if (context === undefined) {
+    throw new Error('useUserDisplayName должен использоваться внутри AuthProvider');
   }
   return context;
 };

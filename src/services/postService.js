@@ -76,6 +76,7 @@ const postService = {
             title: post.title || null,
             content: post.content,
             image_url: post.image_url,
+            image_urls: post.image_urls || null,
             created_at: post.created_at,
             user_id: post.user_id,
             author: {
@@ -99,6 +100,7 @@ const postService = {
             title: post.title || null,
             content: post.content,
             image_url: post.image_url,
+            image_urls: post.image_urls || null,
             created_at: post.created_at,
             user_id: post.user_id,
             author: {
@@ -137,6 +139,7 @@ const postService = {
         title,
         content,
         imageUrl,
+        imageUrls,
         userId,
         poll,
         styling,
@@ -171,17 +174,38 @@ const postService = {
         throw new Error('У вас недостаточно прав для создания постов');
       }
       
+      // Check if image_urls column exists in posts table
+      let hasImageUrlsColumn = false;
+      try {
+        // Try to check if column exists
+        const { data: columnCheck, error: columnError } = await supabase
+          .from('posts')
+          .select('image_urls')
+          .limit(1);
+          
+        hasImageUrlsColumn = !columnError;
+      } catch (error) {
+        console.log('Колонка image_urls отсутствует, используем только image_url');
+      }
+      
       // Подготовленные данные поста
       const newPostData = {
         title: title || null,
         content,
-        image_url: imageUrl || null,
-        user_id: userId,
-        created_at: new Date().toISOString(),
-        poll_data: poll || null,
-        styling: styling || null,
-        is_pinned: isPinned || false
+        image_url: imageUrls && imageUrls.length > 0 ? imageUrls[0] : imageUrl || null, // Always set image_url
       };
+      
+      // Only add image_urls if the column exists
+      if (hasImageUrlsColumn && imageUrls && imageUrls.length > 0) {
+        newPostData.image_urls = imageUrls;
+      }
+      
+      // Add remaining fields
+      newPostData.user_id = userId;
+      newPostData.created_at = new Date().toISOString();
+      newPostData.poll_data = poll || null;
+      newPostData.styling = styling || null;
+      newPostData.is_pinned = isPinned || false;
       
       // Отображаем отправляемые данные для отладки
       console.log('Sending post data to Supabase:', JSON.stringify(newPostData));
@@ -208,6 +232,8 @@ const postService = {
       const result = {
         ...data[0],
         title: data[0].title || null,
+        image_url: data[0].image_url || null,
+        image_urls: data[0].image_urls || null,
         author: {
           id: userId,
           displayName: authorProfile.displayName,
@@ -217,11 +243,11 @@ const postService = {
         },
         likes_count: 0,
         comments_count: 0,
-        poll_data: data[0].poll_data, // Ensure poll data is included in the response
+        poll_data: data[0].poll_data,
         is_pinned: data[0].is_pinned || false
       };
       
-      console.log('Created post with poll data:', result.poll_data);
+      console.log('Created post:', result);
       
       return result;
     } catch (error) {
@@ -383,6 +409,7 @@ const postService = {
         id: post.id,
         content: post.content,
         image_url: post.image_url,
+        image_urls: post.image_urls || null,
         created_at: post.created_at,
         user_id: post.user_id,
         author: {
@@ -1194,6 +1221,20 @@ const postService = {
         throw new Error('Только администраторы могут редактировать посты');
       }
       
+      // Check if image_urls column exists in posts table
+      let hasImageUrlsColumn = false;
+      try {
+        // Try to check if column exists
+        const { data: columnCheck, error: columnError } = await supabase
+          .from('posts')
+          .select('image_urls')
+          .limit(1);
+          
+        hasImageUrlsColumn = !columnError;
+      } catch (error) {
+        console.log('Колонка image_urls отсутствует, используем только image_url');
+      }
+      
       // Подготавливаем данные для обновления
       const updateData = {
         updated_at: new Date().toISOString()
@@ -1209,8 +1250,21 @@ const postService = {
       }
       
       // Handle both imageUrl and image_url properties for compatibility
+      // Always update image_url if provided
       if (postData.imageUrl !== undefined || postData.image_url !== undefined) {
         updateData.image_url = (postData.imageUrl || postData.image_url || null);
+      }
+      
+      // Handle multiple images (imageUrls or image_urls properties)
+      // Only update image_urls if the column exists
+      if (hasImageUrlsColumn && (postData.imageUrls !== undefined || postData.image_urls !== undefined)) {
+        const urls = postData.imageUrls || postData.image_urls || null;
+        updateData.image_urls = urls;
+        
+        // Also update image_url with first image if available
+        if (urls && urls.length > 0 && !updateData.image_url) {
+          updateData.image_url = urls[0];
+        }
       }
       
       if (postData.styling !== undefined) {
@@ -1285,6 +1339,7 @@ function transformPost(post) {
     title: post.title || null,
     content: post.content,
     image_url: post.image_url,
+    image_urls: post.image_urls || null,
     user_id: post.user_id,
     created_at: post.created_at,
     updated_at: post.updated_at,

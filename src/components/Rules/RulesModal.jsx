@@ -127,9 +127,10 @@ const DialogTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   svg {
-    color: var(--accent);
+    color: ${({ isDark }) => (isDark ? '#fff' : 'var(--accent)')};
+    transition: color 0.3s ease;
   }
 `;
 
@@ -140,7 +141,7 @@ const CloseButton = styled.button`
   right: 20px;
   background: none;
   border: none;
-  color: var(--text-tertiary);
+  color: ${({ isDark }) => (isDark ? '#fff' : 'var(--text-tertiary)')};
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -209,6 +210,7 @@ const dialogVariants = {
  */
 const RulesModal = ({ isOpen, onClose }) => {
   const { theme } = useContext(ThemeContext);
+  const isDark = theme === 'dark';
   
   // Блокировка прокрутки страницы при открытии модального окна
   useEffect(() => {
@@ -262,12 +264,12 @@ const RulesModal = ({ isOpen, onClose }) => {
           exit="exit"
           onClick={(e) => e.stopPropagation()}
         >
-          <CloseButton onClick={onClose}>
+          <CloseButton onClick={onClose} isDark={isDark}>
             <FiX size={20} />
           </CloseButton>
           
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle isDark={isDark}>
               <FiBook size={24} />
               Правила сообщества
             </DialogTitle>
@@ -295,7 +297,6 @@ const RulesModal = ({ isOpen, onClose }) => {
               <li>Не публикуйте спойлеры</li>
             </ul>
             
-            
             <h3>3. Профиль и личные данные</h3>
             <p>Обеспечение безопасности ваших данных - наш приоритет:</p>
             <ul>
@@ -316,8 +317,8 @@ const RulesModal = ({ isOpen, onClose }) => {
         </DialogContainer>
       </Overlay>
     </AnimatePresence>,
-    document.getElementById('modal-root') || document.body
+    document.body
   );
 };
 
-export default RulesModal;  
+export default RulesModal;

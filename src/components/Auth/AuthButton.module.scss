@@ -96,6 +96,19 @@
       background: rgba(245, 245, 250, 0.9);
       box-shadow: 0 6px 15px rgba(100, 100, 100, 0.15);
     }
+
+    // Make SVG icons adapt to light theme
+    svg {
+      color: #333;
+      stroke: #333;
+    }
+  }
+  
+  // SVG icons color for dark theme
+  svg {
+    color: #e0e0e0;
+    stroke: #e0e0e0;
+    transition: all 0.3s;
   }
 }
 
@@ -245,7 +258,18 @@
   svg {
     color: #8e8e9a;
     stroke-width: 2px;
-    transition: all 0.25s;
+    transition: all 0.3s;
+  }
+  
+  // Add theme support for SVG icons
+  [data-theme="light"] & svg {
+    color: #666;
+    stroke: #666;
+  }
+
+  [data-theme="dark"] & svg {
+    color: #8e8e9a;
+    stroke: #8e8e9a;
   }
   
   &:hover {

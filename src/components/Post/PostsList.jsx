@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import postService from '../../services/postService';
-import PostItem from './PostItem';
+import PostItem from './PostItem/index.jsx';
 import CreatePostForm from './CreatePostForm';
 import RulesModal from '../Rules/RulesModal';
 import { useAuth } from '../../contexts/AuthContext';
@@ -61,13 +61,16 @@ const PostsList = () => {
         setTotalCount(response.totalCount);
         
         setError('');
+        
+        // Set loading to false immediately
+        setLoading(false);
+        setLoadingMore(false);
       } else {
         throw new Error('Не удалось получить данные постов');
       }
     } catch (err) {
       console.error('Ошибка при загрузке постов:', err);
       setError('Не удалось загрузить посты. Попробуйте позже.');
-    } finally {
       setLoading(false);
       setLoadingMore(false);
     }

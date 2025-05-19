@@ -143,7 +143,7 @@
   }
 }
 
-.usersList {
+.userList {
   max-height: 680px;
   overflow-y: auto;
   border: 1px solid var(--border-color);
@@ -170,143 +170,175 @@
   }
 }
 
-.userItem {
-  display: flex;
+.userGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.userCard {
+  background-color: var(--bg-secondary);
+  border-radius: 10px;
   padding: 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-  cursor: pointer !important;
+  cursor: pointer;
   transition: all 0.25s ease;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
   
   &:hover {
-    background-color: var(--bg-hover);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    border-color: var(--text-secondary);
   }
   
   &.selected {
-    background-color: rgba(var(--accent-rgb), 0.08);
-    border-left: 4px solid var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
   }
   
-  &:last-child {
-    border-bottom: none;
+  &.banned {
+    border-left: 4px solid #e74c3c;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(231, 76, 60, 0.05),
+        rgba(231, 76, 60, 0.05) 10px,
+        rgba(231, 76, 60, 0.1) 10px,
+        rgba(231, 76, 60, 0.1) 20px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
   }
 }
 
 .userAvatar {
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
-  margin-right: 1.25rem;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background-color: var(--bg-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
   
   img {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
     object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   
-  .noAvatar {
+  svg {
+    color: var(--text-secondary);
+  }
+  
+  picture {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #666, #444);
-    color: white;
-    border-radius: 50%;
-    font-weight: 600;
-    font-size: 1.25rem;
   }
 }
 
 .userInfo {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.userName {
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-  color: var(--text-primary);
-  font-size: 1.15rem;
+  position: relative;
+  z-index: 2;
   
-  &[title="Перейти к профилю пользователя"] {
-    color: var(--accent);
-    text-decoration: underline;
-    position: relative;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    
-    &:hover {
-      color: var(--accent-dark);
-      text-decoration: none;
-    }
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: var(--accent);
-      transition: width 0.3s ease;
-    }
-    
-    &:hover::after {
-      width: 100%;
-    }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
   }
-}
-
-.userEmail {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
+  
+  p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    word-break: break-all;
+  }
 }
 
 .userPerks {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
-.perk {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 14px;
-  font-weight: 500;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+.userActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
   
-  &.user {
-    background-color: var(--bg-secondary);
+  button {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
   
-  &.early_user {
-    background-color: rgba(var(--early-user-color), 0.15);
-    color: var(--early-user-color);
+  .editButton:hover {
+    color: var(--accent);
+    background-color: rgba(var(--accent-rgb), 0.1);
   }
   
-  &.sponsor {
-    background-color: rgba(var(--sponsor-color), 0.15);
-    color: var(--sponsor-color);
+  .banButton:hover {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
   }
   
-  &.admin {
-    background-color: rgba(var(--admin-color), 0.15);
-    color: var(--admin-color);
-    font-weight: 600;
+  .unbanButton:hover {
+    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
+  }
+}
+
+.banInfo {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(231, 76, 60, 0.08);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #e74c3c;
+  
+  p {
+    margin: 0.25rem 0;
+    color: inherit;
   }
 }
 
@@ -1036,5 +1068,41 @@ table {
   
   svg {
     font-size: 1.5rem;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(30, 30, 35, 0.2);
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  
+  p {
+    margin-top: 16px;
+    font-size: 1.1rem;
+    color: var(--text-color);
+  }
+  
+  [data-theme="light"] & {
+    background: rgba(240, 240, 245, 0.3);
+  }
+}
+
+.spinningLoader {
+  animation: spin 1.5s linear infinite;
+  color: var(--accent-color);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 } 

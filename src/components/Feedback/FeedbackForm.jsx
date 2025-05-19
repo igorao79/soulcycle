@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FiMail, FiSend, FiPaperclip, FiX, FiImage } from 'react-icons/fi';
 import styles from './FeedbackForm.module.scss';
 import { useAuth } from '../../contexts/AuthContext';
+import Notification from '../common/Notification';
 
 // URL сервера обратной связи
 const FEEDBACK_API_URL = 'https://scform.onrender.com/api/feedback';
@@ -208,10 +209,7 @@ const FeedbackForm = () => {
       opacity: 1, 
       y: 0,
       transition: { duration: 0.3 }
-    }
-  };
-  
-  const buttonVariants = {
+    },
     hover: { 
       scale: 1.03,
       boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)" 
@@ -234,27 +232,17 @@ const FeedbackForm = () => {
           Обратная связь
         </motion.h1>
         
-        {error && (
-          <motion.div 
-            className={styles.errorMessage}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {error}
-          </motion.div>
-        )}
+        <Notification 
+          type="error" 
+          message={error} 
+          show={!!error} 
+        />
         
-        {feedbackSent && (
-          <motion.div 
-            className={styles.successMessage}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            Ваше сообщение успешно отправлено! Спасибо за обратную связь.
-          </motion.div>
-        )}
+        <Notification 
+          type="success" 
+          message="Ваше сообщение успешно отправлено! Спасибо за обратную связь." 
+          show={feedbackSent} 
+        />
         
         <form ref={formRef} onSubmit={handleSubmit}>
           <motion.div 
@@ -350,7 +338,9 @@ const FeedbackForm = () => {
             type="submit" 
             className={styles.submitButton}
             disabled={sending || !user?.email}
-            variants={buttonVariants}
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
             whileHover="hover"
             whileTap="tap"
           >

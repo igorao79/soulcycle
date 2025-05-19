@@ -276,7 +276,7 @@ const commentService = {
           // Получаем информацию о комментарии, чтобы проверить владельца
           const { data: commentData, error: fetchError } = await supabase
             .from('post_comments')
-            .select('user_id')
+            .select('user_id, post_id')
             .eq('id', commentId)
             .maybeSingle(); // Используем maybeSingle вместо single
           
@@ -322,10 +322,15 @@ const commentService = {
       
       // Сначала удаляем все ответы на комментарий (если есть)
       try {
-        await supabase
+        const { error: repliesError } = await supabase
           .from('post_comments')
           .delete()
           .eq('parent_id', commentId);
+          
+        if (repliesError) {
+          console.error('Ошибка при удалении ответов на комментарий:', repliesError);
+          // Продолжаем, даже если не удалось удалить ответы
+        }
       } catch (repliesError) {
         console.error('Ошибка при удалении ответов на комментарий:', repliesError);
         // Продолжаем, даже если не удалось удалить ответы
@@ -333,12 +338,22 @@ const commentService = {
       
       // Затем удаляем сам комментарий
       try {
-        await supabase
+        const { data, error } = await supabase
           .from('post_comments')
           .delete()
-          .eq('id', commentId);
+          .eq('id', commentId)
+          .select();
         
-        return true;
+        if (error) {
+          console.error('Ошибка при удалении комментария:', error);
+          throw error;
+        }
+        
+        return { 
+          success: true, 
+          message: 'Комментарий успешно удален',
+          deletedComment: data && data.length > 0 ? data[0] : null
+        };
       } catch (error) {
         console.error('Ошибка при удалении комментария:', error);
         throw error;

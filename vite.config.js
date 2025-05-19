@@ -11,6 +11,12 @@ import legacy from '@vitejs/plugin-legacy';
 import { VitePWA } from 'vite-plugin-pwa';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
+// Конфигурация для React Compiler
+const ReactCompilerConfig = {
+  // Целевая версия React
+  target: '19'
+};
+
 // Determine the base path based on environment
 const baseConfig = process.env.NODE_ENV === 'production' 
   ? '/soulcycle/' 
@@ -18,7 +24,13 @@ const baseConfig = process.env.NODE_ENV === 'production'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          ['babel-plugin-react-compiler', ReactCompilerConfig]
+        ]
+      }
+    }),
     // Плагин для разделения кода вендоров
     splitVendorChunkPlugin(),
     // Оптимизация изображений

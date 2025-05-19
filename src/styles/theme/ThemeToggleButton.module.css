@@ -4,16 +4,21 @@
     right: 10px;
     z-index: 10;
     padding: 10px;
-    background: black; /* Прозрачный фон */
+    background: black; /* Тёмный фон для светлой темы */
     border-radius: 35px;
     cursor: pointer;
-    transition: transform 0.3s ease; /* Плавная анимация при наведении */
-
-    
+    transition: transform 0.3s ease, background 0.3s ease; /* Плавная анимация */
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none; /* Убираем рамку */
+    box-sizing: border-box; /* Фиксируем размер включая padding */
 }
 
-[data-theme="dark"] .themeButton{
-    background: white;
+[data-theme="dark"] .themeButton {
+    background: white; /* Светлый фон для тёмной темы */
 }
 
 .themeButton:hover {
@@ -22,4 +27,10 @@
 
 .themeButton:focus {
     outline: none; /* Убираем фокусное выделение */
+}
+
+/* Стиль для отключенной кнопки */
+.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

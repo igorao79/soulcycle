@@ -4,11 +4,26 @@ import styles from './App.module.css';
 import HomePage from './components/HomePage';
 import ThemeToggleButton from './components/theme/ThemeToggleButton';
 import { ThemeContext } from './components/theme/ThemeContext';
+import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 import VersionChecker from './utils/VersionChecker';
 
 function App() {
     const { theme } = useContext(ThemeContext);
+    const { refreshUser } = useAuth();
+    
+    // Обработчик события auth:refresh
+    useEffect(() => {
+        const handleAuthRefresh = () => {
+            console.log("App: Received auth:refresh event, refreshing user data");
+            refreshUser();
+        };
+        
+        window.addEventListener('auth:refresh', handleAuthRefresh);
+        return () => {
+            window.removeEventListener('auth:refresh', handleAuthRefresh);
+        };
+    }, [refreshUser]);
     
     // Устанавливаем фоновое изображение из Cloudinary с надежным определением формата
     useEffect(() => {

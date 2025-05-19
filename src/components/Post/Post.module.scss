@@ -60,6 +60,7 @@
     color: var(--text-secondary);
     border: 1px solid var(--border);
     white-space: nowrap;
+    will-change: transform, box-shadow;
     
     svg {
       font-size: 16px;
@@ -126,6 +127,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  will-change: transform, background-color;
   
   &:hover:not(:disabled) {
     background-color: var(--bg-color);
@@ -148,6 +150,7 @@
   flex-direction: column;
   gap: 24px;
   margin-top: 20px;
+  will-change: contents;
 }
 
 // Сообщение о загрузке
@@ -163,6 +166,7 @@
   
   svg {
     animation: spin 1s linear infinite;
+    will-change: transform;
   }
   
   @keyframes spin {
@@ -366,6 +370,41 @@
   gap: 10px;
 }
 
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 14px;
+  
+  svg {
+    color: var(--text-tertiary);
+  }
+  
+  [data-theme="dark"] & {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.inputWithIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    position: absolute;
+    left: 12px;
+    color: var(--text-tertiary);
+    font-size: 16px;
+  }
+  
+  input {
+    padding-left: 40px;
+  }
+}
+
 .pollOptionInputWrapper {
   display: flex;
   gap: 10px;
@@ -541,12 +580,23 @@
 // Стили для отдельного поста
 .postItem {
   background-color: var(--bg-secondary);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  position: relative;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform, box-shadow, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    
+    [data-theme="dark"] & {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  }
   
   // Улучшенные стили для темной темы
   [data-theme="dark"] & {
@@ -555,18 +605,8 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
   
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    
-    [data-theme="dark"] & {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-  }
-  
   // Специальные стили для закрепленного поста
   &.pinnedPost {
-    border: 2px solid var(--accent);
     position: relative;
     
     // Плавный градиент для рамки
@@ -577,7 +617,7 @@
       left: -2px;
       right: -2px;
       bottom: -2px;
-      background: linear-gradient(45deg, var(--accent), transparent 60%);
+      // background: linear-gradient(45deg, var(--accent), transparent 60%);
       border-radius: 16px;
       z-index: -1;
       opacity: 0.1;
@@ -606,19 +646,32 @@
 // Шапка поста (автор и дата)
 .postHeader {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 // Информация об авторе
 .authorInfo {
   display: flex;
   align-items: center;
+  gap: 10px;
   text-decoration: none;
-  color: inherit;
-  gap: 12px;
-  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  
+  &:hover {
+    color: var(--accent);
+    
+    .avatar {
+      transform: scale(1.05);
+    }
+  }
 }
 
 // Имя автора
@@ -632,7 +685,9 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  will-change: transform;
+  transform: translateZ(0);
   
   [data-theme="dark"] & {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
@@ -641,15 +696,9 @@
 
 // Дата поста
 .postDate {
-  font-size: 14px;
-  color: var(--text-tertiary);
   display: flex;
   align-items: center;
-  gap: 6px;
-  
-  svg {
-    font-size: 14px;
-  }
+  gap: 5px;
 }
 
 // Содержимое поста
@@ -688,14 +737,39 @@
 .postImage {
   width: 100%;
   margin: 10px 0;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
+  position: relative;
+  transition: all 0.2s ease;
+  aspect-ratio: 16/9;
+  cursor: pointer;
+  
+  @media (min-width: 1024px) {
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      
+      img {
+        transform: scale(1.02);
+      }
+    }
+  }
+  
+  // Add a special touch styling for mobile
+  @media (max-width: 768px) {
+    &:active {
+      opacity: 0.8;
+    }
+  }
   
   img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     border-radius: 8px;
     display: block;
+    transform: translateZ(0);
+    transition: transform 0.3s ease;
   }
 }
 
@@ -722,12 +796,6 @@
   @media (max-width: 768px) {
     font-size: 17px;
   }
-}
-
-.pollOptions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .pollOption {
@@ -1729,50 +1797,43 @@ textarea {
   }
 }
 
+.imageContainer {
+  position: relative;
+  min-height: 100px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
 .imageLoading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--bg-secondary);
   border-radius: 8px;
   color: var(--text-secondary);
   font-size: 14px;
-  padding: 20px;
-  animation: pulse 1.5s infinite ease-in-out;
-  
-  [data-theme="dark"] & {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
+  z-index: 1;
 }
 
 .imageError {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60px;
-  background-color: rgba(255, 0, 0, 0.05);
+  background-color: var(--bg-error);
   border-radius: 8px;
   color: var(--error);
   font-size: 14px;
-  padding: 10px;
-  border: 1px dashed var(--error-light);
-  
-  [data-theme="dark"] & {
-    background-color: rgba(255, 0, 0, 0.1);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0.6;
-  }
+  z-index: 1;
 }
 
 // Styles for the edit post form
@@ -1848,27 +1909,30 @@ textarea {
   margin-top: 10px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  position: relative;
+  transition: all 0.2s ease;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   img {
     max-width: 100%;
-    height: auto;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
     display: block;
-    border-radius: 6px;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
   }
   
-  .imageNote {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-tertiary);
-    padding: 6px 8px;
-    background-color: var(--bg-highlight);
-    
-    svg {
-      font-size: 14px;
-      color: var(--accent);
+  @media (min-width: 1024px) {
+    &:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      
+      img {
+        transform: scale(1.03);
+      }
     }
   }
 }
@@ -1945,4 +2009,121 @@ textarea {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+// Add these styles for the image gallery in posts
+
+.imageUrlInputContainer {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.addImageButton {
+  background-color: #f0f2f5;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #e4e6eb;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.imageGalleryContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 15px 0;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 769px) and (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.imagePreviewItem {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Add a special touch styling for mobile
+  @media (max-width: 768px) {
+    &:active {
+      opacity: 0.8;
+    }
+  }
+}
+
+.removeImageButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
+  z-index: 5;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
+
+.errorNote {
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .imageGalleryContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Стили для увеличения изображений - Lightbox
+.lightboxOverlay {
+  display: none; // Deprecated - using custom component now
+}
+
+.lightboxContainer {
+  display: none; // Deprecated - using custom component now
+}
+
+.lightboxImage {
+  display: none; // Deprecated - using custom component now
+}
+
+.lightboxCloseButton {
+  display: none; // Deprecated - using custom component now
 } 

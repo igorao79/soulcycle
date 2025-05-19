@@ -69,7 +69,7 @@ function HomePage() {
             alt="Логотип"
           />
         </Link>
-        <h1 className={styles.main__header__title}>soul cycle</h1>
+        <h1 className={styles.main__header__title}>Цикл Душ</h1>
       </header>
       <nav className={styles.main__nav}>
         {/* Стандартная навигация для десктопа */}
