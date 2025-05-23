@@ -84,10 +84,10 @@ define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
     "url": "assets/chunks/vendor-react.C9K60yqu.js",
     "revision": null
   }, {
-    "url": "assets/entry/index-legacy.CY3SpIxI.js",
+    "url": "assets/entry/index-legacy.Dilys1UZ.js",
     "revision": null
   }, {
-    "url": "assets/entry/index.BzFVRmYq.js",
+    "url": "assets/entry/index.DiKWQqRk.js",
     "revision": null
   }, {
     "url": "assets/entry/polyfills-legacy.Dayvzo0m.js",
@@ -97,7 +97,7 @@ define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
     "revision": "3fa56c5afad29feecd464ab64b63764b"
   }, {
     "url": "index.html",
-    "revision": "01083af8e0c648f775c6081308016c2c"
+    "revision": "bae5cb7cd46f96ec76e4ac64794c6deb"
   }, {
     "url": "registerSW.js",
     "revision": "107d25ba177cf74ed19e96db1c3d25a5"
