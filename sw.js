@@ -78,26 +78,41 @@ define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
-    "url": "assets/chunks/vendor-react-legacy.M6U8ifbV.js",
+    "url": "404.html",
+    "revision": "a5add036137779872a4f618dba9e34f4"
+  }, {
+    "url": "assets/chunks/browser-legacy.OHHMDjys.js",
     "revision": null
   }, {
-    "url": "assets/chunks/vendor-react.C9K60yqu.js",
+    "url": "assets/chunks/browser.D-BuzvRa.js",
     "revision": null
   }, {
-    "url": "assets/entry/index-legacy.Dilys1UZ.js",
+    "url": "assets/chunks/vendor-react-legacy.D41baR2M.js",
     "revision": null
   }, {
-    "url": "assets/entry/index.DiKWQqRk.js",
+    "url": "assets/chunks/vendor-react.BrVUXRVt.js",
     "revision": null
   }, {
-    "url": "assets/entry/polyfills-legacy.Dayvzo0m.js",
+    "url": "assets/chunks/vendor-ui-legacy.BLwrcHQP.js",
+    "revision": null
+  }, {
+    "url": "assets/chunks/vendor-ui.C8ICkxTJ.js",
+    "revision": null
+  }, {
+    "url": "assets/entry/index-legacy.XV6G8W-Y.js",
+    "revision": null
+  }, {
+    "url": "assets/entry/index.63gaJUKA.js",
+    "revision": null
+  }, {
+    "url": "assets/entry/polyfills-legacy.DEse6grz.js",
     "revision": null
   }, {
     "url": "env.js",
     "revision": "3fa56c5afad29feecd464ab64b63764b"
   }, {
     "url": "index.html",
-    "revision": "bae5cb7cd46f96ec76e4ac64794c6deb"
+    "revision": "2f7c56072329e16e4b0393af3c8dbc2a"
   }, {
     "url": "registerSW.js",
     "revision": "107d25ba177cf74ed19e96db1c3d25a5"

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SoulCycle</title>
+  <script type="text/javascript">
+    (function(l) {
+      if (l.pathname.split('/')[1] === 'soulcycle') {
+        const path = l.pathname.split('/').slice(2).join('/');
+        const url = l.origin + '/soulcycle/' + path + l.search + l.hash;
+        window.history.replaceState(null, null, url);
+      }
+    }(window.location))
+  </script>
+</head>
+<body>
+  <script>
+    // Redirect to the home page
+    window.location.href = '/soulcycle/';
+  </script>
+</body>
+</html> 
