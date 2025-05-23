@@ -36,11 +36,15 @@
   padding: 0;
   transform-style: preserve-3d;
   margin: auto; // Центрирование по вертикали и горизонтали
-  
-  // Ensure content stays within bounds
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+
+  // Стили для планшетов
+  @media (min-width: 768px) {
+    max-width: 600px;
+    width: 80%;
+  }
 }
 
 .modalContent {

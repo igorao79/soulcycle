@@ -114,13 +114,9 @@ img[src*="cloudinary.com"][src*="/image/fetch/"] {
 /* Fix small lightbox windows */
 [class*="lightboxContent"],
 [class*="modalContent"] {
-  min-width: 300px !important;
-  min-height: 200px !important;
+  min-width: 400px !important;
+  min-height: 300px !important;
   
-  @media (min-width: 768px) {
-    min-width: 70vw !important;
-    min-height: 70vh !important;
-  }
 }
 
 /* Additional fixes for image galleries */
