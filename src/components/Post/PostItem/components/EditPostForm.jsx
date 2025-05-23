@@ -70,7 +70,15 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
   
   // Update optimized image URLs when image URLs change
   useEffect(() => {
-    const newOptimizedUrls = imageUrls.map(url => getOptimizedUrl(url));
+    // Don't optimize Cloudinary URLs to prevent duplication
+    const newOptimizedUrls = imageUrls.map(url => {
+      // Skip optimization for Cloudinary URLs
+      if (url && typeof url === 'string' && url.includes('cloudinary.com')) {
+        return url;
+      }
+      return getOptimizedUrl(url);
+    });
+    
     setOptimizedImageUrls(newOptimizedUrls);
     
     // Reset loading states

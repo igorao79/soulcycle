@@ -15,8 +15,8 @@ export const getOptimizedUrl = (originalUrl) => {
     return optimizedUrlCache.get(originalUrl);
   }
   
-  // Skip URLs that are already optimized
-  if (originalUrl.includes('res.cloudinary.com/do9t8preg/image/fetch')) {
+  // Skip URLs that are already from Cloudinary to prevent double-fetching
+  if (originalUrl.includes('cloudinary.com')) {
     optimizedUrlCache.set(originalUrl, originalUrl);
     return originalUrl;
   }
@@ -28,7 +28,7 @@ export const getOptimizedUrl = (originalUrl) => {
   }
   
   try {
-    // Generate optimized URL
+    // Only optimize external URLs, not Cloudinary URLs
     const optimizedUrl = `${CLOUDINARY_URL}${encodeURIComponent(originalUrl)}`;
     optimizedUrlCache.set(originalUrl, optimizedUrl);
     return optimizedUrl;

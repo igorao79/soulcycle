@@ -1,104 +1,171 @@
-import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FiX } from 'react-icons/fi';
 import styles from './AuthModal.module.scss';
-import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
+// import LoginForm from './LoginForm';
+import LoginForm from './AuthLogin/LoginForm';
+// import RegisterForm from './RegisterForm';
+import RegisterForm from './AuthReg/RegisterForm';
+import ResetPassword from './ResetPassword';
+import { useAuth } from '../../contexts/AuthContext';
 
-const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
-  const [view, setView] = React.useState(initialView);
+// Модальное окно для авторизации, отображается через портал
+const AuthModal = ({ isOpen, onClose }) => {
+  const { logout } = useAuth();
+  const [activeForm, setActiveForm] = useState('login');
+  const [shouldAnimate, setShouldAnimate] = useState(false);
   
-  // Блокировка прокрутки страницы при открытии модального окна
+  // Для отладки
+  console.log('AuthModal render, isOpen:', isOpen);
+  
   useEffect(() => {
     if (isOpen) {
+      console.log('AuthModal: открываем модальное окно');
       document.body.style.overflow = 'hidden';
+      // Запускаем анимацию после открытия модального окна
+      setTimeout(() => setShouldAnimate(true), 100);
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'unset';
+      setShouldAnimate(false);
+    }
+    
+    // Сбрасываем активную форму при закрытии
+    if (!isOpen) {
+      setTimeout(() => setActiveForm('login'), 300);
     }
     
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
   
-  // Обработчик нажатия Escape для закрытия модального окна
-  useEffect(() => {
-    const handleEscapeKey = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    
-    document.addEventListener('keydown', handleEscapeKey);
-    return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-    };
-  }, [isOpen, onClose]);
-  
-  // Обработчик клика по фону для закрытия модального окна
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
+  // Обработчик закрытия при успешной авторизации
+  const handleSuccess = () => {
+    setTimeout(() => {
       onClose();
+    }, 500);
+  };
+  
+  // Обработчик переключения на форму логина 
+  const switchToLogin = () => {
+    setActiveForm('login');
+  };
+  
+  // Обработчик переключения на форму регистрации
+  const switchToRegister = () => {
+    setActiveForm('register');
+  };
+  
+  // Обработчик переключения на форму сброса пароля
+  const switchToReset = () => {
+    setActiveForm('reset');
+  };
+  
+  // Обработчик закрытия модального окна
+  const handleClose = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onClose();
+  };
+  
+  // Анимация появления/исчезновения модального окна
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { duration: 0.3 }
     }
   };
-
-  // Обработчики успешной авторизации/регистрации
-  const handleLoginSuccess = () => {
-    console.log("Login successful, closing modal");
-    setTimeout(() => onClose(), 500); // Задержка для лучшего UX
-  };
-
-  const handleRegisterSuccess = () => {
-    console.log("Registration successful, waiting for auth synchronization");
-    
-    // Longer delay to ensure all auth processes complete
-    setTimeout(() => {
-      console.log("Auth sync completed, closing modal");
-      
-      // Force a state refresh by dispatching a custom event
-      try {
-        window.dispatchEvent(new CustomEvent('auth:refresh'));
-        
-        // Reload window state instead of just closing modal
-        window.location.reload();
-      } catch (error) {
-        console.error("Error during auth refresh:", error);
-        onClose();
+  
+  const modalVariants = {
+    hidden: { 
+      opacity: 0,
+      scale: 0.8,
+      y: 20
+    },
+    visible: { 
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { 
+        type: "spring",
+        duration: 0.5,
+        bounce: 0.4
       }
-    }, 1500);
+    },
+    exit: { 
+      opacity: 0,
+      scale: 0.8,
+      y: 20,
+      transition: { duration: 0.3 }
+    }
   };
   
+  // Создаем содержимое модального окна
+  const modalContent = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className={styles.backdrop}
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleClose}
+        >
+          <motion.div 
+            className={styles.modal}
+            variants={modalVariants}
+            initial="hidden"
+            animate={shouldAnimate ? "visible" : "hidden"}
+            exit="exit"
+            onClick={e => e.stopPropagation()}
+          >
+            <button className={styles.closeButton} onClick={handleClose}>
+              <FiX />
+            </button>
+            
+            <div className={styles.modalContent}>
+              {activeForm === 'login' && (
+                <LoginForm 
+                  onSuccess={handleSuccess} 
+                  onSwitchToRegister={switchToRegister}
+                />
+              )}
+              
+              {activeForm === 'register' && (
+                <RegisterForm 
+                  onSuccess={handleSuccess} 
+                  onSwitchToLogin={switchToLogin}
+                />
+              )}
+              
+              {activeForm === 'reset' && (
+                <ResetPassword 
+                  onSwitchToLogin={switchToLogin}
+                />
+              )}
+            </div>
+            
+            <div className={styles.patternOverlay} />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+  
+  // Если модальное окно закрыто, не рендерим портал
   if (!isOpen) return null;
   
-  // Рендерим модальное окно через портал
-  return ReactDOM.createPortal(
-    <div className={styles.backdrop} onClick={handleBackdropClick}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>
-          <FiX />
-        </button>
-        
-        <div className={styles.modalContent}>
-          <div className={styles.patternOverlay}></div>
-          
-          <div className={styles.formWrapper}>
-            {view === 'login' ? (
-              <LoginForm 
-                onSwitchToRegister={() => setView('register')} 
-                onSuccess={handleLoginSuccess}
-              />
-            ) : (
-              <RegisterForm 
-                onSwitchToLogin={() => setView('login')} 
-                onSuccess={handleRegisterSuccess}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.getElementById('modal-root') || document.body
-  );
+  // Рендерим через портал
+  return createPortal(modalContent, document.body);
 };
 
-export default AuthModal; 
+export default AuthModal;

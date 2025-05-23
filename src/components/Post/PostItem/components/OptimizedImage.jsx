@@ -9,6 +9,15 @@ const OptimizedImage = ({ src, alt, className, style }) => {
   
   // Get optimized URL once using memoization
   const { displaySrc, originalSrc } = useMemo(() => {
+    // For Cloudinary URLs, use them directly without optimization
+    if (src && typeof src === 'string' && src.includes('cloudinary.com')) {
+      return {
+        displaySrc: src,
+        originalSrc: src
+      };
+    }
+    
+    // For non-Cloudinary URLs, optimize them
     const optimized = getOptimizedUrl(src);
     return {
       displaySrc: optimized || src,
@@ -51,13 +60,8 @@ const OptimizedImage = ({ src, alt, className, style }) => {
       {error && <div className={styles.imageError}>Ошибка загрузки</div>}
       <img 
         src={useFallback ? originalSrc : displaySrc} 
-        alt={alt} 
-        style={{ 
-          width: '100%',
-          height: 'auto',
-          borderRadius: '8px',
-          visibility: isLoading ? 'hidden' : 'visible'
-        }}
+        alt={alt || "Изображение"} 
+        className={styles.image}
         onLoad={handleImageLoad}
         onError={handleImageError}
         loading="lazy"

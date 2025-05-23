@@ -204,6 +204,11 @@ export default defineConfig({
         target: 'https://gist.githubusercontent.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/gist/, '')
+      },
+      '/api/cloudinary': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
       }
     }
   },

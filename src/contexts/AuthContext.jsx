@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import authService from '../services/authService';
 import supabase from '../services/supabaseClient';
 import userProfileService, { addListener } from '../services/userProfileService';
-import BanModal from '../components/Auth/BanModal';
+import BanModal from '../components/Auth/Ban/BanModal';
 import translateAuthError from '../utils/authErrorTranslator';
 
 // Кастомное событие для синхронизации обновлений UI

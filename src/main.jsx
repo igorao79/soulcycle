@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ThemeProvider } from './components/theme/ThemeContext'; // Импортируем провайдер темы
 import { AuthProvider } from './contexts/AuthContext'; // Импортируем провайдер авторизации
+import './styles/ImageStyles.scss'; // Import global image styles
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Window from './charblock/Window';
 import About from './about/About';
 import UseContext from './hooks/UseContext';
-import AuthButton from './Auth/AuthButton';
+import AuthButton from './Auth/AuthBtn/AuthButton';
 import ProfilePage from './Profile/ProfilePage';
 import PostsList from './Post/PostsList';
 import AdminPanel from './Admin/AdminPanel';

@@ -1,0 +1,47 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { inputVariants, fieldVariants } from '../config/animations';
+import styles from '../../AuthForms.module.scss';
+
+/**
+ * Компонент поля ввода для формы входа
+ */
+const FormInput = ({
+  id,
+  type = 'text',
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  icon: Icon,
+  label,
+  required = false
+}) => {
+  return (
+    <motion.div className={styles.formGroup} variants={fieldVariants}>
+      <label htmlFor={id}>
+        <Icon className={styles.inputIcon} /> {label}
+      </label>
+      <motion.div
+        whileFocus="focus"
+        whileTap="focus" 
+        variants={inputVariants}
+      >
+        <div className={styles.inputWrapper}>
+          <Icon className={styles.inputIconInside} />
+          <input
+            type={type}
+            id={id}
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            placeholder={placeholder}
+            required={required}
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default FormInput; 

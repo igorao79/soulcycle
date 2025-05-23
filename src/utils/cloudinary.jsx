@@ -63,6 +63,7 @@ export function getAvatarUrl(avatarName = AVATARS.GUEST, options = {}) {
  * @param {string} [options.dpr] - Device Pixel Ratio (1.0, 2.0, auto)
  * @param {string} [options.flags] - Дополнительные флаги
  * @param {string} [options.fetch_format] - Формат для загрузки
+ * @param {string} [options.folder] - Папка для сохранения изображения (например, 'posts', 'avatars')
  * @returns {string} URL изображения Cloudinary
  */
 export function getCloudinaryUrl(path, options = {}) {
@@ -74,7 +75,8 @@ export function getCloudinaryUrl(path, options = {}) {
     version = 'v1746536649',
     dpr,
     flags,
-    fetch_format
+    fetch_format,
+    folder
   } = options;
 
   let transformations = [];
@@ -126,13 +128,18 @@ export function getCloudinaryUrl(path, options = {}) {
     cleanPath = path.substring(0, path.lastIndexOf('.'));
   }
   
-  // Удаляем путь к папке images/, так как он не используется в Cloudinary
-  // и оставляем только имя файла
-  const fileName = cleanPath.includes('/') 
-    ? cleanPath.substring(cleanPath.lastIndexOf('/') + 1) 
-    : cleanPath;
+  // Строим финальный путь с учетом папки
+  let finalPath = cleanPath;
   
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${transformationsString}${version}/${fileName}`;
+  // Если указана папка, добавляем её в путь
+  if (folder) {
+    const fileName = cleanPath.includes('/') 
+      ? cleanPath.substring(cleanPath.lastIndexOf('/') + 1) 
+      : cleanPath;
+    finalPath = `${folder}/${fileName}`;
+  }
+  
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${transformationsString}${version}/${finalPath}`;
 }
 
 /**
@@ -201,9 +208,25 @@ export const CloudinaryImage = ({
   
   // Создаем ключи для кеширования на основе пути и размеров
   const cacheKey = `img_${path}_${width || 'auto'}_${height || 'auto'}`;
-  const avifSrc = getCloudinaryUrl(path, { ...baseOptions, format: 'avif' });
-  const webpSrc = getCloudinaryUrl(path, { ...baseOptions, format: 'webp' });
-  const pngSrc = getCloudinaryUrl(path, { ...baseOptions, format: 'png' });
+  
+  // Форсируем AVIF для главного формата с высшим приоритетом
+  const avifSrc = getCloudinaryUrl(path, { 
+    ...baseOptions, 
+    format: 'avif',
+    quality: 85, // Высокое качество для AVIF
+    fetch_format: 'avif'  // Явно запрашиваем AVIF
+  });
+  
+  const webpSrc = getCloudinaryUrl(path, { 
+    ...baseOptions, 
+    format: 'webp',
+    quality: 85 
+  });
+  
+  const pngSrc = getCloudinaryUrl(path, { 
+    ...baseOptions, 
+    format: 'png' 
+  });
   
   return (
     <picture>

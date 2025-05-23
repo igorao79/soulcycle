@@ -743,6 +743,8 @@
   transition: all 0.2s ease;
   aspect-ratio: 16/9;
   cursor: pointer;
+  display: block;
+  max-width: 100%;
   
   @media (min-width: 1024px) {
     &:hover {
@@ -770,6 +772,7 @@
     display: block;
     transform: translateZ(0);
     transition: transform 0.3s ease;
+    margin: 0 auto;
   }
 }
 
@@ -1799,9 +1802,21 @@ textarea {
 
 .imageContainer {
   position: relative;
-  min-height: 100px;
   width: 100%;
-  margin-bottom: 12px;
+  height: auto;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 0;
+  display: block;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
 .imageLoading {
@@ -2045,40 +2060,50 @@ textarea {
   display: grid;
   gap: 15px;
   margin: 15px 0;
+  width: 100%; // Ensure it takes full width
   
-  // Responsive grid based on number of images
-  // Make grid adaptive to image count, not just screen size
-  grid-template-columns: repeat(1, 1fr);
+  // Fallback for all browsers (even those without :has support)
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   
   // First image always full width on mobile
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 8px; // Reduced gap on mobile
+    margin: 10px 0; // Smaller margins on mobile
+    width: 100%; // Ensure full width on mobile
   }
   
-  // Tablet and above: dynamic sizing
+  // Single image layout fallback
+  &:only-child {
+    grid-template-columns: 1fr;
+    justify-content: center;
+    width: 100%; // Ensure container takes full width
+  }
+  
+  // Tablet and above: dynamic sizing (with :has support)
   @media (min-width: 769px) {
-    &:has(.imagePreviewItem:nth-child(1):nth-last-child(1)) {
-      // Just one image - make it larger
-      grid-template-columns: minmax(300px, 65%);
+    // Just one image - make it take full width
+    &:has(.imagePreviewItem:only-child) {
+      grid-template-columns: 1fr;
       justify-content: center;
     }
     
+    // Two images - equal sized on one row
     &:has(.imagePreviewItem:nth-child(1):nth-last-child(2)),
     &:has(.imagePreviewItem:nth-child(2):nth-last-child(1)) {
-      // Two images - make them equal sized
       grid-template-columns: repeat(2, 1fr);
     }
     
+    // Three images - equal sized on one row
     &:has(.imagePreviewItem:nth-child(1):nth-last-child(3)),
     &:has(.imagePreviewItem:nth-child(2):nth-last-child(2)),
     &:has(.imagePreviewItem:nth-child(3):nth-last-child(1)) {
-      // Three images - make them equal sized
       grid-template-columns: repeat(3, 1fr);
     }
     
+    // Four or more images - adaptive grid
     &:has(.imagePreviewItem:nth-last-child(n+4)) {
-      // Four or more images - adaptive grid
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
   }
 }
@@ -2089,39 +2114,43 @@ textarea {
   overflow: hidden;
   border-radius: 8px;
   transition: transform 0.2s ease-in-out;
-  min-height: 150px; // Ensure minimum height
+  min-height: 180px; // Increased minimum height
+  width: 100%; // Ensure full width
+  aspect-ratio: 16/9; // Maintain consistent aspect ratio
   
-  // Remove transform and box-shadow effects
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 8px !important;
+    transition: transform 0.3s ease;
+  }
+  
+  // Add subtle hover effect
   &:hover {
-    transform: none;
-    box-shadow: none;
-  }
-  
-  // Adjust height based on number of images
-  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(1)) & {
-    // Single image - taller
-    min-height: 300px;
-  }
-  
-  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(2)),
-  .imageGalleryContainer:has(&:nth-child(2):nth-last-child(1)) & {
-    // Two images - medium tall
-    min-height: 250px;
-  }
-  
-  .imageGalleryContainer:has(&:nth-child(1):nth-last-child(3)),
-  .imageGalleryContainer:has(&:nth-child(2):nth-last-child(2)),
-  .imageGalleryContainer:has(&:nth-child(3):nth-last-child(1)) & {
-    // Three images
-    min-height: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    img {
+      transform: scale(1.02);
+    }
   }
   
   // Add a special touch styling for mobile
   @media (max-width: 768px) {
     &:active {
-      opacity: 0.9;
+      opacity: 0.95;
     }
-    min-height: 200px; // Taller on mobile
+    aspect-ratio: 3/2; // Different aspect ratio on mobile
+  }
+  
+  // For single images, allow more height
+  &:only-child {
+    min-height: 300px;
+    
+    @media (max-width: 768px) {
+      min-height: 150px;
+    }
   }
 }
 
@@ -2180,4 +2209,72 @@ textarea {
 
 .lightboxCloseButton {
   display: none; // Deprecated - using custom component now
+}
+
+// New image upload styles
+.uploadContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.uploadButton {
+  background: linear-gradient(135deg, #6a89cc 0%, #4a69bd 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: linear-gradient(135deg, #7a99dc 0%, #5a79cd 100%);
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.dropArea {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: center;
+  transition: all 0.3s;
+  background-color: rgba(240, 242, 245, 0.5);
+  
+  &.highlight {
+    border-color: #6a89cc;
+    background-color: rgba(106, 137, 204, 0.1);
+  }
+}
+
+.dropText {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.uploadingMessage {
+  background: rgba(106, 137, 204, 0.1);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  margin: 10px 0;
+  color: #4a69bd;
 } 

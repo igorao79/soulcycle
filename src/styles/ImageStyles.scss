@@ -1,0 +1,184 @@
+/**
+ * Global image styles to ensure proper display across the application
+ */
+
+/* Fix for element.style and any dynamically generated classes that contain 'imagePreview' */
+[class*="imagePreview"] img,
+.imagePreview img,
+img.preview,
+.image-preview img,
+.post-image img,
+.gallery-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  max-width: 100% !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+/* Fix for imageContainer class */
+.imageContainer {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  display: block;
+}
+
+.imageContainer img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  display: block !important;
+  margin: 0 !important;
+  position: relative !important;
+}
+
+/* Fix for post images to take full width */
+.postImage img,
+[class*="postImage"] img {
+  width: 100% !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+  max-height: 80vh !important;
+}
+
+/* Ensure images in gallery containers take proper space */
+.imageGalleryContainer {
+  .imagePreviewItem {
+    width: 100% !important;
+    
+    .imagePreview {
+      aspect-ratio: 16/9;
+      width: 100% !important;
+      height: 100% !important;
+      
+      img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+      }
+    }
+  }
+}
+
+/* Override any inline styles that might set height to auto */
+img[style*="height: auto"] {
+  height: 100% !important;
+}
+
+/* Fix lightbox/modal display for images */
+.lightbox-overlay img,
+.modal img,
+[class*="lightbox"] img,
+[role="dialog"] img {
+  object-fit: contain !important;
+  max-height: 90vh !important;
+  max-width: 90vw !important;
+  margin: 0 auto !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Handle both fetch and upload Cloudinary URLs */
+img[src*="cloudinary.com"] {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Special handling for fetch URLs that might have different dimensions */
+img[src*="cloudinary.com"][src*="/image/fetch/"] {
+  max-width: 100% !important;
+  max-height: 80vh !important;
+  width: auto !important; 
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+/* Fix for specific post image displays */
+.post img,
+.post-content img,
+[class*="postContent"] img {
+  width: 100% !important;
+  border-radius: 8px !important;
+  margin: 10px 0 !important;
+}
+
+/* Fix small lightbox windows */
+[class*="lightboxContent"],
+[class*="modalContent"] {
+  min-width: 300px !important;
+  min-height: 200px !important;
+  
+  @media (min-width: 768px) {
+    min-width: 70vw !important;
+    min-height: 70vh !important;
+  }
+}
+
+/* Additional fixes for image galleries */
+.imageGalleryContainer {
+  display: grid;
+  gap: 15px;
+  width: 100%;
+  
+  /* Base grid - works on all browsers */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  
+  /* Single image should span full width */
+  &:has(.imagePreviewItem:only-child) {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Two images - equal width */
+  &:has(.imagePreviewItem:nth-child(1):nth-last-child(2)),
+  &:has(.imagePreviewItem:nth-child(2):nth-last-child(1)) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Three images - equal width */
+  &:has(.imagePreviewItem:nth-child(1):nth-last-child(3)),
+  &:has(.imagePreviewItem:nth-child(2):nth-last-child(2)),
+  &:has(.imagePreviewItem:nth-child(3):nth-last-child(1)) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* Mobile layouts */
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Fix aspect ratios for images inside preview items */
+.imagePreviewItem {
+  position: relative;
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important; 
+    object-fit: cover !important;
+  }
+  
+  /* Single image in gallery can be taller */
+  &:only-child {
+    aspect-ratio: 4/3;
+    
+    @media (max-width: 768px) {
+      aspect-ratio: 1/1;
+    }
+  }
+} 

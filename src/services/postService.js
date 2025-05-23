@@ -1,5 +1,6 @@
 import supabase from './supabaseClient';
 import userProfileService from './userProfileService';
+import imageService from '../utils/imageService';
 
 const postService = {
   // Получение постов с пагинацией
@@ -138,7 +139,6 @@ const postService = {
       const {
         title,
         content,
-        imageUrl,
         imageUrls,
         userId,
         poll,
@@ -192,11 +192,18 @@ const postService = {
       const newPostData = {
         title: title || null,
         content,
-        image_url: imageUrls && imageUrls.length > 0 ? imageUrls[0] : imageUrl || null, // Always set image_url
+        image_url: null,
       };
+      
+      // If we have imageUrls, set the first one as the main image_url
+      if (imageUrls && imageUrls.length > 0) {
+        // Use the direct Cloudinary URL without any modifications
+        newPostData.image_url = imageUrls[0];
+      }
       
       // Only add image_urls if the column exists
       if (hasImageUrlsColumn && imageUrls && imageUrls.length > 0) {
+        // Use the original imageUrls directly without optimization
         newPostData.image_urls = imageUrls;
       }
       
@@ -552,6 +559,57 @@ const postService = {
       
       if (!isAdmin) {
         throw new Error('Только администраторы могут удалять посты');
+      }
+
+      // Получаем данные поста для удаления изображений
+      const { data: post, error: postFetchError } = await supabase
+        .from('posts')
+        .select('image_url, image_urls')
+        .eq('id', postId)
+        .maybeSingle();
+      
+      if (postFetchError) {
+        console.error('Ошибка при получении данных поста для удаления изображений:', postFetchError);
+      } else if (post) {
+        // Удаляем изображения из Cloudinary
+        try {
+          // Собираем все URL изображений
+          const imageUrls = [];
+          if (post.image_url) imageUrls.push(post.image_url);
+          if (post.image_urls && Array.isArray(post.image_urls)) {
+            // Make sure we only add valid URLs
+            imageUrls.push(...post.image_urls.filter(url => url && typeof url === 'string'));
+          }
+
+          // Извлекаем publicId из каждого URL Cloudinary
+          const publicIds = imageUrls
+            .map(url => imageService.extractPublicIdFromUrl(url))
+            .filter(id => id !== null);
+
+          // Удаляем изображения из Cloudinary
+          if (publicIds.length > 0) {
+            console.log('Удаление изображений из Cloudinary:', publicIds);
+            // Use a non-blocking call to avoid errors affecting post deletion
+            imageService.deleteMultipleImages(publicIds)
+              .then(success => {
+                if (success) {
+                  console.log(`Successfully deleted ${publicIds.length} images from Cloudinary`);
+                } else {
+                  console.warn(`Failed to delete some or all images from Cloudinary`);
+                }
+              })
+              .catch(err => {
+                console.error('Error during image deletion:', err);
+              });
+          } else {
+            console.log('No valid Cloudinary public IDs found for deletion');
+          }
+        } catch (imageDeleteError) {
+          console.error('Ошибка при удалении изображений из Cloudinary:', imageDeleteError);
+          // Продолжаем удаление поста даже при ошибке удаления изображений
+        }
+      } else {
+        console.log('Пост не найден или у него нет изображений для удаления');
       }
       
       // Сначала удаляем все связанные комментарии
@@ -1249,12 +1307,6 @@ const postService = {
         updateData.content = postData.content;
       }
       
-      // Handle both imageUrl and image_url properties for compatibility
-      // Always update image_url if provided
-      if (postData.imageUrl !== undefined || postData.image_url !== undefined) {
-        updateData.image_url = (postData.imageUrl || postData.image_url || null);
-      }
-      
       // Handle multiple images (imageUrls or image_urls properties)
       // Only update image_urls if the column exists
       if (hasImageUrlsColumn && (postData.imageUrls !== undefined || postData.image_urls !== undefined)) {
@@ -1262,8 +1314,10 @@ const postService = {
         updateData.image_urls = urls;
         
         // Also update image_url with first image if available
-        if (urls && urls.length > 0 && !updateData.image_url) {
+        if (urls && urls.length > 0) {
           updateData.image_url = urls[0];
+        } else {
+          updateData.image_url = null;
         }
       }
       
