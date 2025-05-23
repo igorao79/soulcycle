@@ -9,7 +9,7 @@ import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 import VersionChecker from './utils/VersionChecker';
 
 // Определяем basename в зависимости от окружения
-const basename = import.meta.env.DEV ? '/' : '/soulcycle';
+const basename = import.meta.env.DEV ? '/' : '/soulcycle/';
 
 function App() {
     const { theme } = useContext(ThemeContext);

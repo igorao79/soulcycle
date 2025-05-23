@@ -19,6 +19,19 @@
       // MIT License
       // https://github.com/rafgraph/spa-github-pages
       (function(l) {
+        // Обработка параметра p для перенаправления
+        const params = new URLSearchParams(l.search);
+        const redirectPath = params.get('p');
+        if (redirectPath) {
+          // Удаляем параметр p и перенаправляем на нужный путь
+          params.delete('p');
+          const newUrl = l.origin + '/soulcycle/' + redirectPath + 
+            (params.toString() ? '?' + params.toString() : '') + 
+            l.hash;
+          window.history.replaceState(null, null, newUrl);
+          return;
+        }
+
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
             return s.replace(/~and~/g, '&')
