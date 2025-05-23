@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import styles from './App.module.css';
 import HomePage from './components/HomePage';
 import ThemeToggleButton from './components/theme/ThemeToggleButton';
@@ -7,10 +7,6 @@ import { ThemeContext } from './components/theme/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 import VersionChecker from './utils/VersionChecker';
-import { getBasePath } from './utils/routeUtils';
-
-// Определяем basename
-const basename = getBasePath();
 
 function App() {
     const { theme } = useContext(ThemeContext);
@@ -106,7 +102,7 @@ function App() {
     }, [theme]);
 
     return (
-        <Router basename={basename}>
+        <Router>
             <div className={`${styles.app} ${styles.page}`} data-theme={theme}>
                 <HomePage />
                 <ThemeToggleButton />

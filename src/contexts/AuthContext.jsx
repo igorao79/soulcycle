@@ -4,7 +4,6 @@ import supabase from '../services/supabaseClient';
 import userProfileService, { addListener } from '../services/userProfileService';
 import BanModal from '../components/Auth/Ban/BanModal';
 import translateAuthError from '../utils/authErrorTranslator';
-import { getBasePath } from '../utils/routeUtils';
 
 // Кастомное событие для синхронизации обновлений UI
 export const USER_UPDATED_EVENT = 'app:user:updated';
@@ -380,8 +379,7 @@ export const AuthProvider = ({ children }) => {
       await supabase.auth.signOut();
       setUser(null);
       setLoading(false);
-      const basePath = getBasePath();
-      window.location.href = `${basePath}/`;
+      window.location.href = '/';
     } catch (error) {
       console.error('Error logging out:', error);
     }
