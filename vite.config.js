@@ -8,7 +8,6 @@ import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
 import { splitVendorChunkPlugin } from 'vite';
 import legacy from '@vitejs/plugin-legacy';
-import { VitePWA } from 'vite-plugin-pwa';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 // Конфигурация для React Compiler
@@ -74,28 +73,6 @@ export default defineConfig({
     // Поддержка старых браузеров
     legacy({
       targets: ['defaults', 'not IE 11'],
-    }),
-    // Опциональная поддержка PWA
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-      manifest: {
-        name: 'SoulCycle App',
-        short_name: 'SoulCycle',
-        theme_color: '#ffffff',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
-      },
     }),
     // CSS оптимизация - внедрение CSS в JS для снижения запросов
     cssInjectedByJsPlugin(),
@@ -198,17 +175,5 @@ export default defineConfig({
       }
     },
     strictPort: true
-  },
-  // Предзагрузка (preload) модулей
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
-    exclude: ['path'],
-    esbuildOptions: {
-      target: 'es2020',
-    }
-  },
-  // Настройки esbuild для более быстрой сборки
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 });

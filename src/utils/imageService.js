@@ -257,10 +257,9 @@ const imageService = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': window.location.origin
+          'Accept': 'application/json'
         },
-        credentials: 'include',
+        credentials: 'same-origin',
         body: JSON.stringify({ publicIds: [publicId] })
       });
       
@@ -313,10 +312,9 @@ const imageService = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': window.location.origin
+          'Accept': 'application/json'
         },
-        credentials: 'include',
+        credentials: 'same-origin',
         body: JSON.stringify({ publicIds })
       });
       
