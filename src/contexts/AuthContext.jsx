@@ -4,6 +4,7 @@ import supabase from '../services/supabaseClient';
 import userProfileService, { addListener } from '../services/userProfileService';
 import BanModal from '../components/Auth/Ban/BanModal';
 import translateAuthError from '../utils/authErrorTranslator';
+import { getBasePath } from '../utils/routeUtils';
 
 // Кастомное событие для синхронизации обновлений UI
 export const USER_UPDATED_EVENT = 'app:user:updated';
@@ -376,18 +377,13 @@ export const AuthProvider = ({ children }) => {
   // Функция для выхода
   const logout = async () => {
     try {
-      setLoading(true);
-      await authService.logout();
+      await supabase.auth.signOut();
       setUser(null);
-      setIsAuthenticated(false);
-      
-      // Определяем базовый путь в зависимости от окружения
-      const basePath = import.meta.env.DEV ? '/' : '/soulcycle/';
-      window.location.href = basePath;
-    } catch (error) {
-      console.error("Ошибка при выходе:", error);
-    } finally {
       setLoading(false);
+      const basePath = getBasePath();
+      window.location.href = `${basePath}/`;
+    } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 

@@ -7,9 +7,10 @@ import { ThemeContext } from './components/theme/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 import VersionChecker from './utils/VersionChecker';
+import { getBasePath } from './utils/routeUtils';
 
-// Определяем basename в зависимости от окружения
-const basename = import.meta.env.DEV ? '/' : '/soulcycle/';
+// Определяем basename
+const basename = getBasePath();
 
 function App() {
     const { theme } = useContext(ThemeContext);

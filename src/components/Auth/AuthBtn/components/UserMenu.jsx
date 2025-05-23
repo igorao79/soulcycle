@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { menuVariants } from '../config/animations';
 import UserMenuItem from './UserMenuItem';
 import styles from '../AuthButton.module.scss';
+import { createPath } from '../../../../utils/routeUtils';
 
 /**
  * Компонент выпадающего меню пользователя
@@ -18,17 +19,17 @@ const UserMenu = ({
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate(createPath('/profile'));
     onMenuClose();
   };
 
   const handleAdminClick = () => {
-    navigate('/admin');
+    navigate(createPath('/admin'));
     onMenuClose();
   };
 
   const handleFeedbackClick = () => {
-    navigate('/feedback');
+    navigate(createPath('/feedback'));
     onMenuClose();
   };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Window from './charblock/Window';
 import About from './about/About';
@@ -12,6 +12,7 @@ import ResetPassword from './Auth/ResetPassword';
 import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/hp/HomePage.module.scss';
 import FeedbackForm from './Feedback/FeedbackForm';
+import AppLink from './common/AppLink';
 
 function HomePage() {
   const { user } = useAuth();
@@ -63,25 +64,25 @@ function HomePage() {
   return (
     <div className={styles.main}>
       <header className={styles.main__header}>
-        <Link to="/">
+        <AppLink to="/">
           <UseContext 
             src="sclogo" 
             alt="Логотип"
           />
-        </Link>
+        </AppLink>
         <h1 className={styles.main__header__title}>Цикл Душ</h1>
       </header>
       <nav className={styles.main__nav}>
         {/* Стандартная навигация для десктопа */}
         <ul className={styles.main__nav__perexod}>
           <li className={styles.main__nav__perexod__link}>
-            <Link to="/">Главная</Link>
+            <AppLink to="/">Главная</AppLink>
           </li>
           <li className={styles.main__nav__perexod__link}>
-            <Link to="/characters">Персонажи</Link>
+            <AppLink to="/characters">Персонажи</AppLink>
           </li>
           <li className={styles.main__nav__perexod__link}>
-            <Link to="/about">О нас</Link>
+            <AppLink to="/about">О нас</AppLink>
           </li>
         </ul>
         
@@ -102,13 +103,13 @@ function HomePage() {
         <div className={`${styles.main__nav__mobile} ${menuOpen ? styles.open : ''}`}>
           <ul className={styles.main__nav__mobile__list}>
             <li className={styles.main__nav__mobile__list__item}>
-              <Link to="/" onClick={handleNavLinkClick}>Главная</Link>
+              <AppLink to="/" onClick={handleNavLinkClick}>Главная</AppLink>
             </li>
             <li className={styles.main__nav__mobile__list__item}>
-              <Link to="/characters" onClick={handleNavLinkClick}>Персонажи</Link>
+              <AppLink to="/characters" onClick={handleNavLinkClick}>Персонажи</AppLink>
             </li>
             <li className={styles.main__nav__mobile__list__item}>
-              <Link to="/about" onClick={handleNavLinkClick}>О нас</Link>
+              <AppLink to="/about" onClick={handleNavLinkClick}>О нас</AppLink>
             </li>
           </ul>
         </div>
