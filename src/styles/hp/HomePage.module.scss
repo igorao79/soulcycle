@@ -152,8 +152,9 @@
             }
         }
         
-        // Новое мобильное меню - выпадающее вместо полноэкранного
+        // Мобильное меню
         &__mobile {
+            display: none;
             position: fixed;
             top: 0;
             right: -100%;
@@ -218,7 +219,10 @@
             
             &__burger {
                 display: flex;
-                margin-right: 10px;
+            }
+            
+            &__mobile {
+                display: block;
             }
             
             &__auth {

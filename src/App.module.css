@@ -166,26 +166,31 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Основные стили страницы с поддержкой форматов изображений */
 
-
-
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
 
 .page {
     max-width: 2000px;
     min-height: 100vh;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
     background-color: var(--background-color);
-    background-image: var(--page-bg); /* Single background image with best format */
+    background-image: var(--page-bg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
     transition: all var(--transition-slow);
     overflow: hidden;
-    background-attachment: fixed;
-    
+    background-attachment: fixed
 }
 
 img {

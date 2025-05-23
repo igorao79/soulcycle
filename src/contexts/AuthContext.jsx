@@ -381,8 +381,9 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       
-      // Добавляем перезагрузку страницы после выхода для сброса всех состояний
-      window.location.href = '/';
+      // Определяем базовый путь в зависимости от окружения
+      const basePath = import.meta.env.DEV ? '/' : '/soulcycle/';
+      window.location.href = basePath;
     } catch (error) {
       console.error("Ошибка при выходе:", error);
     } finally {

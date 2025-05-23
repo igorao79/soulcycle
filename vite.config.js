@@ -159,23 +159,9 @@ export default defineConfig({
           }
           return `assets/[name].[hash][extname]`;
         },
-        manualChunks: (id) => {
-          // Разбиваем зависимости на специальные чанки для оптимизации кеширования
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-icons')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-animations';
-            }
-            if (id.includes('supabase')) {
-              return 'vendor-supabase';
-            }
-            return 'vendor'; // Остальные зависимости
-          }
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['framer-motion', '@supabase/supabase-js']
         }
       }
     }
@@ -210,7 +196,8 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
-    }
+    },
+    strictPort: true
   },
   // Предзагрузка (preload) модулей
   optimizeDeps: {

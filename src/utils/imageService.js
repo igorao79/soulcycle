@@ -244,8 +244,6 @@ const imageService = {
    * @returns {Promise<boolean>} - Success or failure
    */
   async deleteImage(publicId) {
-    // For client-side deletion, we need to use a backend endpoint
-    // as Cloudinary deletion requires the API secret
     try {
       if (!publicId) {
         console.warn('No publicId provided for deletion');
@@ -254,56 +252,39 @@ const imageService = {
       
       console.log(`Attempting to delete Cloudinary image with publicId: ${publicId}`);
       
-      // Check if we're running in development mode
-      const isDevelopment = process.env.NODE_ENV === 'development' || 
-                           window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1';
+      // Send request to our Cloudinary API server
+      const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': window.location.origin
+        },
+        credentials: 'include',
+        body: JSON.stringify({ publicIds: [publicId] })
+      });
       
-      // Use our API endpoint to delete the image
-      try {
-        // Send request to our Cloudinary API server
-        const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ publicIds: [publicId] })
-        });
-        
-        if (response.ok) {
-          let result;
-          try {
-            result = await response.json();
-          } catch (parseError) {
-            // If parsing fails but response was ok, still consider it success
-            console.log('API returned ok status but invalid JSON. Considering delete successful.');
-            return true;
-          }
-          
-          console.log('Successfully deleted image from Cloudinary');
-          return true;
-        } else {
-          // Handle non-ok responses
-          let errorMessage = `Status ${response.status}`;
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch (parseError) {
-            // If we can't parse JSON, use status text
-            errorMessage = response.statusText || errorMessage;
-          }
-          
-          console.error(`Error from delete API: ${errorMessage}`);
-          
-          return false;
-        }
-      } catch (fetchError) {
-        console.error('Error calling delete API:', fetchError);
-        
-        // In development mode, consider network errors as successful deletions
-        if (isDevelopment) {
-          console.log('Network error in development mode. Simulating successful deletion.');
+      if (response.ok) {
+        let result;
+        try {
+          result = await response.json();
+        } catch (parseError) {
+          console.log('API returned ok status but invalid JSON. Considering delete successful.');
           return true;
         }
         
+        console.log('Successfully deleted image from Cloudinary');
+        return true;
+      } else {
+        let errorMessage = `Status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (parseError) {
+          errorMessage = response.statusText || errorMessage;
+        }
+        
+        console.error(`Error from delete API: ${errorMessage}`);
         return false;
       }
     } catch (error) {
@@ -320,91 +301,47 @@ const imageService = {
    */
   async deleteMultipleImages(publicIds) {
     try {
-      if (!publicIds || !publicIds.length) {
+      if (!Array.isArray(publicIds) || publicIds.length === 0) {
         console.warn('No publicIds provided for deletion');
         return false;
       }
       
-      console.log(`Attempting to delete images from Cloudinary with publicIds:`);
-      console.log(`PublicIds для удаления:`, JSON.stringify(publicIds));
+      console.log(`Attempting to delete ${publicIds.length} Cloudinary images`);
       
-      publicIds.forEach((id, index) => {
-        console.log(`[${index + 1}/${publicIds.length}] "${id}"`);
+      // Send request to our Cloudinary API server for multiple deletions
+      const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete-multiple`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': window.location.origin
+        },
+        credentials: 'include',
+        body: JSON.stringify({ publicIds })
       });
       
-      // Check if we're running in development mode
-      const isDevelopment = process.env.NODE_ENV === 'development' || 
-                           window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1';
-      
-      // Use our API endpoint to delete the images
-      try {
-        // Send request to our Cloudinary API server for multiple deletions
-        const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete-multiple`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ publicIds })
-        });
-        
-        if (response.ok) {
-          // Try to parse response
-          let result;
-          try {
-            result = await response.json();
-          } catch (parseError) {
-            // If parsing fails, still consider it a success if the response was ok
-            console.log(`API returned ok status but invalid JSON. Considering delete successful.`);
-            return true;
-          }
-          
-          console.log(`Successfully deleted ${publicIds.length} images from Cloudinary`);
-          return true;
-        } else {
-          // Handle non-ok responses
-          let errorMessage = `Status ${response.status}`;
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch (parseError) {
-            // If we can't parse JSON, use status text
-            errorMessage = response.statusText || errorMessage;
-          }
-          
-          console.error(`Error from delete-multiple API: ${errorMessage}`);
-          
-          // For 404 errors, try the fallback method
-          if (response.status === 404) {
-            console.log('API endpoint not found. Attempting fallback single deletion...');
-            const results = await Promise.allSettled(
-              publicIds.map(id => this.deleteImage(id))
-            );
-            
-            const successCount = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
-            console.log(`Deleted ${successCount}/${publicIds.length} images using fallback method`);
-            
-            return successCount > 0;
-          }
-          
-          return false;
-        }
-      } catch (fetchError) {
-        console.error('Error calling delete-multiple API:', fetchError);
-        
-        // If it's a network error, try the fallback method
-        console.log('Network error. Attempting fallback single deletion...');
+      if (response.ok) {
+        let result;
         try {
-          const results = await Promise.allSettled(
-            publicIds.map(id => this.deleteImage(id))
-          );
-          
-          const successCount = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
-          console.log(`Deleted ${successCount}/${publicIds.length} images using fallback method`);
-          
-          return successCount > 0;
-        } catch (fallbackError) {
-          console.error('Fallback deletion also failed:', fallbackError);
-          return false;
+          result = await response.json();
+        } catch (parseError) {
+          console.log('API returned ok status but invalid JSON. Considering delete successful.');
+          return true;
         }
+        
+        console.log(`Successfully deleted ${publicIds.length} images from Cloudinary`);
+        return true;
+      } else {
+        let errorMessage = `Status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (parseError) {
+          errorMessage = response.statusText || errorMessage;
+        }
+        
+        console.error(`Error from delete API: ${errorMessage}`);
+        return false;
       }
     } catch (error) {
       console.error('Error deleting multiple images:', error);

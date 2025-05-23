@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { HashRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import styles from './App.module.css';
 import HomePage from './components/HomePage';
 import ThemeToggleButton from './components/theme/ThemeToggleButton';
@@ -7,6 +7,9 @@ import { ThemeContext } from './components/theme/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
 import VersionChecker from './utils/VersionChecker';
+
+// Определяем basename в зависимости от окружения
+const basename = import.meta.env.DEV ? '/' : '/soulcycle';
 
 function App() {
     const { theme } = useContext(ThemeContext);
@@ -102,11 +105,11 @@ function App() {
     }, [theme]);
 
     return (
-        <Router>
-            <VersionChecker />
-            <div className={styles.page}>
-                <ThemeToggleButton />
+        <Router basename={basename}>
+            <div className={`${styles.app} ${styles.page}`} data-theme={theme}>
                 <HomePage />
+                <ThemeToggleButton />
+                <VersionChecker />
             </div>
         </Router>
     );
