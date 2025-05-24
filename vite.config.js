@@ -45,18 +45,20 @@ export default defineConfig({
         quality: 80,
       },
       pngquant: {
-        quality: [0.7, 0.8],
+        quality: [0.8, 0.9],
         speed: 4,
       },
       svgo: {
         plugins: [
-          { name: 'removeViewBox' },
-          { name: 'removeEmptyAttrs', active: false },
+          {
+            name: 'removeViewBox',
+          },
+          {
+            name: 'removeEmptyAttrs',
+            active: false,
+          },
         ],
       },
-      webp: {
-        quality: 80,
-      }
     }),
     // Дополнительное сжатие (gzip)
     compression({
@@ -67,8 +69,7 @@ export default defineConfig({
     // Дополнительное сжатие (brotli)
     viteCompression({
       algorithm: 'brotliCompress',
-      threshold: 10240, 
-      ext: '.br'
+      threshold: 1024,
     }),
     // Поддержка старых браузеров
     legacy({
@@ -110,16 +111,9 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000, // Предупреждение о больших чанках
     terserOptions: {
       compress: {
-        drop_console: process.env.NODE_ENV === 'production',
-        drop_debugger: process.env.NODE_ENV === 'production',
-        pure_funcs: process.env.NODE_ENV === 'production' ? ['console.log', 'console.info'] : []
+        drop_console: true,
+        drop_debugger: true,
       },
-      mangle: {
-        safari10: true,
-      },
-      format: {
-        comments: false // Удаляем комментарии
-      }
     },
     rollupOptions: {
       output: {
@@ -138,7 +132,8 @@ export default defineConfig({
         },
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['framer-motion', '@supabase/supabase-js']
+          'vendor-ui': ['framer-motion', 'styled-components'],
+          'vendor-utils': ['date-fns', 'browser-image-compression'],
         }
       }
     }

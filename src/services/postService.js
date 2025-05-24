@@ -527,57 +527,30 @@ const postService = {
   // Удаление поста (только для администраторов)
   async deletePost(postId) {
     try {
-      // Проверяем, является ли пользователь администратором
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentUser = sessionData?.session?.user;
-      
-      if (!currentUser) {
-        throw new Error('Пользователь не авторизован');
-      }
-      
-      // Получаем профиль пользователя для проверки прав администратора
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('perks, active_perk, email')
-        .eq('id', currentUser.id)
-        .single();
-      
-      if (profileError) {
-        console.error('Ошибка при получении профиля пользователя:', profileError);
-        throw new Error('Не удалось проверить права пользователя');
-      }
-      
-      const perks = profileData?.perks || [];
-      const activePerk = profileData?.active_perk || '';
-      const email = profileData?.email || '';
-      
-      // Проверяем, является ли пользователь администратором
-      const isAdmin = 
-        email === 'igoraor79@gmail.com' || 
-        perks.includes('admin') || 
-        activePerk === 'admin';
-      
-      if (!isAdmin) {
-        throw new Error('Только администраторы могут удалять посты');
-      }
-
-      // Получаем данные поста для удаления изображений
+      // Получаем данные поста перед удалением для очистки изображений
       const { data: post, error: postFetchError } = await supabase
         .from('posts')
         .select('image_url, image_urls')
         .eq('id', postId)
-        .maybeSingle();
+        .single();
       
-      if (postFetchError) {
-        console.error('Ошибка при получении данных поста для удаления изображений:', postFetchError);
-      } else if (post) {
-        // Удаляем изображения из Cloudinary
+      // Удаляем пост из базы данных
+      const { error: deleteError } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+      if (deleteError) {
+        throw new Error(`Ошибка при удалении поста: ${deleteError.message}`);
+      }
+
+      // Если есть изображения, удаляем их из Cloudinary
+      if (!postFetchError && post) {
         try {
           // Собираем все URL изображений
           const imageUrls = [];
           if (post.image_url) imageUrls.push(post.image_url);
           if (post.image_urls && Array.isArray(post.image_urls)) {
-            // Make sure we only add valid URLs
             imageUrls.push(...post.image_urls.filter(url => url && typeof url === 'string'));
           }
 
@@ -601,55 +574,12 @@ const postService = {
               .catch(err => {
                 console.error('Error during image deletion:', err);
               });
-          } else {
-            console.log('No valid Cloudinary public IDs found for deletion');
           }
         } catch (imageDeleteError) {
           console.error('Ошибка при удалении изображений из Cloudinary:', imageDeleteError);
-          // Продолжаем удаление поста даже при ошибке удаления изображений
         }
-      } else {
-        console.log('Пост не найден или у него нет изображений для удаления');
       }
-      
-      // Сначала удаляем все связанные комментарии
-      const { error: commentsError } = await supabase
-        .from('post_comments')
-        .delete()
-        .eq('post_id', postId);
-      
-      if (commentsError) {
-        console.error('Ошибка при удалении комментариев:', commentsError);
-      }
-      
-      // Затем удаляем все связанные лайки
-      const { error: likesError } = await supabase
-        .from('post_likes')
-        .delete()
-        .eq('post_id', postId);
-      
-      if (likesError) {
-        console.error('Ошибка при удалении лайков:', likesError);
-      }
-      
-      // Удаляем все голоса в опросах, если они есть
-      const { error: votesError } = await supabase
-        .from('poll_votes')
-        .delete()
-        .eq('post_id', postId);
-      
-      if (votesError) {
-        console.error('Ошибка при удалении голосов опроса:', votesError);
-      }
-      
-      // Наконец удаляем сам пост
-      const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', postId);
-      
-      if (error) throw error;
-      
+
       return { success: true };
     } catch (error) {
       console.error('Ошибка при удалении поста:', error);

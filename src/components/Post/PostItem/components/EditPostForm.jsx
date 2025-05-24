@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FiAlertCircle, FiLoader, FiSend, FiX, FiImage, FiPlus, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import styles from '../../Post.module.scss';
 import { getOptimizedUrl } from '../utils/helpers';
+import { imageService } from '../services/imageService';
 
 // Компонент для увеличения изображения
 const ImageLightbox = ({ imageUrl, onClose }) => {
@@ -144,23 +145,45 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
   };
 
   // Remove an image URL
-  const handleRemoveUrl = (index) => {
-    const newUrls = [...imageUrls];
-    newUrls.splice(index, 1);
-    setImageUrls(newUrls);
-    
-    // Also clean up errors and loading states
-    const newErrors = {...errors};
-    delete newErrors[index];
-    // Если удалили изображение, убираем ошибку о максимальном количестве
-    if (newErrors.maxImagesReached) {
-      delete newErrors.maxImagesReached;
+  const handleRemoveUrl = async (index) => {
+    try {
+      const url = imageUrls[index];
+      const publicId = imageService.extractPublicIdFromUrl(url);
+      
+      if (publicId) {
+        const success = await imageService.deleteImage(publicId);
+        if (!success) {
+          setErrors(prev => ({
+            ...prev,
+            [index]: 'Ошибка при удалении изображения'
+          }));
+          return;
+        }
+      }
+      
+      const newUrls = [...imageUrls];
+      newUrls.splice(index, 1);
+      setImageUrls(newUrls);
+      
+      // Also clean up errors and loading states
+      const newErrors = {...errors};
+      delete newErrors[index];
+      // Если удалили изображение, убираем ошибку о максимальном количестве
+      if (newErrors.maxImagesReached) {
+        delete newErrors.maxImagesReached;
+      }
+      setErrors(newErrors);
+      
+      const newLoading = {...imagePreviewLoading};
+      delete newLoading[index];
+      setImagePreviewLoading(newLoading);
+    } catch (error) {
+      console.error('Error removing image:', error);
+      setErrors(prev => ({
+        ...prev,
+        [index]: 'Ошибка при удалении изображения'
+      }));
     }
-    setErrors(newErrors);
-    
-    const newLoading = {...imagePreviewLoading};
-    delete newLoading[index];
-    setImagePreviewLoading(newLoading);
   };
   
   // Открытие изображения в лайтбоксе

@@ -1,4 +1,5 @@
 import { compressImage } from './imageCompression';
+import { supabase } from '../lib/supabase';
 
 // Cloudinary settings
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/do9t8preg/upload';
@@ -259,7 +260,6 @@ const imageService = {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'same-origin',
         body: JSON.stringify({ publicIds: [publicId] })
       });
       
@@ -314,7 +314,6 @@ const imageService = {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'same-origin',
         body: JSON.stringify({ publicIds })
       });
       

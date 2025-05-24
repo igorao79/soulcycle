@@ -5,6 +5,15 @@ import { ThemeProvider } from './components/theme/ThemeContext'; // Импорт
 import { AuthProvider } from './contexts/AuthContext'; // Импортируем провайдер авторизации
 import './styles/ImageStyles.scss'; // Import global image styles
 
+// Отключаем service worker если он есть
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ThemeProvider> {/* Оборачиваем всё приложение в провайдер темы */}
