@@ -39,10 +39,17 @@ export async function compressImage(imageFile, options = {}) {
     
     console.log('Сжатое изображение:', compressedFile.type, Math.round(compressedFile.size / 1024), 'KB');
     
-    // Создаем новый File с правильным именем и типом
-    return new File([compressedFile], imageFile.name, {
+    // Создаем новый File с правильным именем и типом, используя только сжатые данные
+    const finalFile = new File([compressedFile], imageFile.name, {
       type: compressedFile.type
     });
+
+    // Очищаем ссылки на исходный файл
+    if (compressedFile instanceof Blob) {
+      URL.revokeObjectURL(URL.createObjectURL(compressedFile));
+    }
+    
+    return finalFile;
   } catch (error) {
     console.error('Ошибка при сжатии изображения:', error);
     // В случае ошибки возвращаем исходный файл
@@ -62,7 +69,12 @@ export async function resizeAndOptimizeImage(imageFile, maxWidth = 800, maxHeigh
   return new Promise((resolve, reject) => {
     try {
       const img = new Image();
+      const objectUrl = URL.createObjectURL(imageFile);
+      
       img.onload = () => {
+        // Очищаем object URL после загрузки изображения
+        URL.revokeObjectURL(objectUrl);
+        
         // Определяем новые размеры с сохранением пропорций
         let width = img.width;
         let height = img.height;
@@ -95,6 +107,8 @@ export async function resizeAndOptimizeImage(imageFile, maxWidth = 800, maxHeigh
         // Получаем Blob с оптимизированного изображения
         canvas.toBlob((blob) => {
           if (blob) {
+            // Очищаем canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             resolve(blob);
           } else {
             reject(new Error('Не удалось преобразовать изображение'));
@@ -102,10 +116,14 @@ export async function resizeAndOptimizeImage(imageFile, maxWidth = 800, maxHeigh
         }, format, quality);
       };
       
-      img.onerror = () => reject(new Error('Ошибка загрузки изображения'));
+      img.onerror = () => {
+        // Очищаем object URL в случае ошибки
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Ошибка загрузки изображения'));
+      };
       
       // Загружаем изображение для обработки
-      img.src = URL.createObjectURL(imageFile);
+      img.src = objectUrl;
     } catch (error) {
       reject(error);
     }

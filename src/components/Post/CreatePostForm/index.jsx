@@ -19,6 +19,7 @@ const CreatePostForm = ({ onPostCreated }) => {
   const [content, setContent] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [error, setError] = useState('');
   
   // Poll state
@@ -188,7 +189,7 @@ const CreatePostForm = ({ onPostCreated }) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Заголовок поста"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isImageUploading}
           style={{ color: titleColor, fontFamily: selectedFont }}
         />
         
@@ -198,7 +199,7 @@ const CreatePostForm = ({ onPostCreated }) => {
           onChange={(e) => setContent(e.target.value)}
           placeholder={showPoll ? "Текст поста с опросом (необязательно)..." : "Текст вашего поста..."}
           rows={4}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isImageUploading}
           required={!showPoll}
           style={{ color: contentColor, fontFamily: selectedFont }}
         />
@@ -209,6 +210,7 @@ const CreatePostForm = ({ onPostCreated }) => {
             imageUrls={imageUrls}
             setImageUrls={setImageUrls}
             isSubmitting={isSubmitting}
+            setIsImageUploading={setIsImageUploading}
           />
         )}
         
@@ -246,7 +248,9 @@ const CreatePostForm = ({ onPostCreated }) => {
           toggleStylingOptions={toggleStylingOptions}
           isPinned={isPinned}
           setIsPinned={setIsPinned}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isImageUploading}
+          onSubmit={handleSubmit}
+          isImageUploading={isImageUploading}
         />
       </form>
     </div>

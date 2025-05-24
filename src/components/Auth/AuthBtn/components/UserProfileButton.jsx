@@ -24,12 +24,13 @@ const UserProfileButton = ({
       variants={buttonVariants}
       whileHover="hover"
       whileTap="tap"
+      key={`profile-button-${avatarKey}`}
     >
       <OptimizedAvatar 
         src={avatar} 
         alt="Аватар пользователя" 
         className={styles.avatar}
-        key={avatarKey}
+        key={`avatar-${avatarKey}`}
       />
       <span className={`${styles.username} ${activePerkClass}`}>
         {displayName}

@@ -1,20 +1,27 @@
 import { compressImage } from './imageCompression';
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_URL } from '../config/cloudinary';
+import sha1 from 'crypto-js/sha1';
+
+console.log('[imageService] Attempting to load VITE_CLOUDINARY_API_SECRET directly from import.meta.env:', import.meta.env.VITE_CLOUDINARY_API_SECRET);
 
 // Cloudinary settings
-const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/do9t8preg/upload';
-const CLOUDINARY_CLOUD_NAME = 'do9t8preg';
 const CLOUDINARY_API_KEY = '417482147356551';
+const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET; // This should be stored securely
 // Поддержка как локального, так и production сервера
 const CLOUDINARY_API_SERVER = import.meta.env.VITE_CLOUDINARY_API_SERVER || 'https://cloudinary-api-uapz.onrender.com';
 
 console.log('Using Cloudinary API server:', CLOUDINARY_API_SERVER);
 
-// Use the new preset created by the user
-const CLOUDINARY_UPLOAD_PRESET = 'postss'; 
-
 // Оптимизированные настройки для изображений
 const CLOUDINARY_OPTIMIZED_PARAMS = 'f_auto,q_auto:eco,dpr_auto,w_auto,c_limit';
 const DEFAULT_MAX_WIDTH = 800;
+
+// Validate required credentials
+if (!CLOUDINARY_API_SECRET) {
+  console.error('[imageService] CRITICAL: Cloudinary API Secret is MISSING or undefined AFTER assignment. Ensure VITE_CLOUDINARY_API_SECRET is in your .env file and the server was restarted.');
+} else {
+  console.log('[imageService] Cloudinary API Secret loaded (first 5 chars for verification):', CLOUDINARY_API_SECRET.substring(0, 5));
+}
 
 /**
  * Оптимизирует URL изображения Cloudinary
@@ -76,130 +83,43 @@ function createThumbnailUrl(url) {
  */
 const imageService = {
   /**
-   * Extract the public_id from a Cloudinary URL
+   * Extract public_id from Cloudinary URL
    * 
-   * @param {string} url - The Cloudinary URL
-   * @returns {string|null} - The public_id or null if invalid URL
+   * @param {string} url - Cloudinary URL
+   * @returns {string|null} - Public ID or null if extraction failed
    */
   extractPublicIdFromUrl(url) {
     if (!url || typeof url !== 'string') {
-      console.warn('Invalid URL:', url);
+      console.error('Invalid URL provided to extractPublicIdFromUrl:', url);
       return null;
     }
     
     try {
-      // Check if it's a Cloudinary URL
-      if (!url.includes('cloudinary.com')) {
-        return null;
+      // Remove any transformation parameters
+      const urlParts = url.split('/upload/');
+      if (urlParts.length < 2) return null;
+      
+      // Get the part after /upload/
+      let path = urlParts[1];
+      
+      // Remove any transformation parameters if they exist
+      if (path.includes('/')) {
+        path = path.split('/').slice(-2).join('/');
       }
       
-      // Check if it's a fetch URL - these don't have proper public_ids in the standard way
-      if (url.includes('/image/fetch/')) {
-        console.warn('Found fetch URL, attempting alternate extraction:', url);
-        return this.extractPublicIdFromFetchUrl(url);
-      }
+      // Remove version number if it exists
+      path = path.replace(/v\d+\//, '');
       
-      console.log('Extracting public_id from URL:', url);
+      // Remove file extension
+      path = path.replace(/\.[^/.]+$/, '');
       
-      const parts = url.split('/');
-      
-      // Find the position of 'upload' in the URL
-      const uploadIndex = parts.findIndex(part => part === 'upload');
-      
-      if (uploadIndex === -1) {
-        console.warn('Could not find "upload" in Cloudinary URL:', url);
-        return null;
-      }
-      
-      if (parts.length <= uploadIndex + 2) {
-        console.warn('URL structure not as expected after "upload":', url);
-        return null;
-      }
-      
-      // Check if there's a version segment (v1234567890) after 'upload'
-      let startIndex = uploadIndex + 1;
-      if (parts[startIndex] && parts[startIndex].startsWith('v')) {
-        startIndex++;
-      }
-      
-      // Take parts after version and before the last segment with file extension
-      const afterUpload = parts.slice(startIndex);
-      if (afterUpload.length === 0) {
-        console.warn('No path segments after version in URL:', url);
-        return null;
-      }
-      
-      // Get the filename without extension
-      const filenameWithExt = afterUpload.pop();
-      const fileName = filenameWithExt.split('.')[0];
-      
-      // Combine to get the full public_id
-      const publicId = [...afterUpload, fileName].join('/');
-      console.log('Extracted public_id:', publicId);
-      
-      return publicId;
+      return path;
     } catch (error) {
       console.error('Error extracting public_id from URL:', error, url);
       return null;
     }
   },
 
-  /**
-   * Attempt to extract a public_id from a fetch URL
-   * 
-   * @param {string} url - The Cloudinary fetch URL
-   * @returns {string|null} - An approximated public_id or null
-   */
-  extractPublicIdFromFetchUrl(url) {
-    if (!url || !url.includes('/image/fetch/')) {
-      return null;
-    }
-
-    try {
-      // For fetch URLs, we'll create a synthetic public_id based on the original URL
-      // Format: fetch/{timestamp}_{hash}
-      
-      // Extract the target URL being fetched (everything after /fetch/v...)
-      const fetchPattern = /\/image\/fetch\/(?:v\d+\/)?(.+)$/;
-      const match = url.match(fetchPattern);
-      
-      if (!match || !match[1]) {
-        console.warn('Could not extract target URL from fetch URL:', url);
-        return null;
-      }
-      
-      // Get the target URL
-      let targetUrl = match[1];
-      
-      // If the target is another Cloudinary URL, try to extract that public_id
-      if (targetUrl.includes('cloudinary.com') && targetUrl.includes('/image/upload/')) {
-        // This is a fetch of another Cloudinary upload
-        const nestedPublicId = this.extractPublicIdFromUrl(targetUrl);
-        if (nestedPublicId) {
-          return nestedPublicId;
-        }
-      }
-      
-      // For other cases, create a hash from the URL
-      // Extract the filename from the end of the URL (if possible)
-      const urlParts = targetUrl.split('/');
-      const lastPart = urlParts[urlParts.length - 1];
-      
-      // See if we can extract a filename
-      if (lastPart.includes('.')) {
-        const filename = lastPart.split('.')[0];
-        return `fetch/${filename}`;
-      }
-      
-      // If we can't extract a meaningful identifier, use a hash of the URL
-      const timestamp = url.match(/\/v(\d+)\//)?.[1] || '';
-      return `fetch/${timestamp}_unknown`;
-    } catch (error) {
-      console.error('Error extracting from fetch URL:', error);
-      return null;
-    }
-  },
-  
   /**
    * Upload an image to Cloudinary with folder organization
    * 
@@ -277,51 +197,36 @@ const imageService = {
   /**
    * Delete an image from Cloudinary
    * 
-   * @param {string} publicId - The public ID of the image to delete
-   * @returns {Promise<boolean>} - Success or failure
+   * @param {string} publicId - The public_id of the image to delete
+   * @returns {Promise<boolean>} - True if deletion was successful
    */
   async deleteImage(publicId) {
     try {
       if (!publicId) {
-        console.warn('No publicId provided for deletion');
+        console.error('No public_id provided for deletion');
         return false;
       }
-      
-      console.log(`Attempting to delete Cloudinary image with publicId: ${publicId}`);
-      
-      const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete`, {
+
+      const timestamp = Math.round((new Date()).getTime() / 1000);
+      const signature = await this.generateSignature(publicId, timestamp);
+
+      const formData = new FormData();
+      formData.append('public_id', publicId);
+      formData.append('api_key', CLOUDINARY_API_KEY);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        credentials: 'omit', // Отключаем отправку куков
-        body: JSON.stringify({ publicIds: [publicId] })
+        body: formData
       });
-      
-      if (response.ok) {
-        let result;
-        try {
-          result = await response.json();
-        } catch (parseError) {
-          console.log('API returned ok status but invalid JSON. Considering delete successful.');
-          return true;
-        }
-        
-        console.log('Successfully deleted image from Cloudinary');
-        return true;
-      } else {
-        let errorMessage = `Status ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (parseError) {
-          errorMessage = response.statusText || errorMessage;
-        }
-        
-        console.error(`Error from delete API: ${errorMessage}`);
-        return false;
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete image: ${response.statusText}`);
       }
+
+      const result = await response.json();
+      return result.result === 'ok';
     } catch (error) {
       console.error('Error deleting image:', error);
       return false;
@@ -331,54 +236,117 @@ const imageService = {
   /**
    * Delete multiple images from Cloudinary
    * 
-   * @param {Array<string>} publicIds - Array of public IDs to delete
-   * @returns {Promise<boolean>} - Success or failure
+   * @param {Array<string>} items - Array of Cloudinary URLs or public_ids to delete
+   * @returns {Promise<boolean>} - True if all deletions were successful
    */
-  async deleteMultipleImages(publicIds) {
+  async deleteMultipleImages(items) {
     try {
-      if (!Array.isArray(publicIds) || publicIds.length === 0) {
-        console.warn('No publicIds provided for deletion');
+      if (!Array.isArray(items) || items.length === 0) {
+        return true; // Nothing to delete
+      }
+
+      console.log('Deleting images from Cloudinary:', items);
+
+      // Process items - they could be either URLs or public_ids
+      // Use Set to deduplicate the array
+      const publicIds = [...new Set(items.map(item => {
+        // If it looks like a URL, extract the public_id
+        if (item.includes('cloudinary.com')) {
+          return this.extractPublicIdFromUrl(item);
+        }
+        // Otherwise assume it's already a public_id
+        return item;
+      }).filter(id => id !== null))];
+
+      if (publicIds.length === 0) {
+        console.warn('No valid public_ids found in items:', items);
         return false;
       }
+
+      console.log('Processed unique public_ids:', publicIds);
+
+      const timestamp = Math.round((new Date()).getTime() / 1000);
       
-      console.log(`Attempting to delete ${publicIds.length} Cloudinary images`);
-      
-      // Send request to our Cloudinary API server for multiple deletions
-      const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete-multiple`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ publicIds })
-      });
-      
-      if (response.ok) {
-        let result;
-        try {
-          result = await response.json();
-        } catch (parseError) {
-          console.log('API returned ok status but invalid JSON. Considering delete successful.');
-          return true;
-        }
-        
-        console.log(`Successfully deleted ${publicIds.length} images from Cloudinary`);
-        return true;
+      // Delete images one by one to handle partial failures
+      const results = await Promise.allSettled(
+        publicIds.map(async (publicId) => {
+          try {
+            const signature = this.generateSignature(publicId, timestamp);
+            
+            const formData = new FormData();
+            formData.append('public_id', publicId);
+            formData.append('api_key', CLOUDINARY_API_KEY);
+            formData.append('timestamp', timestamp);
+            formData.append('signature', signature);
+
+            console.log(`Attempting to delete image with public_id: ${publicId}`);
+
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`, {
+              method: 'POST',
+              body: formData
+            });
+
+            const responseData = await response.json();
+            
+            // Consider both 'ok' and 'not found' as successful deletions
+            // since the end goal (image not being in Cloudinary) is achieved
+            if (responseData.result === 'ok' || responseData.result === 'not found') {
+              console.log(`Successfully handled image ${publicId}:`, responseData);
+              return true;
+            }
+
+            throw new Error(`Failed to delete image ${publicId}: ${responseData.error?.message || response.statusText}`);
+          } catch (error) {
+            console.error(`Error deleting image ${publicId}:`, error);
+            return false;
+          }
+        })
+      );
+
+      // Check if all deletions were successful
+      const successCount = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+      const allSuccessful = successCount === publicIds.length;
+
+      if (!allSuccessful) {
+        console.warn(`Only ${successCount} out of ${publicIds.length} images were deleted successfully`);
       } else {
-        let errorMessage = `Status ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (parseError) {
-          errorMessage = response.statusText || errorMessage;
-        }
-        
-        console.error(`Error from delete API: ${errorMessage}`);
-        return false;
+        console.log('All images were deleted successfully');
       }
+
+      return allSuccessful;
     } catch (error) {
       console.error('Error deleting multiple images:', error);
       return false;
+    }
+  },
+  
+  /**
+   * Generate a signature for Cloudinary API requests
+   * 
+   * @param {string} publicId - The public_id of the image
+   * @param {number} timestamp - Current timestamp
+   * @returns {string} - Generated signature
+   */
+  generateSignature(publicId, timestamp) {
+    try {
+      console.log('[imageService Signature] CLOUDINARY_API_SECRET at start of generateSignature (first 5 chars):', CLOUDINARY_API_SECRET ? CLOUDINARY_API_SECRET.substring(0,5) : 'UNDEFINED or EMPTY');
+      if (!CLOUDINARY_API_SECRET) {
+        console.error('[imageService Signature] CRITICAL ERROR: CLOUDINARY_API_SECRET is not available. Signature generation will fail.');
+        throw new Error('CLOUDINARY_API_SECRET is not configured. Check .env file and restart server.');
+      }
+      const paramsToSign = `public_id=${publicId}&timestamp=${timestamp}`;
+      // Crucial check before forming stringToSign
+      console.log('[imageService Signature] Value of CLOUDINARY_API_SECRET before appending (first 5 chars):', CLOUDINARY_API_SECRET.substring(0,5));
+      const stringToSign = `${paramsToSign}${CLOUDINARY_API_SECRET}`;
+      
+      console.log('[imageService Signature] String being signed (first part + last 5 of secret for verification):', paramsToSign + (CLOUDINARY_API_SECRET ? CLOUDINARY_API_SECRET.slice(-5) : '[SECRET MISSING]'));
+
+      const signature = sha1(stringToSign).toString();
+      console.log('[imageService Signature] Generated signature:', signature);
+      return signature;
+    } catch (error) {
+      console.error('[imageService Signature] Error during signature generation:', error.message);
+      throw new Error(`Failed to generate signature: ${error.message}`);
     }
   },
   

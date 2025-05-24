@@ -34,7 +34,7 @@ const ImageLightbox = ({ imageUrl, onClose }) => {
   );
 };
 
-const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting }) => {
+const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting, setIsImageUploading }) => {
   const [imagePreviewLoading, setImagePreviewLoading] = useState({});
   const [errors, setErrors] = useState({});
   const [isUploading, setIsUploading] = useState(false);
@@ -208,6 +208,7 @@ const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting }) => {
   const handleFileUpload = async (files) => {
     try {
       setIsUploading(true);
+      setIsImageUploading(true); // Set parent's loading state
       
       // Check how many files we can upload without exceeding MAX_IMAGES
       const remainingSlots = MAX_IMAGES - imageUrls.length;
@@ -237,6 +238,7 @@ const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting }) => {
       }));
     } finally {
       setIsUploading(false);
+      setIsImageUploading(false); // Reset parent's loading state
     }
   };
 
@@ -285,7 +287,7 @@ const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting }) => {
           onClick={() => fileInputRef.current.click()}
           disabled={isSubmitting || isUploading || imageUrls.length >= MAX_IMAGES}
         >
-          <FiUpload /> Загрузить изображение
+          <FiUpload /> {isUploading ? 'Загрузка...' : 'Загрузить изображение'}
         </button>
         
         <input
