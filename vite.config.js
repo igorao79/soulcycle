@@ -7,7 +7,6 @@ import { exec } from 'child_process';
 import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
 import { splitVendorChunkPlugin } from 'vite';
-import legacy from '@vitejs/plugin-legacy';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 // Конфигурация для React Compiler
@@ -71,10 +70,6 @@ export default defineConfig({
       algorithm: 'brotliCompress',
       threshold: 1024,
     }),
-    // Поддержка старых браузеров
-    legacy({
-      targets: ['defaults', 'not IE 11'],
-    }),
     // CSS оптимизация - внедрение CSS в JS для снижения запросов
     cssInjectedByJsPlugin(),
     // Плагин для анализа размера бандла (только для production)
@@ -109,6 +104,7 @@ export default defineConfig({
     cssCodeSplit: true, // Разделение CSS по чанкам
     reportCompressedSize: false, // Для ускорения сборки
     chunkSizeWarningLimit: 1000, // Предупреждение о больших чанках
+    target: 'esnext', // Используем современные возможности JS
     terserOptions: {
       compress: {
         drop_console: true,
