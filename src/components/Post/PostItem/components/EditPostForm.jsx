@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FiAlertCircle, FiLoader, FiSend, FiX, FiImage, FiPlus, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import styles from '../../Post.module.scss';
 import { getOptimizedUrl } from '../utils/helpers';
-import { imageService } from '../services/imageService';
+import imageService from '../../../../utils/imageService';
 
 // Компонент для увеличения изображения
 const ImageLightbox = ({ imageUrl, onClose }) => {
@@ -71,13 +71,9 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
   
   // Update optimized image URLs when image URLs change
   useEffect(() => {
-    // Don't optimize Cloudinary URLs to prevent duplication
     const newOptimizedUrls = imageUrls.map(url => {
-      // Skip optimization for Cloudinary URLs
-      if (url && typeof url === 'string' && url.includes('cloudinary.com')) {
-        return url;
-      }
-      return getOptimizedUrl(url);
+      // Используем функцию оптимизации из imageService
+      return imageService.optimizeCloudinaryUrl(url);
     });
     
     setOptimizedImageUrls(newOptimizedUrls);

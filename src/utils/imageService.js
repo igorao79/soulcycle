@@ -1,14 +1,75 @@
 import { compressImage } from './imageCompression';
-import { supabase } from '../lib/supabase';
 
 // Cloudinary settings
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/do9t8preg/upload';
 const CLOUDINARY_CLOUD_NAME = 'do9t8preg';
 const CLOUDINARY_API_KEY = '417482147356551';
-const CLOUDINARY_API_SERVER = 'https://cloudinary-api-uapz.onrender.com';
+// Поддержка как локального, так и production сервера
+const CLOUDINARY_API_SERVER = import.meta.env.VITE_CLOUDINARY_API_SERVER || 'https://cloudinary-api-uapz.onrender.com';
+
+console.log('Using Cloudinary API server:', CLOUDINARY_API_SERVER);
 
 // Use the new preset created by the user
 const CLOUDINARY_UPLOAD_PRESET = 'postss'; 
+
+// Оптимизированные настройки для изображений
+const CLOUDINARY_OPTIMIZED_PARAMS = 'f_auto,q_auto:eco,dpr_auto,w_auto,c_limit';
+const DEFAULT_MAX_WIDTH = 800;
+
+/**
+ * Оптимизирует URL изображения Cloudinary
+ * @param {string} url - Оригинальный URL изображения
+ * @returns {string} Оптимизированный URL
+ */
+function optimizeCloudinaryUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  if (!url.includes('cloudinary.com')) return url;
+
+  try {
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    const uploadIndex = pathParts.findIndex(part => part === 'upload');
+    
+    if (uploadIndex === -1) return url;
+
+    // Вставляем оптимизационные параметры после 'upload'
+    pathParts.splice(uploadIndex + 1, 0, CLOUDINARY_OPTIMIZED_PARAMS);
+    urlObj.pathname = pathParts.join('/');
+    
+    return urlObj.toString();
+  } catch (error) {
+    console.warn('Error optimizing Cloudinary URL:', error);
+    return url;
+  }
+}
+
+/**
+ * Создает оптимизированный URL для предварительного просмотра
+ * @param {string} url - Оригинальный URL изображения
+ * @returns {string} URL для превью
+ */
+function createThumbnailUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  if (!url.includes('cloudinary.com')) return url;
+
+  try {
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    const uploadIndex = pathParts.findIndex(part => part === 'upload');
+    
+    if (uploadIndex === -1) return url;
+
+    // Параметры для превью
+    const thumbnailParams = 'f_auto,q_auto:eco,w_200,h_200,c_fill';
+    pathParts.splice(uploadIndex + 1, 0, thumbnailParams);
+    urlObj.pathname = pathParts.join('/');
+    
+    return urlObj.toString();
+  } catch (error) {
+    console.warn('Error creating thumbnail URL:', error);
+    return url;
+  }
+}
 
 /**
  * Service for handling image uploads to Cloudinary
@@ -157,63 +218,38 @@ const imageService = {
         compressionOptions = {} 
       } = options;
       
-      // Process the image file (compression, etc)
       let processedImage = imageFile;
       if (compress && imageFile instanceof File) {
         processedImage = await compressImage(imageFile, compressionOptions);
       }
       
-      // Generate a unique ID for logging purposes
-      const timestamp = new Date().getTime();
-      const randomString = Math.random().toString(36).substring(2, 10);
-      
-      // Create form data for upload - ONLY include allowed parameters for unsigned uploads
       const formData = new FormData();
       formData.append('file', processedImage);
       formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
       
-      // You can optionally include these allowed parameters
-      // formData.append('folder', folder); // Let preset control this
-      formData.append('tags', 'app_upload'); // Optional tagging
-      
-      console.log(`Uploading to Cloudinary using preset: ${CLOUDINARY_UPLOAD_PRESET}`);
-      console.log(`Upload parameters:`, {
-        fileName: processedImage.name,
-        fileSize: processedImage.size,
-        fileType: processedImage.type,
-        uploadPreset: CLOUDINARY_UPLOAD_PRESET
-      });
-      
-      // Upload to Cloudinary
       const response = await fetch(CLOUDINARY_URL, {
         method: 'POST',
         body: formData,
+        credentials: 'omit' // Отключаем отправку куков
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Cloudinary error response:', errorText);
-        let errorMessage = 'Unknown error';
-        try {
-          const errorJson = JSON.parse(errorText);
-          errorMessage = errorJson.error?.message || errorJson.message || JSON.stringify(errorJson);
-        } catch (e) {
-          errorMessage = errorText || `Status ${response.status}`;
-        }
-        throw new Error(`Cloudinary upload failed: ${errorMessage}`);
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
       
-      // Get the response data
       const imageData = await response.json();
-      console.log('Cloudinary upload successful:', imageData.public_id);
+      
+      // Сразу создаем оптимизированный URL
+      const optimizedUrl = optimizeCloudinaryUrl(imageData.secure_url);
       
       return {
-        url: imageData.secure_url,
+        url: optimizedUrl,
         publicId: imageData.public_id,
         version: imageData.version,
         format: imageData.format,
         width: imageData.width,
-        height: imageData.height
+        height: imageData.height,
+        thumbnailUrl: createThumbnailUrl(imageData.secure_url)
       };
     } catch (error) {
       console.error('Error uploading image to Cloudinary:', error);
@@ -253,13 +289,13 @@ const imageService = {
       
       console.log(`Attempting to delete Cloudinary image with publicId: ${publicId}`);
       
-      // Send request to our Cloudinary API server
       const response = await fetch(`${CLOUDINARY_API_SERVER}/api/cloudinary/delete`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
+        credentials: 'omit', // Отключаем отправку куков
         body: JSON.stringify({ publicIds: [publicId] })
       });
       
