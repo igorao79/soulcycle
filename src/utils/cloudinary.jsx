@@ -1,11 +1,24 @@
 /**
  * Утилиты для работы с изображениями Cloudinary
  */
-import React from 'react';
+import React, { useState } from 'react';
 
 // Cloudinary настройки
 const CLOUDINARY_CLOUD_NAME = 'do9t8preg';
 const CLOUDINARY_API_KEY = '417482147356551';
+
+// Глобальный кеш для загруженных изображений
+const imageCache = new Set();
+
+// Функция для добавления изображения в кеш
+const addToCache = (src) => {
+  imageCache.add(src);
+};
+
+// Функция для проверки наличия изображения в кеше
+const isInCache = (src) => {
+  return imageCache.has(src);
+};
 
 // Предопределенные аватары
 export const AVATARS = {
@@ -161,17 +174,83 @@ export const Avatar = ({
   size = 40,
   onClick,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Определяем, какую версию использовать на основе конкретного аватара
+  let version = 'v1746775570'; // По умолчанию
+  
+  // Используем точные версии для специальных аватаров
+  if (avatar === AVATARS.IGOR) {
+    version = 'v1746562338';
+  } else if (avatar === AVATARS.LESYA) {
+    version = 'v1746562383';
+  }
+  
+  // Базовые опции для аватаров - НЕ увеличиваем размер в 2 раза!
+  const baseOptions = { 
+    width: size, // Используем оригинальный размер
+    height: size,
+    version,
+    quality: 85, // Уменьшаем качество для оптимизации
+    dpr: "auto",
+    flags: "progressive",
+    fetch_format: "auto" 
+  };
+
+  const avifSrc = getCloudinaryUrl(avatar, { ...baseOptions, format: 'avif' });
+  const webpSrc = getCloudinaryUrl(avatar, { ...baseOptions, format: 'webp' });
+  const pngSrc = getCloudinaryUrl(avatar, { ...baseOptions, format: 'png' });
+
+  // Проверяем глобальный кеш загруженных изображений при монтировании
+  React.useEffect(() => {
+    // Проверяем только глобальный кеш, без дополнительных запросов
+    if (isInCache(pngSrc)) {
+      console.log('Аватар найден в глобальном кеше:', avatar);
+      setIsLoading(false);
+      setImageLoaded(true);
+      setHasError(false);
+    }
+    // Если не в кеше, изображение загрузится через picture элемент
+  }, [avatar, pngSrc]);
+
+  const handleLoad = () => {
+    console.log('Аватар успешно загружен:', avatar);
+    addToCache(pngSrc); // Добавляем в глобальный кеш
+    setIsLoading(false);
+    setHasError(false);
+    setImageLoaded(true);
+  };
+
+  const handleError = (e) => {
+    console.warn('Ошибка загрузки аватара:', e.target.src);
+    setIsLoading(false);
+    setHasError(true);
+    setImageLoaded(false);
+  };
+
   return (
-    <CloudinaryImage
-      path={avatar}
-      alt={alt}
-      className={className}
-      style={style}
-      width={size}
-      height={size}
-      loading="eager"
-      onClick={onClick}
-    />
+    <picture>
+      {/* AVIF формат - наиболее оптимизированный */}
+      <source srcSet={avifSrc} type="image/avif" />
+      {/* WebP формат - хорошо поддерживается в большинстве браузеров */}
+      <source srcSet={webpSrc} type="image/webp" />
+      {/* PNG формат - запасной вариант для всех браузеров */}
+      <img 
+        src={pngSrc}
+        alt={alt} 
+        className={className}
+        style={style}
+        width={size}
+        height={size}
+        loading="eager"
+        crossOrigin="anonymous"
+        onLoad={handleLoad}
+        onError={handleError}
+        onClick={onClick}
+      />
+    </picture>
   );
 };
 
@@ -201,8 +280,12 @@ export const CloudinaryImage = ({
   loading = 'lazy',
   onLoad,
   onError,
-  onClick,
+  onClick
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // Базовые опции для изображений
   const baseOptions = { width, height };
   
@@ -227,7 +310,36 @@ export const CloudinaryImage = ({
     ...baseOptions, 
     format: 'png' 
   });
-  
+
+  // Проверяем глобальный кеш загруженных изображений при монтировании
+  React.useEffect(() => {
+    // Проверяем только глобальный кеш, без дополнительных запросов
+    if (isInCache(pngSrc)) {
+      console.log('Изображение найдено в глобальном кеше:', path);
+      setIsLoading(false);
+      setImageLoaded(true);
+      setHasError(false);
+    }
+    // Если не в кеше, изображение загрузится через picture элемент
+  }, [path, pngSrc]);
+
+  const handleLoad = (e) => {
+    console.log('Изображение успешно загружено:', path);
+    addToCache(e.target.src); // Добавляем в глобальный кеш
+    setIsLoading(false);
+    setHasError(false);
+    setImageLoaded(true);
+    if (onLoad) onLoad(e);
+  };
+
+  const handleError = (e) => {
+    console.warn('Ошибка загрузки изображения:', e.target.src);
+    setIsLoading(false);
+    setHasError(true);
+    setImageLoaded(false);
+    if (onError) onError(e);
+  };
+
   return (
     <picture>
       {/* AVIF формат - наиболее оптимизированный */}
@@ -252,13 +364,10 @@ export const CloudinaryImage = ({
         height={height}
         loading={loading}
         crossOrigin="anonymous"
-        onLoad={onLoad}
+        onLoad={handleLoad}
+        onError={handleError}
         onClick={onClick}
         key={`png_${cacheKey}`}
-        onError={(e) => {
-          console.warn('Ошибка загрузки изображения:', e.target.src);
-          if (onError) onError(e);
-        }}
       />
     </picture>
   );

@@ -36,6 +36,7 @@ const OptimizedImage = ({ src, alt, className, style }) => {
     // If optimized image failed and we haven't tried the original yet
     if (!useFallback && displaySrc !== originalSrc) {
       setUseFallback(true);
+      setIsLoading(true); // Reset loading state for fallback attempt
     } else {
       // Both optimized and original failed
       setIsLoading(false);
@@ -43,16 +44,12 @@ const OptimizedImage = ({ src, alt, className, style }) => {
     }
   };
   
-  // Reset loading state on component unmount
+  // Reset states when src changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    }, 5000);
-    
-    return () => clearTimeout(timeoutId);
-  }, []);
+    setIsLoading(true);
+    setError(false);
+    setUseFallback(false);
+  }, [src]);
   
   return (
     <div className={`${className || ''} ${styles.imageContainer}`} style={style}>

@@ -9,6 +9,12 @@
     position: relative;
     z-index: 1;
     overflow: hidden;
+    transition: background-color 0.3s ease;
+    
+    // Поддержка темной темы
+    [data-theme="dark"] & {
+        background-color: #1e1e1e;
+    }
 
     &__left {
         max-width: 500px;
@@ -24,7 +30,7 @@
     
         &__pic {
             max-width: 500px;
-            min-height: 70px;
+            min-height: 570px;
     
             // Устанавливаем явные размеры или aspect-ratio для стабильности
             aspect-ratio: 1 / 1;
@@ -160,8 +166,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob2.svg');
-        background-color: white;
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob.svg');
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover; // Сохраняем пропорции
@@ -171,7 +176,7 @@
 
     [data-theme="dark"] &::before {
         content: '';
-        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob2.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob.svg'); /* Темная тема */
         position: absolute;
         width: 100%;
         height: 100%;
@@ -191,6 +196,12 @@
         &__left {
             max-width: 320px !important;
             padding-top: 40px;
+
+
+            &__pic {
+                min-height: 370px;
+            }
+
         }
 
         &__right {

@@ -70,17 +70,104 @@
     }
 }
 
-.disabled {
-    fill: darkgray;
-    opacity: 0.5;
-    pointer-events: none;
+// Стили для загрузки
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    
+    .loadingIcon {
+        font-size: 48px;
+        animation: pulse 2s infinite;
+    }
+    
+    .loadingMessage {
+        font-size: 18px;
+        color: var(--text-primary);
+        text-align: center;
+        font-weight: 500;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+// Стили для ошибки
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 40px;
+    text-align: center;
+    color: var(--text-color);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    
+    .errorIcon {
+        font-size: 48px;
+        opacity: 0.7;
+    }
+    
+    .errorMessage {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+    }
+    
+    .retryButton {
+        padding: 12px 24px;
+        background-color: var(--accent-color, #007bff);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        &:hover {
+            background-color: var(--accent-hover, #0056b3);
+            transform: translateY(-1px);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+        
+        [data-theme="dark"] & {
+            background-color: var(--accent-color, #0d7377);
+            
+            &:hover {
+                background-color: var(--accent-hover, #14a085);
+            }
+        }
+    }
 }
 
 @media only screen and (max-width: 760px) {
     .window {
         top: -20px;
         flex-direction: column;
-        margin: 0 20px !important;
+        margin: 10px 20px !important;
         height: 85vh;
 
         &__panel {
@@ -103,4 +190,39 @@
             font-size: 2.5rem;
         }
     }
+    
+    .error {
+        padding: 30px 20px;
+        
+        .errorIcon {
+            font-size: 36px;
+        }
+        
+        .errorMessage {
+            font-size: 1rem;
+        }
+        
+        .retryButton {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
+
+    .loading {
+        padding: 30px 20px;
+        
+        .loadingIcon {
+            font-size: 36px;
+        }
+        
+        .loadingMessage {
+            font-size: 1rem;
+        }
+    }
+}
+
+.disabled {
+    fill: darkgray;
+    opacity: 0.5;
+    pointer-events: none;
 }

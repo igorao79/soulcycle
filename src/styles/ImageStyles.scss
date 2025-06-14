@@ -88,7 +88,6 @@ img[style*="height: auto"] {
 /* Handle both fetch and upload Cloudinary URLs */
 img[src*="cloudinary.com"] {
   max-width: 100% !important;
-  height: auto !important;
 }
 
 /* Special handling for fetch URLs that might have different dimensions */

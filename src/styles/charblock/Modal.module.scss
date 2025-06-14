@@ -41,11 +41,20 @@
       }
   }
 
-  &__textContent { // Исправлено название
+  &__textContent { 
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 30px;
+      width: 100%;
+      min-height: 600px; // Фиксированная минимальная высота под самый большой контент
+      max-height: 80vh; // Максимальная высота
+      
+      // Для мобильных устройств
+      @media (max-width: 768px) {
+          min-height: 500px;
+          max-height: 85vh;
+      }
   }
 
   &__navigation {
@@ -94,8 +103,27 @@
   }
 
   &__textBlock {
-      min-height: 500px;
+      flex: 1; // Занимает оставшееся пространство
       width: 100%;
+      display: flex;
+      align-items: flex-start; // Выравнивание по верху
+      justify-content: center;
+      min-height: 400px; // Фиксированная минимальная высота для стабильности
+      max-height: 500px; // Максимальная высота
+      overflow-y: auto; // Скролл при переполнении
+      
+      // Убираем различия между десктопом и мобильным
+      @media (min-width: 769px) {
+          overflow-y: auto;
+          max-height: 500px;
+      }
+      
+      // На мобильных устройствах
+      @media (max-width: 768px) {
+          min-height: 300px;
+          max-height: 350px;
+          overflow-y: auto;
+      }
 
       &__textCont {
           display: flex;
@@ -105,6 +133,7 @@
           line-height: 1.6;
           color: var(--text-color); /* Цвет текста */
           transition: opacity 0.3s ease-in-out;
+          width: 100%;
 
           span {
               filter: blur(4px);
@@ -121,6 +150,7 @@
       color: var(--text-color); /* Цвет индикатора страницы */
       position: absolute;
       bottom: 2%;
+      margin-top: auto; // Прижимаем к низу
   }
 }
 
@@ -147,7 +177,12 @@
 @media only screen and (max-width: 760px) {
   .modalOverlay {
       &__textContent {
-          min-height: 700px;
+          min-height: 500px; // Минимальная высота для мобильных
+      }
+      
+      &__textBlock {
+          max-height: 350px; // Ограничиваем высоту только на мобильных
+          overflow-y: auto; // Скролл только на мобильных
       }
   }
 }

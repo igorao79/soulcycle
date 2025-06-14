@@ -33,6 +33,8 @@ const DeveloperMember = React.memo(({ memberId, profileUrl }) => {
                 path={member.src}
                 alt={member.name}
                 className={styles.member__image}
+                width={80}
+                height={80}
                 loading="lazy"
               />
             </Link>
@@ -41,6 +43,8 @@ const DeveloperMember = React.memo(({ memberId, profileUrl }) => {
               path={member.src}
               alt={member.name}
               className={styles.member__image}
+              width={80}
+              height={80}
               loading="lazy"
             />
           )}

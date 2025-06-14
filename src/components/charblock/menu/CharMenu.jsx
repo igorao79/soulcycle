@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
 import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
 import { getAgeWord } from '../../../utils/charblock/checkage.ts';
-import { getCloudinaryUrl } from '../../../utils/cloudinary.jsx';
+import { CloudinaryImage, getCloudinaryUrl } from '../../../utils/cloudinary.jsx';
 import LoreButton from './LoreButton';
 import SplitText from '../SplitText';
 
@@ -23,18 +23,30 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
   return (
     <div id={id} className={styles.menu}>
       <div className={styles.menu__left}>
-        <picture className={styles.menu__left__pic}>
-          <source srcSet={getImagePath('avif')} type="image/avif" />
-          <source srcSet={getImagePath('webp')} type="image/webp" />
-          <img 
-            src={getImagePath('png')} 
-            alt={`icon-${name}`} 
+        {isLocalPath ? (
+          // Для локальных изображений используем старый подход
+          <picture className={styles.menu__left__pic}>
+            <source srcSet={`./pics/char/picsfull/${src}.avif`} type="image/avif" />
+            <source srcSet={`./pics/char/picsfull/${src}.webp`} type="image/webp" />
+            <img 
+              src={`./pics/char/picsfull/${src}.png`} 
+              alt={`icon-${name}`} 
+              loading="lazy"
+              onError={(e) => {
+                console.warn('Ошибка загрузки изображения персонажа:', e.target.src);
+              }}
+            />
+          </picture>
+        ) : (
+          // Для Cloudinary используем новый компонент с правильными размерами
+          <CloudinaryImage
+            path={`${id}full`}
+            alt={`${name} ${surname}`}
+            className={styles.menu__left__pic}
+            style={{ maxWidth: '500px', aspectRatio: '1 / 1' }}
             loading="lazy"
-            onError={(e) => {
-              console.warn('Ошибка загрузки изображения персонажа:', e.target.src);
-            }}
           />
-        </picture>
+        )}
       </div>
       <div className={styles.menu__right}>
         <div className={styles.menu__right__titleblock}>

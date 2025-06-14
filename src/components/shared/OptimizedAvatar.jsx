@@ -16,15 +16,35 @@ const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
   // Определяем имя аватара для Cloudinary
   let avatarName = AVATARS.GUEST;
   
-  // Получаем размер аватара из стилей или параметров
+  // Получаем размер аватара из стилей или параметров - БЕЗ УВЕЛИЧЕНИЯ!
   const getAvatarSize = () => {
     if (style?.width) {
-      return parseInt(style.width, 10) * 2; // Запрашиваем в 2 раза больше для ретина дисплеев
+      return parseInt(style.width, 10); // Используем оригинальный размер
     } else if (style?.height) {
-      return parseInt(style.height, 10) * 2; // Запрашиваем в 2 раза больше для ретина дисплеев
-    } else {
-      return 180; // Значение по умолчанию, достаточно большое для хорошего качества
+      return parseInt(style.height, 10); // Используем оригинальный размер
     }
+    
+    // Определяем размер на основе className
+    if (className) {
+      // Для профильных аватаров
+      if (className.includes('profileAvatar')) {
+        return 180;
+      }
+      // Для аватаров в кнопке авторизации
+      if (className.includes('avatar')) {
+        return 42;
+      }
+      // Для аватаров в модальном окне выбора
+      if (className.includes('avatarImage')) {
+        return 90;
+      }
+      // Для мелких аватаров участников команды
+      if (className.includes('member__image')) {
+        return 80;
+      }
+    }
+    
+    return 40; // Размер по умолчанию
   };
 
   // Проверяем, является ли src строкой и не пустой
@@ -84,14 +104,14 @@ const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
         onError={(e) => {
           console.warn('Ошибка загрузки аватара:', e.target.src);
           // Используем гостевой аватар из Cloudinary в случае ошибки
-          e.target.src = `https://res.cloudinary.com/do9t8preg/image/upload/q_100,dpr_auto,fl_progressive/v1746775570/${AVATARS.GUEST}`;
+          e.target.src = `https://res.cloudinary.com/do9t8preg/image/upload/q_85,dpr_auto,fl_progressive/v1746775570/${AVATARS.GUEST}`;
           e.target.onerror = null;
         }}
       />
     );
   }
   
-  // Используем компонент Avatar из cloudinary.jsx с улучшенными настройками для качества
+  // Используем компонент Avatar из cloudinary.jsx с правильными размерами
   return (
     <Avatar
       avatar={avatarName}

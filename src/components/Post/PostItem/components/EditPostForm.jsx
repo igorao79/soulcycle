@@ -78,23 +78,12 @@ const EditPostForm = ({ post, onSave, onCancel, isSubmitting }) => {
     
     setOptimizedImageUrls(newOptimizedUrls);
     
-    // Reset loading states
+    // Reset loading states - начинаем с загрузки
     const loadingStates = {};
     imageUrls.forEach((_, index) => {
       loadingStates[index] = true;
     });
     setImagePreviewLoading(loadingStates);
-    
-    // Set a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      const resetLoadingStates = {};
-      imageUrls.forEach((_, index) => {
-        resetLoadingStates[index] = false;
-      });
-      setImagePreviewLoading(resetLoadingStates);
-    }, 5000);
-    
-    return () => clearTimeout(timeoutId);
   }, [imageUrls]);
 
   // Handle image load events

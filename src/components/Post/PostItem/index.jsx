@@ -116,7 +116,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // Update relative time every minute
+  // Update relative time every 5 minutes instead of every minute
   useEffect(() => {
     const updateTime = () => {
       setTimeAgo(formatRelativeTime(post.created_at, isMobile));
@@ -124,7 +124,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
     
     updateTime();
     
-    const intervalId = setInterval(updateTime, 60000); // every minute
+    const intervalId = setInterval(updateTime, 300000); // every 5 minutes for better performance
     
     return () => clearInterval(intervalId);
   }, [post.created_at, isMobile]);

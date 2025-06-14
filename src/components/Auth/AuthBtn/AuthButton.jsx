@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import styles from './AuthButton.module.scss';
 import perkStyles from '../../../styles/Perks.module.scss';
 import AuthModal from '../AuthModal';
 import { ThemeContext } from '../../theme/ThemeContext';
 import { useAuthButtonState } from './hooks/useAuthButtonState';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // Импортируем подкомпоненты
 import LoginButton from './components/LoginButton';
@@ -15,11 +17,10 @@ import UserMenu from './components/UserMenu';
  */
 const AuthButton = () => {
   const { theme } = useContext(ThemeContext);
+  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
   
   const {
-    user,
     displayName,
-    isAuthenticated,
     isAdmin,
     isModalOpen,
     userMenuOpen,
@@ -32,6 +33,29 @@ const AuthButton = () => {
     toggleUserMenu,
     setUserMenuOpen
   } = useAuthButtonState(perkStyles);
+
+  const [showLoader, setShowLoader] = useState(true);
+
+  // Показываем лоадер первые 1.5 секунды или пока идет загрузка авторизации
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoader(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Если показываем лоадер или идет загрузка авторизации
+  if (showLoader || authLoading) {
+    return (
+      <div className={styles.profileButton}>
+        <div className={styles.loader}>
+          <div className={styles.loaderSpinner}></div>
+          <span className={styles.loaderText}>Проверка...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.authContainer}>

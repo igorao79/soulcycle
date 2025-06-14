@@ -97,8 +97,73 @@
             font-size: clamp(2rem, 2vw, 3rem);
             font-family: var(--font-bold);
 
-            &__link a {
-                color: var(--text-color);
+            &__link {
+                position: relative;
+                transition: all 0.3s ease;
+                
+                a {
+                    color: var(--text-color);
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    
+                    &:hover {
+                        color: var(--accent);
+                        background: var(--bg-highlight);
+                    }
+                }
+                
+                // Стили для активного пункта
+                &.active {
+                    a {
+                        background: var(--text-color);
+                        color: var(--background-color);
+                        font-weight: 600;
+                        border: 2px solid var(--text-color);
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                        
+                        // Темная тема
+                        [data-theme="dark"] & {
+                            background: #ffffff;
+                            color: #000000;
+                            border: 2px solid #ffffff;
+                            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+                        }
+                        
+                        // Светлая тема
+                        [data-theme="light"] & {
+                            background: #000000;
+                            color: #ffffff;
+                            border: 2px solid #000000;
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+                        }
+                        
+                        &::after {
+                            display: none; // Убираем подчеркивание для активного состояния
+                        }
+                        
+                        &:hover {
+                            background: var(--text-secondary);
+                            color: var(--background-color);
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                            
+                            [data-theme="dark"] & {
+                                background: #e0e0e0;
+                                color: #000000;
+                                box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+                            }
+                            
+                            [data-theme="light"] & {
+                                background: #333333;
+                                color: #ffffff;
+                                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+                            }
+                        }
+                    }
+                }
             }
         }
         
@@ -158,21 +223,25 @@
             position: fixed;
             top: 0;
             right: -100%;
-            width: 80%;
-            max-width: 300px;
+            width: 100vw;
             height: 100vh;
             background: var(--bg-primary);
             z-index: 1000;
             padding: 80px 20px 20px;
             transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            border-left: 1px solid var(--border);
+            overflow: hidden; // Блокируем скролл внутри меню
             
             // Улучшаем контрастность в темной теме
             [data-theme="dark"] & {
                 background: rgb(30, 30, 35);
-                border-left: 1px solid rgba(255, 255, 255, 0.1);
                 box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            // Улучшаем контрастность в светлой теме
+            [data-theme="light"] & {
+                background: rgb(255, 255, 255);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
             }
 
             &.open {
@@ -183,22 +252,84 @@
                 list-style: none;
                 padding: 0;
                 margin: 0;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 20px;
+                padding-top: 50px;
 
                 &__item {
-                    margin-bottom: 15px;
+                    width: 100%;
+                    max-width: 300px;
 
                     a {
                         display: block;
-                        padding: 12px 15px;
+                        padding: 20px 25px;
                         color: var(--text-primary);
                         text-decoration: none;
-                        font-size: 16px;
-                        border-radius: 8px;
-                        transition: all 0.2s ease;
+                        font-size: 20px;
+                        font-weight: 500;
+                        border-radius: 12px;
+                        transition: all 0.3s ease;
+                        position: relative;
+                        text-align: center;
 
                         &:hover {
                             background: var(--bg-highlight);
                             color: var(--accent);
+                            transform: translateY(-2px);
+                        }
+                    }
+                    
+                    // Стили для активного пункта в мобильном меню
+                    &.active {
+                        a {
+                            background: var(--text-color);
+                            color: var(--background-color);
+                            font-weight: 600;
+                            border: 2px solid var(--text-color);
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                            
+                            // Темная тема
+                            [data-theme="dark"] & {
+                                background: #ffffff;
+                                color: #000000;
+                                border: 2px solid #ffffff;
+                                box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+                            }
+                            
+                            // Светлая тема
+                            [data-theme="light"] & {
+                                background: #000000;
+                                color: #ffffff;
+                                border: 2px solid #000000;
+                                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+                            }
+                            
+                            &::before {
+                                display: none; // Убираем полоску слева для активного состояния
+                            }
+                            
+                            &:hover {
+                                background: var(--text-secondary);
+                                color: var(--background-color);
+                                transform: translateY(-2px);
+                                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                                
+                                [data-theme="dark"] & {
+                                    background: #e0e0e0;
+                                    color: #000000;
+                                    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+                                }
+                                
+                                [data-theme="light"] & {
+                                    background: #333333;
+                                    color: #ffffff;
+                                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+                                }
+                            }
                         }
                     }
                 }

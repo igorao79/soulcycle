@@ -16,12 +16,20 @@ import FeedbackForm from './Feedback/FeedbackForm';
 function HomePage() {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
   
   const isAdmin = user && (
     user.email === 'igoraor79@gmail.com' || 
     user.perks?.includes('admin') || 
     user.activePerk === 'admin'
   );
+
+  // Функция для определения активности пункта меню
+  const isActiveLink = (path) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   // Закрываем меню при клике вне его
   useEffect(() => {
@@ -48,12 +56,25 @@ function HomePage() {
   }, [menuOpen]);
   
   // Закрываем меню при изменении маршрута
-  const location = useLocation();
   useEffect(() => {
     if (menuOpen) {
       setMenuOpen(false);
     }
   }, [location.pathname]);
+
+  // Блокируем скролл body при открытом меню
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Очищаем при размонтировании
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [menuOpen]);
 
   // Закрыть меню при клике по ссылке
   const handleNavLinkClick = () => {
@@ -74,13 +95,13 @@ function HomePage() {
       <nav className={styles.main__nav}>
         {/* Стандартная навигация для десктопа */}
         <ul className={styles.main__nav__perexod}>
-          <li className={styles.main__nav__perexod__link}>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
             <Link to="/">Главная</Link>
           </li>
-          <li className={styles.main__nav__perexod__link}>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/characters') ? styles.active : ''}`}>
             <Link to="/characters">Персонажи</Link>
           </li>
-          <li className={styles.main__nav__perexod__link}>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/about') ? styles.active : ''}`}>
             <Link to="/about">О нас</Link>
           </li>
         </ul>
@@ -101,13 +122,13 @@ function HomePage() {
         {/* Мобильное меню (выпадающее) */}
         <div className={`${styles.main__nav__mobile} ${menuOpen ? styles.open : ''}`}>
           <ul className={styles.main__nav__mobile__list}>
-            <li className={styles.main__nav__mobile__list__item}>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/') ? styles.active : ''}`}>
               <Link to="/" onClick={handleNavLinkClick}>Главная</Link>
             </li>
-            <li className={styles.main__nav__mobile__list__item}>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/characters') ? styles.active : ''}`}>
               <Link to="/characters" onClick={handleNavLinkClick}>Персонажи</Link>
             </li>
-            <li className={styles.main__nav__mobile__list__item}>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/about') ? styles.active : ''}`}>
               <Link to="/about" onClick={handleNavLinkClick}>О нас</Link>
             </li>
           </ul>

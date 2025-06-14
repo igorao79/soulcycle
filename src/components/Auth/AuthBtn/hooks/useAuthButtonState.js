@@ -70,7 +70,7 @@ export const useAuthButtonState = (perkStyles) => {
     }
   }, [user, getActivePerkClass, currentAvatar]);
   
-  // Проверка localStorage для обновления аватара
+  // Проверка localStorage для обновления аватара - ТОЛЬКО при изменениях
   useEffect(() => {
     const checkLocalStorageAvatar = () => {
       try {
@@ -88,11 +88,9 @@ export const useAuthButtonState = (perkStyles) => {
       }
     };
     
-    // Проверяем сразу при монтировании и устанавливаем интервал
+    // Проверяем только при монтировании - убираем излишние интервалы
     checkLocalStorageAvatar();
-    const intervalId = setInterval(checkLocalStorageAvatar, 1000);
-    return () => clearInterval(intervalId);
-  }, [currentAvatar]);
+  }, [currentAvatar]); // Зависимость только от currentAvatar
   
   // Подписка на события обновления пользователя
   useEffect(() => {

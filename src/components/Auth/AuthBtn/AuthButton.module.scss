@@ -79,10 +79,11 @@
   transition: all 0.3s;
   backdrop-filter: blur(4px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  min-height: 54px;
+  min-width: 120px;
   
   &:hover {
     background: rgba(60, 60, 65, 0.8);
-    transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   }
   
@@ -113,13 +114,14 @@
 }
 
 .avatar {
-  width: 42px;
-  height: 42px;
+  width: 42px !important;
+  height: 42px !important;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 10px;
   border: 2px solid rgba(150, 150, 150, 0.5);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
   
   // Поддержка темной темы
   [data-theme="light"] & {
@@ -128,13 +130,13 @@
 }
 
 .username {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #e0e0e0;
-  max-width: 150px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-right: 5px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
   
   @media (max-width: 600px) {
     max-width: 100px;
@@ -144,6 +146,11 @@
   // Поддержка светлой темы
   [data-theme="light"] & {
     color: #333;
+  }
+  
+  // Поддержка темной темы
+  [data-theme="dark"] & {
+    color: #e0e0e0;
   }
   
   // Используем стили перков для соответствующих классов
@@ -161,6 +168,47 @@
     color: var(--admin-color) !important;
     text-shadow: 0 0 5px var(--admin-shadow-color);
   }
+}
+
+// Стили для лоадера
+.loader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.loaderSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--accent, #6c63ff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  [data-theme="light"] & {
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top: 2px solid var(--accent, #6c63ff);
+  }
+}
+
+.loaderText {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  
+  [data-theme="light"] & {
+    color: #666;
+  }
+  
+  [data-theme="dark"] & {
+    color: #ccc;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 // Выпадающее меню пользователя
@@ -537,6 +585,7 @@
   
   .profileButton {
     padding: 4px 10px 4px 4px;
+    // margin-bottom: 10px;
   }
   
   .userMenu {
