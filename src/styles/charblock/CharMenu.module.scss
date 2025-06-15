@@ -18,28 +18,38 @@
 
     &__left {
         max-width: 500px;
-        min-height: 100px;
+        min-height: 270px;
         display: flex;
         flex-direction: column;
         gap: 100px;
         align-items: center;
         justify-content: center;
         
-        // Добавляем aspect-ratio для стабильных размеров
-        aspect-ratio: 1 / 1;  // Например, если предполагаемые пропорции таковы
+
     
         &__pic {
             max-width: 500px;
             min-height: 570px;
+            // height: 570px; // Убираем фиксированную высоту
     
-            // Устанавливаем явные размеры или aspect-ratio для стабильности
-            aspect-ratio: 1 / 1;
+
     
             & img {
                 width: 100%;
                 height: 100%;
-                object-fit: contain;
                 display: block;  // Убирает возможные отступы от inline-элемента
+            }
+            
+            // Для picture элементов
+            & picture {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            
+            @media only screen and (max-width: 760px) {
+                min-height: 370px;
+                width: 320px;
             }
         }
     }
@@ -167,19 +177,22 @@
         width: 100%;
         height: 100%;
         background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob.svg');
-        background-repeat: no-repeat;
+        background-repeat: repeat;
         background-position: center;
-        background-size: cover; // Сохраняем пропорции
+        background-size: 200px 200px; // Устанавливаем размер для паттерна
         z-index: -1;
         filter: blur(1.5px);
     }
 
     [data-theme="dark"] &::before {
         content: '';
-        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob.svg'); /* Темная тема */
+        background-image: url('https://res.cloudinary.com/do9t8preg/image/upload/v1746774915/akitob-black.svg'); /* Темная тема */
         position: absolute;
         width: 100%;
         height: 100%;
+        background-repeat: repeat;
+        background-position: center;
+        background-size: 200px 200px; // Устанавливаем размер для паттерна
         z-index: -1;
         filter: blur(1.5px);
     }

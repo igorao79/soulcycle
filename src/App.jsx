@@ -10,6 +10,8 @@ import VersionChecker from './utils/VersionChecker';
 
 // Глобальный кэш для определения поддержки форматов
 let formatSupportCache = null;
+// Кэш для фоновых изображений
+let backgroundCache = {};
 
 // Функция для единоразового определения поддерживаемого формата
 const detectBestFormat = async () => {
@@ -71,6 +73,43 @@ const detectBestFormat = async () => {
     }
 };
 
+// Функция для предзагрузки фоновых изображений
+const preloadBackgrounds = async () => {
+    const format = formatSupportCache || 'jpg';
+    
+    const backgrounds = [
+        { name: 'background', theme: 'light' },
+        { name: 'backgroundblack', theme: 'dark' }
+    ];
+    
+    const preloadPromises = backgrounds.map(bg => {
+        const cacheKey = `${bg.name}_${format}`;
+        
+        if (!backgroundCache[cacheKey]) {
+            return new Promise((resolve) => {
+                const imageUrl = getCloudinaryUrl(bg.name, { format, quality: 90 });
+                
+                // Предзагружаем изображение
+                const img = new Image();
+                img.onload = () => {
+                    backgroundCache[cacheKey] = imageUrl;
+                    console.log(`Background preloaded: ${bg.theme} theme (${format})`);
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.warn(`Failed to preload background: ${bg.theme} theme`);
+                    resolve(); // Продолжаем даже при ошибке
+                };
+                img.src = imageUrl;
+            });
+        }
+        return Promise.resolve();
+    });
+    
+    await Promise.all(preloadPromises);
+    console.log('All backgrounds preloaded');
+};
+
 function App() {
     const { theme } = useContext(ThemeContext);
     const { refreshUser } = useAuth();
@@ -92,6 +131,8 @@ function App() {
     useEffect(() => {
         detectBestFormat().then(() => {
             console.log('Image format support detected:', formatSupportCache);
+            // После определения формата предзагружаем фоны
+            preloadBackgrounds();
         });
     }, []); // Пустой массив зависимостей - выполняется только один раз
     
@@ -99,20 +140,39 @@ function App() {
     useEffect(() => {
         const setCloudinaryBackground = async () => {
             const backgroundName = theme === 'dark' ? 'backgroundblack' : 'background';
-            
-            // Используем кэшированный формат или fallback
             const format = formatSupportCache || 'jpg';
-
-            // Получаем URL изображения в выбранном формате
-            const imageUrl = getCloudinaryUrl(backgroundName, { format, quality: 90 });
+            const cacheKey = `${backgroundName}_${format}`;
             
-            // Устанавливаем CSS-переменную с выбранным форматом
+            // Используем кешированный URL если доступен
+            let imageUrl = backgroundCache[cacheKey];
+            
+            if (!imageUrl) {
+                // Если не в кеше, создаем URL и добавляем в кеш
+                imageUrl = getCloudinaryUrl(backgroundName, { format, quality: 90 });
+                backgroundCache[cacheKey] = imageUrl;
+            }
+            
+            // Устанавливаем CSS-переменную с кешированным URL
             document.documentElement.style.setProperty('--page-bg', `url('${imageUrl}')`);
-            console.log(`Background set to ${format} format:`, imageUrl);
+            console.log(`Background set from cache: ${theme} theme (${format})`);
         };
         
-        setCloudinaryBackground();
-    }, [theme]); // И теперь не зависит от определения формата
+        // Ждем определения формата перед установкой фона
+        if (formatSupportCache) {
+            setCloudinaryBackground();
+        } else {
+            // Если формат еще не определен, ждем его определения
+            const checkFormat = setInterval(() => {
+                if (formatSupportCache) {
+                    setCloudinaryBackground();
+                    clearInterval(checkFormat);
+                }
+            }, 100);
+            
+            // Очищаем интервал через 5 секунд на всякий случай
+            setTimeout(() => clearInterval(checkFormat), 5000);
+        }
+    }, [theme]);
 
     return (
         <Router>

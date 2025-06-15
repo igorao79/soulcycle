@@ -110,8 +110,8 @@
                     position: relative;
                     
                     &:hover {
-                        color: var(--accent);
-                        background: var(--bg-highlight);
+                        background: var(--text-color);
+                        color: var(--background-color);
                     }
                 }
                 

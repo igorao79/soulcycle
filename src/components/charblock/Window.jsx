@@ -61,6 +61,7 @@ function Window() {
   const handleIconClick = useCallback((icon) => {
     if (isSwitching) return; // Игнорируем повторные клики
 
+    console.log('Icon clicked:', icon, 'Current selected:', selectedIcon);
     setIsSwitching(true);
     setDirection(selectedIcon ? (icons.indexOf(icon) > icons.indexOf(selectedIcon) ? 1 : -1) : 1);
     setSelectedIcon(icon);
@@ -68,32 +69,40 @@ function Window() {
     setTimeout(() => setIsSwitching(false), 300); // Разблокируем через 300 мс
   }, [isSwitching, selectedIcon]);
 
+  console.log('Window render:', { selectedIcon, loading, error, characters: !!characters });
+
   return (
     <div className={styles.window}>
       <IconCarousel icons={icons} onIconClick={handleIconClick} />
+      
+      {/* Сообщение "Выберите персонажа" когда никто не выбран */}
+      {!selectedIcon && !loading && !error && (
+        <div className={styles.window__message}>
+          <h2>Выберите персонажа</h2>
+        </div>
+      )}
+      
       {loading ? (
         <div className={styles.loading}>Загрузка...</div>
       ) : error ? (
         <div className={styles.error}>
           Ошибка загрузки данных. {!loading && <button onClick={refresh}>Повторить</button>}
         </div>
-      ) : (
-        <AnimatedContent selectedIcon={selectedIcon} direction={direction}>
-          {selectedIcon && characters && characters[selectedIcon] && (
-            <CharMenu
-              id={selectedIcon}
-              src={characters[selectedIcon]?.src}
-              name={characters[selectedIcon]?.name}
-              surname={characters[selectedIcon]?.surname}
-              age={characters[selectedIcon]?.age}
-              height={characters[selectedIcon]?.height}
-              bd={characters[selectedIcon]?.bd}
-              lore={formatLore(characters[selectedIcon]?.lore)}
-              characters={characters} // Передаем все данные о персонажах, чтобы избежать повторных запросов
-            />
-          )}
+      ) : selectedIcon && characters && characters[selectedIcon] ? (
+        <AnimatedContent selectedIcon={selectedIcon} direction={direction} showMessage={false}>
+          <CharMenu
+            id={selectedIcon}
+            src={characters[selectedIcon]?.src}
+            name={characters[selectedIcon]?.name}
+            surname={characters[selectedIcon]?.surname}
+            age={characters[selectedIcon]?.age}
+            height={characters[selectedIcon]?.height}
+            bd={characters[selectedIcon]?.bd}
+            lore={formatLore(characters[selectedIcon]?.lore)}
+            characters={characters}
+          />
         </AnimatedContent>
-      )}
+      ) : null}
     </div>
   );
 }

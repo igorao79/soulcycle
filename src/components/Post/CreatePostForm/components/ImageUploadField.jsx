@@ -322,11 +322,6 @@ const ImageUploadField = ({ imageUrls, setImageUrls, isSubmitting, setIsImageUpl
         </div>
       )}
       
-      {isUploading && (
-        <div className={styles.uploadingMessage}>
-          Загрузка изображений...
-        </div>
-      )}
       
       {imageUrls.length > 0 && (
         <div className={styles.imageGalleryContainer}>

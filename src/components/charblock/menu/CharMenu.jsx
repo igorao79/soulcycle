@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
 import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
 import { getAgeWord } from '../../../utils/charblock/checkage.ts';
@@ -44,7 +44,10 @@ function CharMenu({ id, src, name, surname = '', age = '?', height, bd = '?', lo
             alt={`${name} ${surname}`}
             className={styles.menu__left__pic}
             style={{ maxWidth: '500px', aspectRatio: '1 / 1' }}
-            loading="lazy"
+            loading="eager"
+            priority={true}
+            width={500}
+            height={500}
           />
         )}
       </div>

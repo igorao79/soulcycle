@@ -7,17 +7,36 @@ import React, { useState } from 'react';
 const CLOUDINARY_CLOUD_NAME = 'do9t8preg';
 const CLOUDINARY_API_KEY = '417482147356551';
 
-// Глобальный кеш для загруженных изображений
+// Глобальный кэш изображений
 const imageCache = new Set();
 
-// Функция для добавления изображения в кеш
-const addToCache = (src) => {
-  imageCache.add(src);
+// Функции для работы с кэшем
+export const addToCache = (key) => {
+  imageCache.add(key);
 };
 
-// Функция для проверки наличия изображения в кеше
-const isInCache = (src) => {
-  return imageCache.has(src);
+export const isInCache = (key) => {
+  return imageCache.has(key);
+};
+
+// Кэш для загруженных изображений в браузере
+const browserImageCache = new Map();
+
+// Функция для проверки загрузки изображения в браузере
+const isImageLoadedInBrowser = (src) => {
+  if (browserImageCache.has(src)) {
+    return browserImageCache.get(src);
+  }
+  
+  // Создаем новое изображение для проверки
+  const img = new Image();
+  img.src = src;
+  
+  // Если изображение уже загружено (из кеша браузера)
+  const isLoaded = img.complete && img.naturalHeight !== 0;
+  browserImageCache.set(src, isLoaded);
+  
+  return isLoaded;
 };
 
 // Предопределенные аватары
@@ -269,6 +288,7 @@ export const Avatar = ({
  * @param {Function} props.onLoad - Функция, вызываемая при загрузке изображения
  * @param {Function} props.onError - Функция, вызываемая при ошибке загрузки
  * @param {Function} props.onClick - Функция клика
+ * @param {boolean} props.priority - Новый параметр для приоритетных изображений
  */
 export const CloudinaryImage = ({
   path,
@@ -280,94 +300,150 @@ export const CloudinaryImage = ({
   loading = 'lazy',
   onLoad,
   onError,
-  onClick
+  onClick,
+  priority = false
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
+  // Создаем уникальный ключ для кеширования
+  const cacheKey = `${path}_${width || 'auto'}_${height || 'auto'}`;
+  
   // Базовые опции для изображений
-  const baseOptions = { width, height };
-  
-  // Создаем ключи для кеширования на основе пути и размеров
-  const cacheKey = `img_${path}_${width || 'auto'}_${height || 'auto'}`;
-  
-  // Форсируем AVIF для главного формата с высшим приоритетом
-  const avifSrc = getCloudinaryUrl(path, { 
-    ...baseOptions, 
-    format: 'avif',
-    quality: 85, // Высокое качество для AVIF
-    fetch_format: 'avif'  // Явно запрашиваем AVIF
-  });
-  
-  const webpSrc = getCloudinaryUrl(path, { 
-    ...baseOptions, 
-    format: 'webp',
-    quality: 85 
-  });
-  
-  const pngSrc = getCloudinaryUrl(path, { 
-    ...baseOptions, 
-    format: 'png' 
-  });
+  const baseOptions = { 
+    width, 
+    height, 
+    quality: priority ? 95 : 85,
+    dpr: "auto",
+    flags: "progressive"
+  };
 
-  // Проверяем глобальный кеш загруженных изображений при монтировании
+  // Получаем URL изображения
+  const imageUrl = getCloudinaryUrl(path, { ...baseOptions, format: 'png' });
+  
+  // Проверяем, загружено ли изображение
+  const isImageCached = isInCache(cacheKey);
+  const isBrowserCached = isImageLoadedInBrowser(imageUrl);
+  const initialLoaded = isImageCached || isBrowserCached;
+  
+  const [isLoading, setIsLoading] = useState(!initialLoaded);
+  const [hasError, setHasError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(initialLoaded);
+  const [isVisible, setIsVisible] = useState(priority || loading === 'eager');
+  const imgRef = React.useRef(null);
+
+  // Intersection Observer для lazy loading
   React.useEffect(() => {
-    // Проверяем только глобальный кеш, без дополнительных запросов
-    if (isInCache(pngSrc)) {
-      console.log('Изображение найдено в глобальном кеше:', path);
-      setIsLoading(false);
-      setImageLoaded(true);
-      setHasError(false);
+    if (priority || loading === 'eager' || isVisible || initialLoaded) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { 
+        rootMargin: '50px',
+        threshold: 0.1 
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
     }
-    // Если не в кеше, изображение загрузится через picture элемент
-  }, [path, pngSrc]);
 
-  const handleLoad = (e) => {
-    console.log('Изображение успешно загружено:', path);
-    addToCache(e.target.src); // Добавляем в глобальный кеш
+    return () => observer.disconnect();
+  }, [priority, loading, isVisible, initialLoaded]);
+
+  const handleLoad = React.useCallback((e) => {
     setIsLoading(false);
-    setHasError(false);
     setImageLoaded(true);
-    if (onLoad) onLoad(e);
-  };
+    addToCache(cacheKey);
+    browserImageCache.set(imageUrl, true);
+    
+    if (onLoad) {
+      onLoad(e);
+    }
+  }, [cacheKey, imageUrl, onLoad]);
 
-  const handleError = (e) => {
-    console.warn('Ошибка загрузки изображения:', e.target.src);
-    setIsLoading(false);
+  const handleError = React.useCallback((e) => {
+    console.warn(`Ошибка загрузки изображения: ${path}`, e);
     setHasError(true);
-    setImageLoaded(false);
-    if (onError) onError(e);
-  };
+    setIsLoading(false);
+    browserImageCache.set(imageUrl, false);
+    
+    if (onError) {
+      onError(e);
+    }
+  }, [path, imageUrl, onError]);
+
+  // Если изображение не видно и не приоритетное, показываем placeholder
+  if (!isVisible && !initialLoaded) {
+    return (
+      <div 
+        ref={imgRef}
+        className={className}
+        style={{
+          ...style,
+          width: width || 'auto',
+          height: height || 'auto',
+          backgroundColor: 'var(--bg-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      />
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div 
+        className={className}
+        style={{
+          ...style,
+          width: width || 'auto',
+          height: height || 'auto',
+          backgroundColor: 'var(--bg-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--text-secondary)',
+          fontSize: '12px'
+        }}
+      >
+        Ошибка загрузки
+      </div>
+    );
+  }
 
   return (
-    <picture>
-      {/* AVIF формат - наиболее оптимизированный */}
+    <picture 
+      className={className}
+      style={style}
+      onClick={onClick}
+      ref={imgRef}
+    >
       <source 
-        srcSet={avifSrc}
+        srcSet={getCloudinaryUrl(path, { ...baseOptions, format: 'avif' })} 
         type="image/avif" 
-        key={`avif_${cacheKey}`}
       />
-      {/* WebP формат - хорошо поддерживается в большинстве браузеров */}
       <source 
-        srcSet={webpSrc}
+        srcSet={getCloudinaryUrl(path, { ...baseOptions, format: 'webp' })} 
         type="image/webp" 
-        key={`webp_${cacheKey}`}
       />
-      {/* PNG формат - запасной вариант для всех браузеров */}
       <img 
-        src={pngSrc}
-        alt={alt || "Изображение"} 
-        className={className}
-        style={style}
-        width={width}
-        height={height}
-        loading={loading}
-        crossOrigin="anonymous"
+        src={imageUrl}
+        alt={alt || `Изображение ${path}`} 
+        loading={priority ? 'eager' : loading}
         onLoad={handleLoad}
         onError={handleError}
-        onClick={onClick}
-        key={`png_${cacheKey}`}
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: imageLoaded ? 1 : 0,
+          transition: 'opacity 0.3s ease'
+        }}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : 'auto'}
       />
     </picture>
   );
