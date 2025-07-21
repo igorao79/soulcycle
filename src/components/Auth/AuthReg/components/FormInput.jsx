@@ -17,7 +17,8 @@ const FormInput = ({
   label,
   maxLength,
   required = false,
-  showCharCounter = false
+  showCharCounter = false,
+  autoComplete
 }) => {
   return (
     <motion.div className={styles.formGroup} variants={fieldVariants}>
@@ -40,6 +41,7 @@ const FormInput = ({
             placeholder={placeholder}
             required={required}
             maxLength={maxLength}
+            autoComplete={autoComplete}
           />
         </div>
       </motion.div>

@@ -233,6 +233,36 @@
 }
 
 // Media queries for responsiveness
+@media (max-width: 480px) {
+  .backdrop {
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .modal {
+    width: calc(100% - 20px);
+    max-width: calc(100vw - 20px);
+    margin: 0;
+    max-height: calc(100vh - 20px);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .modalContent {
+    padding: 20px 16px;
+    overflow-y: auto;
+    max-height: calc(100vh - 60px);
+  }
+  
+  .closeButton {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+}
+
 @media (max-width: 600px) {
   .backdrop {
     align-items: center; // Center vertically on mobile
@@ -245,10 +275,12 @@
     max-height: min(100vh - 40px, 600px); // Account for padding
     border-radius: 12px;
     margin: 0 10px;
+    max-width: calc(100vw - 20px);
+    overflow: hidden;
   }
   
   .modalContent {
     padding: 24px 20px;
-    overflow: hidden;
+    overflow-y: auto;
   }
 } 

@@ -378,8 +378,16 @@ export const AuthProvider = ({ children }) => {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      setIsAuthenticated(false);
+      setDisplayName('');
+      previousDisplayNameRef.current = '';
+      setBanInfo(null);
+      localStorage.removeItem('user');
       setLoading(false);
-      window.location.href = '/';
+      
+      // Простое решение - остаемся на текущей странице и обновляем UI
+      // React автоматически перерендерит компоненты с новым состоянием
+      console.log('Пользователь вышел из системы');
     } catch (error) {
       console.error('Error logging out:', error);
     }

@@ -5,6 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/pics/logo/sclogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Content Security Policy для разрешения загрузки ресурсов -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://res.cloudinary.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https:; media-src 'self' blob: https:;">
+    
     <!-- DNS prefetch и preconnect для оптимизации -->
     <link rel="dns-prefetch" href="//gist.githubusercontent.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">

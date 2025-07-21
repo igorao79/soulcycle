@@ -15,7 +15,8 @@ const FormInput = ({
   placeholder,
   icon: Icon,
   label,
-  required = false
+  required = false,
+  autoComplete
 }) => {
   return (
     <motion.div className={styles.formGroup} variants={fieldVariants}>
@@ -37,6 +38,7 @@ const FormInput = ({
             disabled={disabled}
             placeholder={placeholder}
             required={required}
+            autoComplete={autoComplete}
           />
         </div>
       </motion.div>

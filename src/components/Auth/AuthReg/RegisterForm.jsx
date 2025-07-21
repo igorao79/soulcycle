@@ -53,6 +53,7 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin }) => {
           maxLength={12}
           required
           showCharCounter
+          autoComplete="username"
         />
         
         {/* Поле email */}
@@ -66,6 +67,7 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin }) => {
           icon={FiMail}
           label="Email:"
           required
+          autoComplete="email"
         />
         
         {/* Поле пароля */}
@@ -81,6 +83,7 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin }) => {
           maxLength={15}
           required
           showCharCounter
+          autoComplete="new-password"
         />
         
         {/* Поле подтверждения пароля */}
@@ -95,6 +98,7 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin }) => {
           label="Подтвердите пароль:"
           maxLength={15}
           required
+          autoComplete="new-password"
         />
         
         {/* Кнопка отправки формы */}

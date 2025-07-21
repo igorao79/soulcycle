@@ -42,9 +42,7 @@ const AuthModal = ({ isOpen, onClose }) => {
   
   // Обработчик закрытия при успешной авторизации
   const handleSuccess = () => {
-    setTimeout(() => {
-      onClose();
-    }, 500);
+    onClose();
   };
   
   // Обработчик переключения на форму логина 

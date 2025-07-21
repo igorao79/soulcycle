@@ -369,6 +369,43 @@
 }
 
 // Media queries for responsiveness
+@media (max-width: 480px) {
+  .formContainer {
+    padding: 0 10px;
+    
+    h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+    
+    input {
+      padding: 12px 12px 12px 36px;
+      font-size: 16px; // Prevents zoom on iOS
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0; // Allows input to shrink
+    }
+    
+    .inputWrapper {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .inputIconInside {
+      left: 10px;
+    }
+  }
+  
+  .submitButton {
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .formContainer h2 {
     font-size: 24px;
@@ -380,6 +417,22 @@
     
     input {
       padding: 12px 12px 12px 36px;
+      font-size: 16px; // Prevents zoom on iOS
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .inputWrapper {
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
   }
+}
+
+// Ensure consistent box-sizing
+.formGroup input,
+.formGroup .inputWrapper {
+  box-sizing: border-box;
+  max-width: 100%;
 } 

@@ -115,10 +115,7 @@ export const useRegisterForm = (onSuccess) => {
       
       console.log('Регистрация успешна:', response);
       
-      // Ждем момент, чтобы сессия Supabase полностью установилась
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // После успешной регистрации вызываем колбэк
+      // После успешной регистрации вызываем колбэк сразу
       if (onSuccess) {
         onSuccess();
       }

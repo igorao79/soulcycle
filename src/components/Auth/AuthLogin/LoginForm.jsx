@@ -48,6 +48,7 @@ const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
           icon={FiMail}
           label="Email:"
           required
+          autoComplete="email"
         />
         
         {/* Поле пароля */}
@@ -61,6 +62,7 @@ const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
           icon={FiLock}
           label="Пароль:"
           required
+          autoComplete="current-password"
         />
         
         {/* Кнопка отправки формы */}
