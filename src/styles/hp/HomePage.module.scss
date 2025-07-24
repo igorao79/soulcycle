@@ -43,6 +43,23 @@
             );
         }
     }
+}
+
+// Стили для основного контента с учетом sticky header
+.mainContent {
+    padding-top: 100px; // Отступ для sticky header
+    flex: 1;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    
+    @media (max-width: 768px) {
+        padding-top: 85px; // Меньший отступ на мобильных устройствах
+    }
+    
+    @media (max-width: 480px) {
+        padding-top: 75px;
+    }
 
     &__header {
         max-width: 200px;
