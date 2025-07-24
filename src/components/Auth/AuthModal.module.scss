@@ -280,7 +280,7 @@
   }
   
   .modalContent {
-    padding: 24px 20px;
+    padding: 24px 16px; // Меньше отступы по бокам для мобильных
     overflow-y: auto;
   }
 } 

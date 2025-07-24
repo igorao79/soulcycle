@@ -4,8 +4,8 @@
 
 // Анимация для полей ввода при фокусе
 export const inputVariants = {
-  focus: { scale: 1.02, x: 5 },
-  blur: { scale: 1, x: 0 }
+  focus: { scale: 1.02 },
+  blur: { scale: 1 }
 };
 
 // Анимация для кнопок

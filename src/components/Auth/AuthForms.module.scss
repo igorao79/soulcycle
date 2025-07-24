@@ -142,10 +142,20 @@
   color: var(--text-primary);
   box-sizing: border-box;
   padding: 0;
+  align-items: center; // Центрируем все элементы
   
-  // Центрируем только заголовки, но не ограничиваем ширину полей
+  // Ограничиваем ширину формы для лучшего отображения
+  form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Заголовки должны быть центрированы
   > h2 {
-    align-self: center;
+    text-align: center;
+    width: 100%;
   }
 }
 
@@ -198,6 +208,7 @@
     position: relative;
     width: 100%;
     box-sizing: border-box;
+    display: flex; // Используем flex для лучшего контроля
   }
   
   .inputIconInside {
@@ -218,7 +229,6 @@
   
   input {
     width: 100%;
-    max-width: 100%;
     padding: 14px 14px 14px 40px;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -229,7 +239,7 @@
     position: relative;
     z-index: 25;
     box-sizing: border-box;
-    min-width: 0; // Позволяет элементу сжиматься
+    flex: 1; // Занимает всё доступное пространство
     
     &:focus {
       outline: none;
@@ -329,6 +339,7 @@
   align-items: center;
   margin-top: 10px;
   width: 100%;
+  max-width: 400px; // Соответствует ширине формы
   box-sizing: border-box;
   
   p {
@@ -398,9 +409,11 @@
 // Media queries for responsiveness
 @media (max-width: 480px) {
   .formContainer {
-    padding: 0 8px;
-    width: 100%;
-    max-width: 100%;
+    padding: 0 16px;
+    
+    form {
+      max-width: 100%;
+    }
     
     h2 {
       font-size: 22px;
@@ -410,21 +423,10 @@
   
   .formGroup {
     margin-bottom: 16px;
-    width: 100%;
     
     input {
       padding: 12px 12px 12px 36px;
       font-size: 16px; // Prevents zoom on iOS
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      min-width: 0; // Allows input to shrink
-    }
-    
-    .inputWrapper {
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
     }
     
     .inputIconInside {
@@ -435,25 +437,24 @@
   .submitButton {
     padding: 12px;
     font-size: 16px;
-    width: 100%;
-    max-width: 100%;
   }
   
   .switchForm {
-    width: 100%;
     max-width: 100%;
   }
   
   .switchButton {
-    max-width: 100%;
     word-wrap: break-word;
   }
 }
 
 @media (max-width: 600px) {
   .formContainer {
-    width: 100%;
-    max-width: 100%;
+    padding: 0 12px;
+    
+    form {
+      max-width: 100%;
+    }
     
     h2 {
       font-size: 24px;
@@ -463,38 +464,15 @@
   
   .formGroup {
     margin-bottom: 18px;
-    width: 100%;
     
     input {
       padding: 12px 12px 12px 36px;
       font-size: 16px; // Prevents zoom on iOS
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    
-    .inputWrapper {
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow: hidden;
     }
   }
 }
 
-// Ensure consistent box-sizing and prevent overflow
-.formGroup input,
-.formGroup .inputWrapper,
-.submitButton,
-.switchForm,
-.switchButton,
-.charCounter,
-.errorMessage {
-  box-sizing: border-box;
-  max-width: 100%;
-}
-
-// Дополнительная защита от переполнения
-.formContainer * {
+// Ensure consistent box-sizing
+* {
   box-sizing: border-box;
 } 
