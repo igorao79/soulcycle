@@ -226,7 +226,7 @@ export const Avatar = ({
   React.useEffect(() => {
     // Проверяем только глобальный кеш, без дополнительных запросов
     if (isInCache(pngSrc)) {
-      console.log('Аватар найден в глобальном кеше:', avatar);
+      // Аватар найден в глобальном кеше (убираем логи для производительности)
       setIsLoading(false);
       setImageLoaded(true);
       setHasError(false);
@@ -235,7 +235,7 @@ export const Avatar = ({
   }, [avatar, pngSrc]);
 
   const handleLoad = () => {
-    console.log('Аватар успешно загружен:', avatar);
+    // Аватар успешно загружен (убираем логи для производительности)
     addToCache(pngSrc); // Добавляем в глобальный кеш
     setIsLoading(false);
     setHasError(false);

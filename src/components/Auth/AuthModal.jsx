@@ -17,11 +17,11 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [shouldAnimate, setShouldAnimate] = useState(false);
   
   // Для отладки
-  console.log('AuthModal render, isOpen:', isOpen);
+  // AuthModal render (убираем логи для производительности)
   
   useEffect(() => {
     if (isOpen) {
-      console.log('AuthModal: открываем модальное окно');
+      // AuthModal: открываем модальное окно (убираем логи для производительности)
       document.body.style.overflow = 'hidden';
       // Запускаем анимацию после открытия модального окна
       setTimeout(() => setShouldAnimate(true), 100);

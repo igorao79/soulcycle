@@ -40,7 +40,14 @@ const ThemeToggleButton = React.memo(() => {
       <Lottie
         config={animationConfig}
         speed={1}
-        style={{ width: '35px', height: '35px', display: 'block' }}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'block',
+          minWidth: '35px',
+          minHeight: '35px'
+        }}
+        data-testid="lottie-component"
       />
     </button>
   );

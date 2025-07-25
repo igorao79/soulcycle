@@ -114,3 +114,17 @@
         padding: 10px;
     }
 }
+
+/* Специальные стили для мобильного меню */
+.main__nav__mobile .themeButton {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: 80px !important;
+    height: 80px !important;
+    padding: 15px !important;
+    margin: 0 !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}

@@ -59,11 +59,7 @@ export const useAuthButtonState = (perkStyles) => {
         setCurrentAvatar(user.avatar);
       }
       
-      console.log('AuthButton: Перк пользователя обновлен', {
-        activePerk: user.activePerk,
-        perks: user.perks,
-        perkClass: getActivePerkClass(user.activePerk)
-      });
+      // Перк пользователя обновлен (убираем логи для производительности)
     } else {
       setActivePerkClass('');
       setCurrentAvatar(null);
@@ -78,7 +74,7 @@ export const useAuthButtonState = (perkStyles) => {
         if (userStr) {
           const userData = JSON.parse(userStr);
           if (userData.avatar && userData.avatar !== currentAvatar) {
-            console.log('AuthButton: Обнаружен новый аватар в localStorage:', userData.avatar);
+            // Обнаружен новый аватар в localStorage (убираем логи для производительности)
             setCurrentAvatar(userData.avatar);
             setAvatarKey(Date.now());
           }
@@ -97,10 +93,10 @@ export const useAuthButtonState = (perkStyles) => {
     const handleUserUpdate = (event) => {
       const updatedUser = event.detail;
       if (updatedUser) {
-        console.log('AuthButton: Получено событие обновления пользователя', updatedUser);
+        // AuthButton: Получено событие обновления пользователя (убираем логи для производительности)
         
         if (updatedUser.avatar && (user?.avatar !== updatedUser.avatar || currentAvatar !== updatedUser.avatar)) {
-          console.log('AuthButton: Обнаружено изменение аватара через событие:', updatedUser.avatar);
+          // AuthButton: Обнаружено изменение аватара через событие (убираем логи для производительности)
           setCurrentAvatar(updatedUser.avatar);
           setAvatarKey(Date.now());
           
@@ -118,14 +114,14 @@ export const useAuthButtonState = (perkStyles) => {
     };
     
     const handleAuthRefresh = () => {
-      console.log('AuthButton: Получено событие auth:refresh, обновляем интерфейс');
+      // AuthButton: Получено событие auth:refresh (убираем логи для производительности)
       forceUpdate();
       
       try {
         const userStr = localStorage.getItem('user');
         if (userStr) {
           const userData = JSON.parse(userStr);
-          console.log('AuthButton: Данные из localStorage после auth:refresh:', userData);
+          // AuthButton: Данные из localStorage после auth:refresh (убираем логи для производительности)
           
           const isUserAdmin = userData.email === 'igoraor79@gmail.com' || 
                             userData.perks?.includes('admin') || 
@@ -160,7 +156,7 @@ export const useAuthButtonState = (perkStyles) => {
           const newUserData = e.newValue ? JSON.parse(e.newValue) : null;
           
           if (newUserData && newUserData.avatar && (currentAvatar !== newUserData.avatar)) {
-            console.log('AuthButton: Обнаружено изменение аватара в storage:', newUserData.avatar);
+            // AuthButton: Обнаружено изменение аватара в storage (убираем логи для производительности)
             setCurrentAvatar(newUserData.avatar);
             setAvatarKey(Date.now());
             
@@ -187,10 +183,10 @@ export const useAuthButtonState = (perkStyles) => {
       const { userId, profileData } = e.detail || {};
       
       if (user && userId === user.id && profileData) {
-        console.log('AuthButton: Получено событие profileUpdated', profileData);
+        // AuthButton: Получено событие profileUpdated (убираем логи для производительности)
         
         if (profileData.avatar && currentAvatar !== profileData.avatar) {
-          console.log('AuthButton: Обновляем аватар из события profileUpdated:', profileData.avatar);
+          // AuthButton: Обновляем аватар из события profileUpdated (убираем логи для производительности)
           setCurrentAvatar(profileData.avatar);
           setAvatarKey(Date.now());
           

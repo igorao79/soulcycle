@@ -234,7 +234,7 @@ const PostsList = () => {
             onClick={handleRefresh}
             disabled={loading}
           >
-            {loading ? <FiLoader /> : <FiRefreshCw />} Обновить
+            {loading ? <FiLoader className={styles.spinningLoader} /> : <FiRefreshCw />} Обновить
           </button>
         </div>
       </div>

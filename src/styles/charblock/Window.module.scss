@@ -1,6 +1,6 @@
 .window {
     height: 75vh;
-    min-height: 600px;
+    min-height: 500px; // Возвращаем нормальную высоту
     position: relative;
     background-color: var(--background-color); /* Используем переменную */
     border-radius: 5px;
@@ -9,6 +9,9 @@
     overflow: hidden;
     transition: width 0.3s, height 0.3s; /* Анимация для размера */
     z-index: 1 !important;
+    
+    // Добавляем отступ снизу ТОЛЬКО для обеспечения скролла
+    margin-bottom: 200px;
 
     &__message {
         position: absolute;

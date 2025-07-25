@@ -178,7 +178,9 @@ function App() {
         <Router>
             <div className={`${styles.app} ${styles.page}`} data-theme={theme}>
                 <HomePage />
-                <ThemeToggleButton />
+                <div className={styles.desktopThemeToggle}>
+                    <ThemeToggleButton />
+                </div>
                 <VersionChecker />
             </div>
         </Router>

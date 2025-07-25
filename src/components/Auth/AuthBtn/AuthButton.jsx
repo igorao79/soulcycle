@@ -34,19 +34,10 @@ const AuthButton = () => {
     setUserMenuOpen
   } = useAuthButtonState(perkStyles);
 
-  const [showLoader, setShowLoader] = useState(true);
+  const [showLoader, setShowLoader] = useState(false); // Отключаем автоматический лоадер
 
-  // Показываем лоадер первые 1.5 секунды или пока идет загрузка авторизации
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoader(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Если показываем лоадер или идет загрузка авторизации
-  if (showLoader || authLoading) {
+  // Показываем лоадер только если реально идет загрузка авторизации
+  if (authLoading) {
     return (
       <div className={styles.profileButton}>
         <div className={styles.loader}>

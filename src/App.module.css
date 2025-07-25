@@ -290,3 +290,58 @@ a {
         transform: translateY(0);
     }
 }
+
+/* Кнопка смены темы на десктопе */
+.desktopThemeToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Скрываем кнопку смены темы на мобильных устройствах и планшетах */
+@media (max-width: 1024px) {
+  .desktopThemeToggle {
+    display: none;
+  }
+}
+
+/* Мобильные браузеры - решение проблем с viewport */
+:root {
+  /* Реальная высота viewport */
+  --viewport-height: 100vh;
+}
+
+/* Мобильная фиксированная навигация - отключено для предотвращения скачков */
+body.mobile-fixed-nav {
+  /* padding-top: 100px; - отключено */
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --viewport-height: 100dvh;
+  }
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Мобильные браузеры - исправление viewport meta */
+@media screen and (max-width: 768px) {
+  html, body {
+    /* Используем реальную высота viewport */
+    height: var(--viewport-height);
+    min-height: var(--viewport-height);
+    /* Предотвращаем зум при фокусе на input */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Исправляем проблемы с overflow на iOS */
+  body {
+    position: relative;
+    overflow-x: hidden;
+  }
+}
