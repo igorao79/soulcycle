@@ -9,7 +9,6 @@ import ProfilePage from './Profile/ProfilePage';
 import PostsList from './Post/PostsList';
 import AdminPanel from './Admin/AdminPanel';
 import ResetPassword from './Auth/ResetPassword';
-import StickyHeader from './common/StickyHeader';
 import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/hp/HomePage.module.scss';
 import FeedbackForm from './Feedback/FeedbackForm';
@@ -84,18 +83,62 @@ function HomePage() {
 
   return (
     <div className={styles.main}>
-      {/* Новый sticky header */}
-      <StickyHeader 
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
-        isActiveLink={isActiveLink}
-        handleNavLinkClick={handleNavLinkClick}
-      />
-      
-      {/* Основной контент с отступом сверху */}
-      <main className={styles.mainContent}>
-        <AnimatedRoutes />
-      </main>
+      <header className={styles.main__header}>
+        <Link to="/">
+          <UseContext 
+            src="sclogo" 
+            alt="Логотип"
+          />
+        </Link>
+        <h1 className={styles.main__header__title}>Цикл Душ</h1>
+      </header>
+      <nav className={styles.main__nav}>
+        {/* Стандартная навигация для десктопа */}
+        <ul className={styles.main__nav__perexod}>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
+            <Link to="/">Главная</Link>
+          </li>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/characters') ? styles.active : ''}`}>
+            <Link to="/characters">Персонажи</Link>
+          </li>
+          <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/about') ? styles.active : ''}`}>
+            <Link to="/about">О нас</Link>
+          </li>
+        </ul>
+        
+        {/* Кнопка гамбургер-меню */}
+        <div 
+          className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen(!menuOpen);
+          }}
+        >
+          <div className={styles.main__nav__burger__line}></div>
+          <div className={styles.main__nav__burger__line}></div>
+          <div className={styles.main__nav__burger__line}></div>
+        </div>
+        
+        {/* Мобильное меню (выпадающее) */}
+        <div className={`${styles.main__nav__mobile} ${menuOpen ? styles.open : ''}`}>
+          <ul className={styles.main__nav__mobile__list}>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/') ? styles.active : ''}`}>
+              <Link to="/" onClick={handleNavLinkClick}>Главная</Link>
+            </li>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/characters') ? styles.active : ''}`}>
+              <Link to="/characters" onClick={handleNavLinkClick}>Персонажи</Link>
+            </li>
+            <li className={`${styles.main__nav__mobile__list__item} ${isActiveLink('/about') ? styles.active : ''}`}>
+              <Link to="/about" onClick={handleNavLinkClick}>О нас</Link>
+            </li>
+          </ul>
+        </div>
+        
+        <div className={styles.main__nav__auth}>
+          <AuthButton />
+        </div>
+      </nav>
+      <AnimatedRoutes />
     </div>
   );
 }
