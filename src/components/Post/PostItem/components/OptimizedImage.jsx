@@ -3,9 +3,10 @@ import { getOptimizedUrl } from '../utils/helpers';
 import styles from '../../Post.module.scss';
 
 const OptimizedImage = ({ src, alt, className, style }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!!src);
   const [error, setError] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
+  const [lastSrc, setLastSrc] = useState(src);
   
   // Get optimized URL once using memoization
   const { displaySrc, originalSrc } = useMemo(() => {
@@ -46,10 +47,17 @@ const OptimizedImage = ({ src, alt, className, style }) => {
   
   // Reset states when src changes
   useEffect(() => {
-    setIsLoading(true);
-    setError(false);
-    setUseFallback(false);
-  }, [src]);
+    // Only show loading if src actually changed
+    if (src && src !== lastSrc) {
+      setIsLoading(true);
+      setError(false);
+      setUseFallback(false);
+      setLastSrc(src);
+    } else if (!src) {
+      setIsLoading(false);
+      setError(false);
+    }
+  }, [src, lastSrc]);
   
   return (
     <div className={`${className || ''} ${styles.imageContainer}`} style={style}>
