@@ -32,7 +32,7 @@ function HomePage() {
   const { viewportHeight, viewportWidth, isMobile } = useMobileViewport();
   
   // Состояние для фиксированной навигации
-  const [showFixedNav, setShowFixedNav] = useState(false);
+  const [showFixedNav, setShowFixedNav] = useState(isMobile);
 
   // Функция для определения активности пункта меню
   const isActiveLink = (path) => {
@@ -54,11 +54,13 @@ function HomePage() {
           const isCharactersPage = location.pathname === '/characters';
           const threshold = isCharactersPage ? 5 : 70; // Минимальный порог для страницы персонажей
           const shouldScroll = scrollPosition > threshold;
-          setIsScrolled(shouldScroll);
-          setShowFixedNav(shouldScroll);
+          // На мобильных не применяем состояние скролла для скрытия хедера
+          setIsScrolled(!isMobile && shouldScroll);
+          // На мобильных фиксированная навигация всегда включена
+          setShowFixedNav(shouldScroll || isMobile);
           
           // Добавляем класс для мобильной и планшетной фиксированной навигации
-          if ((isMobile || viewportWidth <= 1024) && shouldScroll) {
+          if (isMobile || (viewportWidth <= 1024 && shouldScroll)) {
             document.body.classList.add('mobile-fixed-nav');
           } else {
             document.body.classList.remove('mobile-fixed-nav');
@@ -277,15 +279,17 @@ function HomePage() {
       {renderFixedNav()}
       {renderMobileMenu()}
       <div className={`${styles.main} ${isScrolled ? styles.scrolled : ''}`}>
-        <header className={`${styles.main__header} ${isScrolled ? styles.hidden : ''}`}>
-          <Link to="/">
-            <UseContext 
-              src="sclogo" 
-              alt="Логотип"
-            />
-          </Link>
-          <h1 className={styles.main__header__title}>Цикл Душ</h1>
-        </header>
+        {!isMobile && (
+          <header className={`${styles.main__header} ${isScrolled ? styles.hidden : ''}`}>
+            <Link to="/">
+              <UseContext 
+                src="sclogo" 
+                alt="Логотип"
+              />
+            </Link>
+            <h1 className={styles.main__header__title}>Цикл Душ</h1>
+          </header>
+        )}
         <nav className={styles.main__nav}>
         {/* Стандартная навигация для десктопа - скрываем при скролле */}
         {!isScrolled && viewportWidth > 1024 && (
@@ -302,8 +306,8 @@ function HomePage() {
           </ul>
         )}
         
-        {/* Кнопка гамбургер-меню только для мобильных и планшетов при отсутствии скролла */}
-        {!isScrolled && (isMobile || viewportWidth <= 1024) && (
+        {/* Кнопка гамбургер-меню: на планшетах до скролла, на мобильных рендерится во fixed-nav */}
+        {!isScrolled && (viewportWidth <= 1024 && !isMobile) && (
           <div 
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
             onClick={(e) => {
@@ -319,8 +323,8 @@ function HomePage() {
         
         {/* Мобильное меню рендерится через портал */}
         
-        {/* Кнопка авторизации - скрываем при скролле */}
-        {!isScrolled && (
+        {/* Кнопка авторизации - скрываем при скролле и не дублируем на мобильных */}
+        {!isScrolled && !isMobile && (
           <div className={styles.main__nav__auth}>
             <AuthButton />
           </div>

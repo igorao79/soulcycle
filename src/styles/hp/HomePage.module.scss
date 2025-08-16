@@ -1328,3 +1328,12 @@
         z-index: 99999 !important;
     }
 }
+
+// Компенсируем высоту фиксированной навигации на телефонах, чтобы контент не перекрывался
+@media (max-width: 768px) {
+    :global(.mobile-fixed-nav) {
+        .main {
+            padding-top: calc(90px + env(safe-area-inset-top, 0px));
+        }
+    }
+}
