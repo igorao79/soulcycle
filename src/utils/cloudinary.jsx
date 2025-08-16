@@ -247,6 +247,12 @@ export const Avatar = ({
     setIsLoading(false);
     setHasError(true);
     setImageLoaded(false);
+
+    if (e && e.target) {
+      // Локальный гарантированный фолбэк (не зависит от сети к Cloudinary)
+      e.target.onerror = null;
+      e.target.src = '/pwa-192x192.png';
+    }
   };
 
   return (
@@ -265,6 +271,7 @@ export const Avatar = ({
         height={size}
         loading="eager"
         crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
         onLoad={handleLoad}
         onError={handleError}
         onClick={onClick}

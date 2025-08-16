@@ -223,7 +223,7 @@
     0 10px 25px rgba(0, 0, 0, 0.3),
     0 0 15px rgba(255, 255, 255, 0.05) inset;
   min-width: 200px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(100, 100, 100, 0.2);
   z-index: 999999;
   padding: 5px;
@@ -240,7 +240,7 @@
     background: rgba(36, 36, 40, 0.95);
     border-left: 1px solid rgba(100, 100, 100, 0.2);
     border-top: 1px solid rgba(100, 100, 100, 0.2);
-    z-index: -1;
+    z-index: 1;
   }
   
   ul {

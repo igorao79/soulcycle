@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { FiChevronDown } from 'react-icons/fi';
 import { buttonVariants, arrowVariants } from '../config/animations';
@@ -8,14 +8,14 @@ import styles from '../AuthButton.module.scss';
 /**
  * Компонент кнопки профиля пользователя, показывающий аватар и имя
  */
-const UserProfileButton = ({ 
+const UserProfileButton = forwardRef(({ 
   onClick, 
   avatar, 
   displayName, 
   activePerkClass, 
   isMenuOpen,
   avatarKey
-}) => {
+}, ref) => {
   return (
     <motion.button 
       className={styles.profileButton} 
@@ -25,6 +25,7 @@ const UserProfileButton = ({
       whileHover="hover"
       whileTap="tap"
       key={`profile-button-${avatarKey}`}
+      ref={ref}
     >
       <OptimizedAvatar 
         src={avatar} 
@@ -45,6 +46,6 @@ const UserProfileButton = ({
       </motion.span>
     </motion.button>
   );
-};
+});
 
 export default UserProfileButton; 

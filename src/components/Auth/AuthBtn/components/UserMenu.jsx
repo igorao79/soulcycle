@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { menuVariants } from '../config/animations';
 import UserMenuItem from './UserMenuItem';
 import styles from '../AuthButton.module.scss';
+import { createPortal } from 'react-dom';
 
 /**
  * Компонент выпадающего меню пользователя
@@ -13,7 +14,8 @@ const UserMenu = ({
   isOpen, 
   isAdmin, 
   onLogout, 
-  onMenuClose 
+  onMenuClose,
+  anchorRef
 }) => {
   const navigate = useNavigate();
 
@@ -32,7 +34,7 @@ const UserMenu = ({
     onMenuClose();
   };
 
-  return (
+  const content = (
     <AnimatePresence>
       {isOpen && (
         <motion.div 
@@ -41,6 +43,13 @@ const UserMenu = ({
           initial="hidden"
           animate="visible"
           exit="exit"
+          style={{
+            position: 'fixed',
+            top: anchorRef?.current ? (anchorRef.current.getBoundingClientRect().bottom + 8) : undefined,
+            left: anchorRef?.current ? (anchorRef.current.getBoundingClientRect().right - 200) : undefined,
+            right: anchorRef?.current ? 'auto' : undefined,
+            zIndex: 2147483647 // над всем
+          }}
         >
           <ul>
             <UserMenuItem 
@@ -77,6 +86,8 @@ const UserMenu = ({
       )}
     </AnimatePresence>
   );
+
+  return createPortal(content, document.body);
 };
 
 export default UserMenu; 

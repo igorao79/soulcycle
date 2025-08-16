@@ -101,6 +101,7 @@ const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
         onLoad={onLoad}
         loading="eager"
         crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
         onError={(e) => {
           console.warn('Ошибка загрузки аватара:', e.target.src);
           // Используем гостевой аватар из Cloudinary в случае ошибки

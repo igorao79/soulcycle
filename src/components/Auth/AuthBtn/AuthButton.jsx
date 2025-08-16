@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import styles from './AuthButton.module.scss';
 import perkStyles from '../../../styles/Perks.module.scss';
 import AuthModal from '../AuthModal';
@@ -35,6 +35,7 @@ const AuthButton = () => {
   } = useAuthButtonState(perkStyles);
 
   const [showLoader, setShowLoader] = useState(false); // Отключаем автоматический лоадер
+  const profileBtnRef = useRef(null);
 
   // Показываем лоадер только если реально идет загрузка авторизации
   if (authLoading) {
@@ -60,6 +61,7 @@ const AuthButton = () => {
             activePerkClass={activePerkClass}
             isMenuOpen={userMenuOpen}
             avatarKey={avatarKey}
+            ref={profileBtnRef}
           />
           
           {/* Выпадающее меню пользователя */}
@@ -68,6 +70,7 @@ const AuthButton = () => {
             isAdmin={isAdmin}
             onLogout={handleLogout}
             onMenuClose={() => setUserMenuOpen(false)}
+            anchorRef={profileBtnRef}
           />
         </div>
       ) : (

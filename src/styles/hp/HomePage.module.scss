@@ -212,13 +212,15 @@
                 backface-visibility: hidden;
                 -webkit-transform: translateZ(0);
                 transform: translateZ(0);
+                overflow: visible; // позволяем выпадать меню за пределы контейнера
                 
                 // Оптимизация для iOS Safari
                 -webkit-overflow-scrolling: touch;
                 -webkit-transform: translate3d(0, 0, 0);
                 
                 // Предотвращение дрожания на некоторых Android устройствах
-                contain: layout style paint;
+                // убираем paint, чтобы не обрезалось выпадающее меню
+                contain: layout style;
             }
             
             [data-theme="dark"] & {
