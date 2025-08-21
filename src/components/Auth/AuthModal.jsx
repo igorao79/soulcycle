@@ -74,11 +74,11 @@ const AuthModal = ({ isOpen, onClose }) => {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.4, ease: 'easeOut' }
     },
     exit: { 
       opacity: 0,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3, ease: 'easeIn' }
     }
   };
   
@@ -93,16 +93,18 @@ const AuthModal = ({ isOpen, onClose }) => {
       scale: 1,
       y: 0,
       transition: { 
-        type: "spring",
-        duration: 0.5,
-        bounce: 0.4
+        type: 'spring',
+        duration: 0.6,
+        bounce: 0.25,
+        damping: 18,
+        stiffness: 180
       }
     },
     exit: { 
       opacity: 0,
       scale: 0.8,
       y: 20,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.25, ease: 'easeIn' }
     }
   };
   

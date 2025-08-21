@@ -4,12 +4,12 @@
   top: 0;
   left: 0;
   width: 100vw; // Use viewport units
-  height: 100vh; // Use viewport units
+  height: 100dvh; // Use dynamic viewport units to avoid jumps
   background: linear-gradient(135deg, rgba(var(--modal-bg-rgb, 33, 33, 38), 0.85) 0%, rgba(var(--modal-bg-end-rgb, 68, 68, 77), 0.85) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000; // Very high z-index to ensure it's above everything
+  z-index: 2147483646; // Above any app layers (incl. fixed header)
   backdrop-filter: blur(8px);
   perspective: 1000px;
   box-sizing: border-box;
@@ -32,11 +32,11 @@
   border: 1px solid var(--modal-border);
   box-shadow: var(--modal-shadow);
   overflow: hidden;
-  z-index: 10001 !important;
+  z-index: 2147483647 !important;
   padding: 0;
   transform-style: preserve-3d;
   margin: auto; // Центрирование по вертикали и горизонтали
-  max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
 

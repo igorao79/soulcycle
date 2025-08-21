@@ -350,10 +350,10 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <div className={styles.homepage}>
               <PostsList />
@@ -362,70 +362,70 @@ function AnimatedRoutes() {
         } />
         <Route path="/characters" element={
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
           >
             <Window />
           </motion.div>
         } />
         <Route path="/about" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <About />
           </motion.div>
         } />
         <Route path="/profile" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <ProfilePage />
           </motion.div>
         } />
         <Route path="/profile/:userId" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <ProfilePage />
           </motion.div>
         } />
         <Route path="/reset-password" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <ResetPassword />
           </motion.div>
         } />
         <Route path="/admin" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <AdminPanel />
           </motion.div>
         } />
         <Route path="/feedback" element={
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             <FeedbackForm />
           </motion.div>
