@@ -179,7 +179,7 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 100vh;
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     margin: 0 auto;
     background-color: var(--background-color);
@@ -188,9 +188,26 @@ h1, h2, h3, h4, h5, h6 {
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-    transition: all var(--transition-slow);
+    transition: background-color var(--transition-slow), color var(--transition-slow);
     overflow: hidden;
     background-attachment: fixed
+}
+
+.bgEffectsRoot {
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* самый задний слой */
+    pointer-events: none;
+}
+
+.pageContent {
+    position: relative;
+    z-index: 1; /* контент выше бэкграунд-эффектов */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 img {
@@ -314,7 +331,7 @@ a {
 
 /* Мобильная фиксированная навигация - отключено для предотвращения скачков */
 body.mobile-fixed-nav {
-  /* padding-top: 100px; - отключено */
+  overscroll-behavior: contain;
 }
 
 @supports (height: 100dvh) {

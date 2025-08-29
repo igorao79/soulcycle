@@ -176,12 +176,15 @@ function App() {
 
     return (
         <Router>
-            <div className={`${styles.app} ${styles.page}`} data-theme={theme}>
-                <HomePage />
-                <div className={styles.desktopThemeToggle}>
-                    <ThemeToggleButton />
+            <div id="page-root" className={`${styles.app} ${styles.page}`} data-theme={theme}>
+                <div id="bg-effects-root" className={styles.bgEffectsRoot}></div>
+                <div className={styles.pageContent}>
+                    <HomePage />
+                    <div className={styles.desktopThemeToggle}>
+                        <ThemeToggleButton />
+                    </div>
+                    <VersionChecker />
                 </div>
-                <VersionChecker />
             </div>
         </Router>
     );
