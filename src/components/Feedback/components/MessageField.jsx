@@ -18,8 +18,8 @@ const MessageField = ({ value, onChange, disabled }) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        placeholder="Опишите ваш запрос или предложение детально..."
-        rows={6}
+        placeholder="Опишите ваш запрос или предложение..."
+        rows={4} // Уменьшаем количество строк по умолчанию
         className={styles.textarea}
         required
       />

@@ -10,8 +10,8 @@
     transition: width 0.3s, height 0.3s; /* Анимация для размера */
     z-index: 1 !important;
     
-    // Добавляем отступ снизу ТОЛЬКО для обеспечения скролла
-    margin-bottom: 200px;
+    // Отступ снизу только для мобильных устройств
+    margin-bottom: 0;
 
     &__message {
         position: absolute;
@@ -203,7 +203,7 @@
     .window {
         top: 0;
         flex-direction: column;
-        margin: 10px 20px !important;
+        margin: 10px 20px 200px !important; // Добавляем margin-bottom для мобильных
         height: 85vh;
 
         &__panel {

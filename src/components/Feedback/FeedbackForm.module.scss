@@ -4,51 +4,55 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 20px;
+  padding: 20px 15px;
   color: var(--text-primary, #e0e0e0);
-  
 
+  @media (max-width: 768px) {
+    padding: 15px 10px;
+    overflow: hidden; // Убираем скролл на мобильных
+  }
 }
 
 .formContainer {
   width: 100%;
-  max-width: 800px;
+  max-width: 600px; // Уменьшаем максимальную ширину
   background-color: var(--bg-card, rgba(32, 33, 36, 0.8));
-  border-radius: 16px;
-  box-shadow: 
-    0 10px 30px rgba(0, 0, 0, 0.3),
+  border-radius: 12px; // Уменьшаем радиус
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
     0 1px 2px rgba(255, 255, 255, 0.05);
-  padding: 40px;
+  padding: 25px; // Уменьшаем padding
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  
+
   // Поддержка светлой темы
   [data-theme="light"] & {
     background-color: var(--bg-card-light, rgba(255, 255, 255, 0.8));
-    box-shadow: 
-      0 10px 30px rgba(0, 0, 0, 0.1),
+    box-shadow:
+      0 8px 20px rgba(0, 0, 0, 0.1),
       0 1px 5px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.05);
   }
-  
+
   @media (max-width: 768px) {
-    padding: 30px 20px;
+    padding: 20px 15px; // Еще меньше padding на мобильных
+    max-width: 100%; // Полная ширина на мобильных
   }
 }
 
 .title {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px; // Уменьшаем отступ снизу
   color: var(--text-primary, #ffffff);
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 28px; // Уменьшаем размер шрифта
+  font-weight: 600; // Уменьшаем жирность
+  letter-spacing: 0.3px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   background: linear-gradient(135deg, var(--gradient-start, #ffffff), var(--accent, #9333ea));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  
+
   // Поддержка светлой темы
   [data-theme="light"] & {
     color: var(--text-primary-light, #333);
@@ -57,10 +61,10 @@
     -webkit-background-clip: text;
     background-clip: text;
   }
-  
+
   @media (max-width: 768px) {
-    font-size: 28px;
-    margin-bottom: 24px;
+    font-size: 24px; // Еще меньше на мобильных
+    margin-bottom: 16px;
   }
 }
 
@@ -99,15 +103,15 @@
 }
 
 .formGroup {
-  margin-bottom: 24px;
-  
+  margin-bottom: 16px; // Уменьшаем отступ между группами
+
   label {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px; // Уменьшаем отступ от лейбла
     color: var(--text-secondary, #c0c0c0);
     font-weight: 500;
-    font-size: 16px;
+    font-size: 14px; // Уменьшаем размер шрифта лейбла
   }
   
   .inputIcon {
@@ -185,14 +189,14 @@
   
   .textarea {
     width: 100%;
-    padding: 14px;
+    padding: 12px; // Уменьшаем padding
     border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     border-radius: 8px;
     background-color: var(--bg-input, rgba(24, 25, 28, 0.7));
     color: var(--text-primary, #e0e0e0);
-    font-size: 16px;
+    font-size: 14px; // Уменьшаем размер шрифта
     resize: vertical;
-    min-height: 120px;
+    min-height: 80px; // Уменьшаем минимальную высоту
     transition: all 0.3s;
     
     &:focus {
@@ -224,9 +228,9 @@
 }
 
 .dropArea {
-  padding: 25px;
-  border: 2px dashed var(--border, rgba(255, 255, 255, 0.2));
-  border-radius: 8px;
+  padding: 16px; // Уменьшаем padding
+  border: 1px dashed var(--border, rgba(255, 255, 255, 0.2)); // Уменьшаем толщину границы
+  border-radius: 6px; // Уменьшаем радиус
   background-color: var(--bg-input, rgba(24, 25, 28, 0.5));
   text-align: center;
   transition: all 0.3s;
