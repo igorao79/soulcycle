@@ -1,7 +1,39 @@
 /**
  * Утилиты для работы с изображениями Cloudinary
  */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+
+// Инлайн-стили скелетона (чтобы не зависеть от внешнего CSS-файла)
+const skeletonKeyframes = `
+@keyframes avatar-skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}`;
+
+// Вставляем keyframes один раз
+if (typeof document !== 'undefined' && !document.getElementById('avatar-skeleton-style')) {
+  const styleEl = document.createElement('style');
+  styleEl.id = 'avatar-skeleton-style';
+  styleEl.textContent = skeletonKeyframes;
+  document.head.appendChild(styleEl);
+}
+
+const AvatarSkeleton = ({ size, className, style }) => (
+  <div
+    className={className}
+    style={{
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      background: 'linear-gradient(90deg, var(--bg-secondary, #e0e0e0) 25%, var(--bg-highlight, #f0f0f0) 50%, var(--bg-secondary, #e0e0e0) 75%)',
+      backgroundSize: '200% 100%',
+      animation: 'avatar-skeleton-pulse 1.5s ease-in-out infinite',
+      flexShrink: 0,
+      ...style,
+    }}
+    aria-hidden="true"
+  />
+);
 
 // Cloudinary настройки
 const CLOUDINARY_CLOUD_NAME = 'do9t8preg';
@@ -256,27 +288,37 @@ export const Avatar = ({
   };
 
   return (
-    <picture>
-      {/* AVIF формат - наиболее оптимизированный */}
-      <source srcSet={avifSrc} type="image/avif" />
-      {/* WebP формат - хорошо поддерживается в большинстве браузеров */}
-      <source srcSet={webpSrc} type="image/webp" />
-      {/* PNG формат - запасной вариант для всех браузеров */}
-      <img 
-        src={pngSrc}
-        alt={alt} 
-        className={className}
-        style={style}
-        width={size}
-        height={size}
-        loading="eager"
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
-        onLoad={handleLoad}
-        onError={handleError}
-        onClick={onClick}
-      />
-    </picture>
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, display: 'inline-block' }}>
+      {/* Скелетон — виден пока картинка грузится */}
+      {isLoading && (
+        <AvatarSkeleton
+          size={size}
+          style={{ position: 'absolute', top: 0, left: 0 }}
+        />
+      )}
+      <picture>
+        <source srcSet={avifSrc} type="image/avif" />
+        <source srcSet={webpSrc} type="image/webp" />
+        <img
+          src={pngSrc}
+          alt={alt}
+          className={className}
+          style={{
+            ...style,
+            opacity: imageLoaded ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
+          width={size}
+          height={size}
+          loading="eager"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+          onLoad={handleLoad}
+          onError={handleError}
+          onClick={onClick}
+        />
+      </picture>
+    </div>
   );
 };
 

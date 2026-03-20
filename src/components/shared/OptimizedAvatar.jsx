@@ -1,17 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar, AVATARS } from '../../utils/cloudinary';
 
-/**
- * Компонент для оптимизированного отображения аватара с использованием Cloudinary
- * 
- * @param {Object} props - Свойства компонента
- * @param {string} props.src - Путь к аватару (имя файла без расширения или полный URL)
- * @param {string} props.alt - Альтернативный текст
- * @param {string} props.className - CSS-класс для элемента img
- * @param {Function} props.onLoad - Обработчик события загрузки
- * @param {Object} props.style - Инлайн стили для элемента img
- * @returns {JSX.Element} - Компонент аватара с поддержкой различных форматов
- */
+// Скелетон для внешних URL-аватаров
+const ExternalAvatar = ({ src, alt, className, style, onLoad, size }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, display: 'inline-block' }}>
+      {!loaded && (
+        <div
+          style={{
+            position: 'absolute', top: 0, left: 0,
+            width: size, height: size, borderRadius: '50%',
+            background: 'linear-gradient(90deg, var(--bg-secondary, #e0e0e0) 25%, var(--bg-highlight, #f0f0f0) 50%, var(--bg-secondary, #e0e0e0) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'avatar-skeleton-pulse 1.5s ease-in-out infinite',
+          }}
+          aria-hidden="true"
+        />
+      )}
+      <img
+        src={src}
+        alt={alt || "Аватар пользователя"}
+        className={className}
+        style={{
+          ...style,
+          objectFit: 'cover',
+          imageRendering: 'auto',
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.3s ease',
+        }}
+        loading="eager"
+        crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
+        onLoad={(e) => {
+          setLoaded(true);
+          if (onLoad) onLoad(e);
+        }}
+        onError={(e) => {
+          setLoaded(true);
+          e.target.src = `https://res.cloudinary.com/do9t8preg/image/upload/q_85,dpr_auto,fl_progressive/v1746775570/${AVATARS.GUEST}`;
+          e.target.onerror = null;
+        }}
+      />
+    </div>
+  );
+};
+
 const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
   // Определяем имя аватара для Cloudinary
   let avatarName = AVATARS.GUEST;
@@ -87,27 +122,14 @@ const OptimizedAvatar = ({ src, alt, className, onLoad, style }) => {
   } else if (src.includes('lesyapic') || src === AVATARS.LESYA) {
     avatarName = AVATARS.LESYA;
   } else if (src.startsWith('http') || src.startsWith('data:')) {
-    // Если это полный URL или Data URL, используем его как есть
     return (
-      <img
+      <ExternalAvatar
         src={src}
-        alt={alt || "Аватар пользователя"}
+        alt={alt}
         className={className}
-        style={{
-          ...style,
-          objectFit: 'cover',
-          imageRendering: 'auto',
-        }}
+        style={style}
         onLoad={onLoad}
-        loading="eager"
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          console.warn('Ошибка загрузки аватара:', e.target.src);
-          // Используем гостевой аватар из Cloudinary в случае ошибки
-          e.target.src = `https://res.cloudinary.com/do9t8preg/image/upload/q_85,dpr_auto,fl_progressive/v1746775570/${AVATARS.GUEST}`;
-          e.target.onerror = null;
-        }}
+        size={getAvatarSize()}
       />
     );
   }
