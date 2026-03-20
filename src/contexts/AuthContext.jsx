@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import authService from '../services/authService';
 import supabase from '../services/supabaseClient';
 import userProfileService, { addListener } from '../services/userProfileService';
@@ -533,26 +533,32 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
+  // Мемоизируем value чтобы не пересоздавать объект при каждом рендере
+  const authContextValue = useMemo(() => ({
+    user,
+    login,
+    register,
+    logout,
+    loginWithProvider,
+    loading,
+    refreshUser,
+    isAuthenticated,
+    checkUserBan: authService.checkUserBan,
+    banInfo,
+    closeBanModal,
+    updateUserAvatar,
+    updateUserDisplayName
+  }), [user, loading, isAuthenticated, banInfo]);
+
+  const displayNameContextValue = useMemo(() => ({
+    displayName,
+    setDisplayName
+  }), [displayName]);
+
   // Предоставляем контекст
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        register,
-        logout,
-        loginWithProvider,
-        loading,
-        refreshUser,
-        isAuthenticated,
-        checkUserBan: authService.checkUserBan,
-        banInfo,
-        closeBanModal,
-        updateUserAvatar,
-        updateUserDisplayName
-      }}
-    >
-      <UserDisplayNameContext.Provider value={{ displayName, setDisplayName }}>
+    <AuthContext.Provider value={authContextValue}>
+      <UserDisplayNameContext.Provider value={displayNameContextValue}>
         {children}
         
         {/* Модальное окно с информацией о блокировке */}

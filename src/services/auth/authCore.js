@@ -4,8 +4,8 @@ import translateAuthError from '../../utils/authErrorTranslator';
 import { triggerUserUpdate } from '../../contexts/AuthContext';
 import eventService from '../eventService';
 
-// Константы
-export const SUPER_ADMIN_EMAIL = 'igoraor79@gmail.com';
+// Реэкспорт из единого источника
+export { SUPER_ADMIN_EMAIL, isAdmin } from '../../utils/adminCheck';
 
 // Функция для проверки уникальности имени пользователя
 export const checkDisplayNameUnique = async (displayName, excludeUserId = null) => {

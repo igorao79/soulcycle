@@ -1,6 +1,13 @@
 import { compressImage } from './imageCompression';
 import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_URL } from '../config/cloudinary';
-import sha1 from 'crypto-js/sha1';
+// Native SHA1 via SubtleCrypto (replaces crypto-js, saves ~100KB)
+async function sha1Hex(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 console.log('[imageService] Attempting to load VITE_CLOUDINARY_API_SECRET directly from import.meta.env:', import.meta.env.VITE_CLOUDINARY_API_SECRET);
 
@@ -271,7 +278,7 @@ const imageService = {
       const results = await Promise.allSettled(
         publicIds.map(async (publicId) => {
           try {
-            const signature = this.generateSignature(publicId, timestamp);
+            const signature = await this.generateSignature(publicId, timestamp);
             
             const formData = new FormData();
             formData.append('public_id', publicId);
@@ -327,22 +334,15 @@ const imageService = {
    * @param {number} timestamp - Current timestamp
    * @returns {string} - Generated signature
    */
-  generateSignature(publicId, timestamp) {
+  async generateSignature(publicId, timestamp) {
     try {
-      console.log('[imageService Signature] CLOUDINARY_API_SECRET at start of generateSignature (first 5 chars):', CLOUDINARY_API_SECRET ? CLOUDINARY_API_SECRET.substring(0,5) : 'UNDEFINED or EMPTY');
       if (!CLOUDINARY_API_SECRET) {
-        console.error('[imageService Signature] CRITICAL ERROR: CLOUDINARY_API_SECRET is not available. Signature generation will fail.');
         throw new Error('CLOUDINARY_API_SECRET is not configured. Check .env file and restart server.');
       }
       const paramsToSign = `public_id=${publicId}&timestamp=${timestamp}`;
-      // Crucial check before forming stringToSign
-      console.log('[imageService Signature] Value of CLOUDINARY_API_SECRET before appending (first 5 chars):', CLOUDINARY_API_SECRET.substring(0,5));
       const stringToSign = `${paramsToSign}${CLOUDINARY_API_SECRET}`;
-      
-      console.log('[imageService Signature] String being signed (first part + last 5 of secret for verification):', paramsToSign + (CLOUDINARY_API_SECRET ? CLOUDINARY_API_SECRET.slice(-5) : '[SECRET MISSING]'));
 
-      const signature = sha1(stringToSign).toString();
-      console.log('[imageService Signature] Generated signature:', signature);
+      const signature = await sha1Hex(stringToSign);
       return signature;
     } catch (error) {
       console.error('[imageService Signature] Error during signature generation:', error.message);

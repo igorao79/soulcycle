@@ -2,140 +2,103 @@ import supabase from './supabaseClient';
 import userProfileService from './userProfileService';
 import filterBadWords from '../utils/filterBadWords';
 
+// Хелпер: получить профили пакетно по массиву user_id
+async function fetchProfilesBatch(userIds) {
+  const unique = [...new Set(userIds)];
+  if (unique.length === 0) return new Map();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, avatar, perks, active_perk')
+    .in('id', unique);
+
+  const map = new Map();
+  if (error) {
+    console.error('Ошибка batch-загрузки профилей:', error);
+    return map;
+  }
+  for (const p of data) {
+    map.set(p.id, {
+      displayName: p.display_name || 'Пользователь',
+      avatar: p.avatar || null,
+      perks: p.perks || [],
+      activePerk: p.active_perk || (p.perks && p.perks[0]) || 'user',
+      id: p.id
+    });
+  }
+  return map;
+}
+
+const DEFAULT_AUTHOR = {
+  displayName: 'Пользователь',
+  avatar: null,
+  perks: [],
+  activePerk: 'user'
+};
+
 const commentService = {
   // Получение комментариев к посту
   async getCommentsByPostId(postId) {
     try {
-      console.log('Fetching comments for post ID:', postId);
-      
-      // Получаем все комментарии к посту
-      const { data: comments, error } = await supabase
+      // 1. Получаем ВСЕ комментарии к посту одним запросом (корневые + ответы)
+      const { data: allComments, error } = await supabase
         .from('post_comments')
         .select('*')
         .eq('post_id', postId)
-        .is('parent_id', null) // Только корневые комментарии
-        .order('created_at', { ascending: false }); // Новые комментарии сверху
-      
+        .order('created_at', { ascending: true });
+
       if (error) {
         console.error('Error fetching comments:', error);
         throw error;
       }
-      
-      console.log('Raw comments fetched:', comments ? comments.length : 0);
-      
-      // Если комментариев нет, возвращаем пустой массив
-      if (!comments || comments.length === 0) {
+
+      if (!allComments || allComments.length === 0) {
         return [];
       }
-      
-      // Подготавливаем массив для обогащенных данных
-      const enrichedComments = [];
-      
-      // Для каждого комментария получаем дополнительную информацию
-      for (const comment of comments) {
-        try {
-          // Получаем профиль автора комментария через userProfileService
-          const authorProfile = await userProfileService.getUserProfile(comment.user_id);
-          
-          // Получаем перки пользователя
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('perks, active_perk')
-            .eq('id', comment.user_id)
-            .single();
-          
-          const perks = profileData?.perks || [];
-          const activePerk = profileData?.active_perk || perks[0] || 'user';
-          
-          // Получаем ответы на этот комментарий
-          const { data: replies, error: repliesError } = await supabase
-            .from('post_comments')
-            .select('*')
-            .eq('parent_id', comment.id)
-            .order('created_at', { ascending: true }); // Старые ответы сверху, новые снизу
-          
-          if (repliesError) {
-            console.error('Error fetching replies:', repliesError);
-            throw repliesError;
+
+      // 2. Собираем все уникальные user_id и загружаем профили одним запросом
+      const userIds = allComments.map(c => c.user_id);
+      const profilesMap = await fetchProfilesBatch(userIds);
+
+      const getAuthor = (userId) => {
+        const profile = profilesMap.get(userId);
+        return profile ? { ...profile } : { ...DEFAULT_AUTHOR, id: userId };
+      };
+
+      // 3. Разделяем на корневые и ответы
+      const rootComments = [];
+      const repliesByParentId = new Map();
+
+      for (const comment of allComments) {
+        if (comment.parent_id === null) {
+          rootComments.push(comment);
+        } else {
+          if (!repliesByParentId.has(comment.parent_id)) {
+            repliesByParentId.set(comment.parent_id, []);
           }
-          
-          console.log(`Comment ${comment.id} has ${replies ? replies.length : 0} replies`);
-          
-          // Обогащаем ответы данными профилей
-          const enrichedReplies = [];
-          for (const reply of replies || []) {
-            try {
-              const replyAuthorProfile = await userProfileService.getUserProfile(reply.user_id);
-              
-              // Получаем перки автора ответа
-              const { data: replyProfileData } = await supabase
-                .from('profiles')
-                .select('perks, active_perk')
-                .eq('id', reply.user_id)
-                .single();
-              
-              const replyPerks = replyProfileData?.perks || [];
-              const replyActivePerk = replyProfileData?.active_perk || replyPerks[0] || 'user';
-              
-              enrichedReplies.push({
-                ...reply,
-                author: {
-                  displayName: replyAuthorProfile.displayName,
-                  avatar: replyAuthorProfile.avatar,
-                  perks: replyPerks,
-                  activePerk: replyActivePerk,
-                  id: reply.user_id
-                }
-              });
-            } catch (error) {
-              console.error('Ошибка при обогащении ответа данными:', error);
-              enrichedReplies.push({
-                ...reply,
-                author: {
-                  displayName: 'Пользователь',
-                  avatar: null,
-                  perks: [],
-                  activePerk: 'user',
-                  id: reply.user_id
-                }
-              });
-            }
-          }
-          
-          // Добавляем комментарий с дополнительной информацией
-          enrichedComments.push({
-            ...comment,
-            author: {
-              displayName: authorProfile.displayName,
-              avatar: authorProfile.avatar,
-              perks: perks,
-              activePerk: activePerk,
-              id: comment.user_id
-            },
-            replies: enrichedReplies
-          });
-        } catch (error) {
-          console.error('Ошибка при обогащении комментария данными:', error);
-          // Добавляем комментарий с минимальными данными в случае ошибки
-          enrichedComments.push({
-            ...comment,
-            author: {
-              displayName: 'Пользователь',
-              avatar: null,
-              perks: [],
-              activePerk: 'user',
-              id: comment.user_id
-            },
-            replies: []
-          });
+          repliesByParentId.get(comment.parent_id).push(comment);
         }
       }
-      
-      console.log('Enriched comments processed:', enrichedComments.length);
+
+      // 4. Собираем результат — без дополнительных запросов
+      const enrichedComments = rootComments
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .map(comment => {
+          const replies = (repliesByParentId.get(comment.id) || []).map(reply => ({
+            ...reply,
+            author: getAuthor(reply.user_id)
+          }));
+
+          return {
+            ...comment,
+            author: getAuthor(comment.user_id),
+            replies
+          };
+        });
+
       return enrichedComments;
     } catch (error) {
       console.error('Ошибка при получении комментариев:', error);
-      // Возвращаем пустой массив вместо ошибки, чтобы не блокировать интерфейс
       return [];
     }
   },
@@ -143,48 +106,35 @@ const commentService = {
   // Создание нового комментария
   async createComment(commentData) {
     try {
-      // Получаем профиль пользователя через userProfileService
       const authorProfile = await userProfileService.getUserProfile(commentData.userId);
-      
-      // Применяем фильтр плохих слов к контенту
+
       const filteredContent = filterBadWords(commentData.content, {
         id: commentData.userId,
         ...authorProfile
       });
-      
-      // Создаем комментарий
+
       const { data, error } = await supabase
         .from('post_comments')
         .insert({
-          content: filteredContent, // Используем отфильтрованный контент
+          content: filteredContent,
           post_id: commentData.postId,
           user_id: commentData.userId,
-          parent_id: null // Это корневой комментарий, не ответ
+          parent_id: null
         })
         .select();
-      
+
       if (error) {
         console.error('Детали ошибки вставки:', error);
         throw error;
       }
-      
-      // Получаем перки пользователя
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('perks, active_perk')
-        .eq('id', commentData.userId)
-        .single();
-      
-      const perks = profileData?.perks || [];
-      const activePerk = profileData?.active_perk || perks[0] || 'user';
-      
+
       return {
         ...data[0],
         author: {
           displayName: authorProfile.displayName,
           avatar: authorProfile.avatar,
-          perks: perks,
-          activePerk: activePerk,
+          perks: authorProfile.perks || [],
+          activePerk: authorProfile.activePerk || 'user',
           id: commentData.userId
         },
         replies: []
@@ -198,48 +148,35 @@ const commentService = {
   // Создание ответа на комментарий
   async replyToComment(replyData) {
     try {
-      // Получаем профиль пользователя через userProfileService
       const authorProfile = await userProfileService.getUserProfile(replyData.userId);
-      
-      // Применяем фильтр плохих слов к контенту
+
       const filteredContent = filterBadWords(replyData.content, {
         id: replyData.userId,
         ...authorProfile
       });
-      
-      // Создаем ответ на комментарий
+
       const { data, error } = await supabase
         .from('post_comments')
         .insert({
-          content: filteredContent, // Используем отфильтрованный контент
+          content: filteredContent,
           post_id: replyData.postId,
           user_id: replyData.userId,
-          parent_id: replyData.commentId // Это ответ на комментарий
+          parent_id: replyData.commentId
         })
         .select();
-      
+
       if (error) {
         console.error('Детали ошибки вставки:', error);
         throw error;
       }
-      
-      // Получаем перки пользователя
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('perks, active_perk')
-        .eq('id', replyData.userId)
-        .single();
-      
-      const perks = profileData?.perks || [];
-      const activePerk = profileData?.active_perk || perks[0] || 'user';
-      
+
       return {
         ...data[0],
         author: {
           displayName: authorProfile.displayName,
           avatar: authorProfile.avatar,
-          perks: perks,
-          activePerk: activePerk,
+          perks: authorProfile.perks || [],
+          activePerk: authorProfile.activePerk || 'user',
           id: replyData.userId
         }
       };

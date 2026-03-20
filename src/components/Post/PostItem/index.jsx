@@ -12,6 +12,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import postService from '../../../services/postService';
 import commentService from '../../../services/commentService';
 import filterBadWords from '../../../utils/filterBadWords';
+import { isAdmin as checkIsAdmin } from '../../../utils/adminCheck';
 
 // Import Components
 import PollComponent from './components/PollComponent';
@@ -82,11 +83,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
   const hasTitle = post.title && post.title.trim().length > 0;
   
   // Check if user is admin
-  const isAdmin = isAuthenticated && user && (
-    user.email === 'igoraor79@gmail.com' || 
-    user.perks?.includes('admin') || 
-    user.activePerk === 'admin'
-  );
+  const isAdmin = isAuthenticated && checkIsAdmin(user);
   
   // Get post styling
   const styling = post.styling || {};
@@ -1051,4 +1048,4 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
   );
 };
 
-export default PostItem; 
+export default React.memo(PostItem); 

@@ -4,6 +4,7 @@ import PostItem from './PostItem/index.jsx';
 import CreatePostForm from './CreatePostForm';
 import RulesModal from '../Rules/RulesModal';
 import { useAuth } from '../../contexts/AuthContext';
+import { isAdmin as checkIsAdmin } from '../../utils/adminCheck';
 import styles from './Post.module.scss';
 import { 
   FiMessageSquare, FiRefreshCw, FiLoader, FiAlertCircle, 
@@ -30,11 +31,7 @@ const PostsList = () => {
   const loaderRef = useRef();
   
   // Проверка, является ли пользователь администратором
-  const isAdmin = isAuthenticated && user && (
-    user.email === 'igoraor79@gmail.com' || 
-    user.perks?.includes('admin') || 
-    user.activePerk === 'admin'
-  );
+  const isAdmin = isAuthenticated && checkIsAdmin(user);
   
   // Загрузка постов - обновлено для поддержки пагинации
   const fetchPosts = async (pageNum = 1, shouldAppend = false) => {

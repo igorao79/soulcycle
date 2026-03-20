@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import Window from './charblock/Window';
-import About from './about/About';
-import UseContext from './hooks/UseContext';
 import AuthButton from './Auth/AuthBtn/AuthButton';
-import ProfilePage from './Profile/ProfilePage';
 import PostsList from './Post/PostsList';
-import AdminPanel from './Admin/AdminPanel';
-import ResetPassword from './Auth/ResetPassword';
 import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/hp/HomePage.module.scss';
-import FeedbackForm from './Feedback/FeedbackForm';
 import ThemeToggleButton from './theme/ThemeToggleButton';
 import { useMobileViewport } from '../hooks/useMobileViewport';
+import { isAdmin as checkIsAdmin } from '../utils/adminCheck';
+
+// Lazy-loaded route components
+const Window = React.lazy(() => import('./charblock/Window'));
+const About = React.lazy(() => import('./about/About'));
+const UseContext = React.lazy(() => import('./hooks/UseContext'));
+const ProfilePage = React.lazy(() => import('./Profile/ProfilePage'));
+const AdminPanel = React.lazy(() => import('./Admin/AdminPanel'));
+const ResetPassword = React.lazy(() => import('./Auth/ResetPassword'));
+const FeedbackForm = React.lazy(() => import('./Feedback/FeedbackForm'));
 
 function HomePage() {
   const { user } = useAuth();
@@ -22,11 +25,7 @@ function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   
-  const isAdmin = user && (
-    user.email === 'igoraor79@gmail.com' || 
-    user.perks?.includes('admin') || 
-    user.activePerk === 'admin'
-  );
+  const isAdminUser = checkIsAdmin(user);
 
   // Используем кастомный хук для работы с viewport
   const { viewportHeight, viewportWidth, isMobile } = useMobileViewport();
@@ -154,27 +153,9 @@ function HomePage() {
     if (!showFixedNav) return null;
     
     return createPortal(
-      <nav 
+      <nav
         className={styles.main__nav__fixed}
-        style={{
-          position: 'fixed',
-          top: '50px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 99999,
-          width: 'calc(100% - 40px)',
-          maxWidth: '1200px',
-          padding: '12px 20px',
-          background: 'rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(25px)',
-          WebkitBackdropFilter: 'blur(25px)',
-          borderRadius: '25px',
-          border: '1px solid rgba(255, 255, 255, 0.25)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
+        aria-label="Основная навигация"
       >
         {/* Логотип */}
         <motion.div 
@@ -183,29 +164,35 @@ function HomePage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <Link to="/" className={styles.main__nav__logo__link}>
             <UseContext 
               src="sclogo" 
               alt="Логотип"
             />
             {/* Показываем текст только на планшетах и больше */}
             {!isMobile && (
-              <span style={{ 
-                fontSize: '1.4rem', 
-                fontWeight: '600', 
-                color: 'var(--text-color)' 
-              }}>Цикл Душ</span>
+              <span className={styles.main__nav__logo__text}>Цикл Душ</span>
             )}
           </Link>
         </motion.div>
         
         {/* Кнопка бургера для мобильных и планшетов */}
         {(isMobile || viewportWidth <= 1024) && (
-          <div 
+          <div
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={menuOpen}
             onClick={(e) => {
               e.stopPropagation();
               setMenuOpen(!menuOpen);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setMenuOpen(!menuOpen);
+              }
             }}
           >
             <div className={styles.main__nav__burger__line}></div>
@@ -248,9 +235,16 @@ function HomePage() {
     if (!menuOpen) return null;
     
     return createPortal(
-      <div className={styles.mobileMenuOverlay}>
+      <div className={styles.mobileMenuOverlay} role="dialog" aria-modal="true" aria-label="Навигация">
         {/* Кнопка закрытия */}
-        <div className={styles.mobileMenuClose} onClick={() => setMenuOpen(false)}>
+        <div
+          className={styles.mobileMenuClose}
+          role="button"
+          tabIndex={0}
+          aria-label="Закрыть меню"
+          onClick={() => setMenuOpen(false)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMenuOpen(false); } }}
+        >
           ✕
         </div>
         <ul className={styles.mobileMenuList}>
@@ -308,11 +302,21 @@ function HomePage() {
         
         {/* Кнопка гамбургер-меню: на планшетах до скролла, на мобильных рендерится во fixed-nav */}
         {!isScrolled && (viewportWidth <= 1024 && !isMobile) && (
-          <div 
+          <div
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={menuOpen}
             onClick={(e) => {
               e.stopPropagation();
               setMenuOpen(!menuOpen);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setMenuOpen(!menuOpen);
+              }
             }}
           >
             <div className={styles.main__nav__burger__line}></div>
@@ -330,7 +334,9 @@ function HomePage() {
           </div>
         )}
       </nav>
-      <AnimatedRoutes />
+      <Suspense fallback={<div className={styles.homepage} style={{ minHeight: '50vh' }} />}>
+        <AnimatedRoutes />
+      </Suspense>
     </div>
     </>
   );
@@ -339,11 +345,7 @@ function HomePage() {
 function AnimatedRoutes() {
   const location = useLocation();
   const { user } = useAuth();
-  const isAdmin = user && (
-    user.email === 'igoraor79@gmail.com' || 
-    user.perks?.includes('admin') || 
-    user.activePerk === 'admin'
-  );
+  const isAdminUser = checkIsAdmin(user);
 
   return (
     <AnimatePresence mode="wait">

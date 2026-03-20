@@ -1,126 +1,107 @@
 import supabase from './supabaseClient';
 import userProfileService from './userProfileService';
 import imageService from '../utils/imageService';
+import { isAdmin as checkIsAdmin } from '../utils/adminCheck';
+
+// Хелпер: получить профили пакетно
+async function fetchProfilesBatch(userIds) {
+  const unique = [...new Set(userIds)];
+  if (unique.length === 0) return new Map();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, avatar, perks, active_perk')
+    .in('id', unique);
+
+  const map = new Map();
+  if (error) {
+    console.error('Ошибка batch-загрузки профилей:', error);
+    return map;
+  }
+  for (const p of data) {
+    map.set(p.id, {
+      displayName: p.display_name || 'Пользователь',
+      avatar: p.avatar || null,
+      perks: p.perks || [],
+      activePerk: p.active_perk || (p.perks && p.perks[0]) || 'user',
+      id: p.id
+    });
+  }
+  return map;
+}
+
+const DEFAULT_AUTHOR = {
+  displayName: 'Пользователь',
+  avatar: null,
+  perks: [],
+  activePerk: 'user'
+};
 
 const postService = {
   // Получение постов с пагинацией
   async getPosts(page = 1, limit = 10) {
     try {
-      // Проверяем, существует ли колонка styling в таблице posts
-      let hasStylingColumn = false;
-      try {
-        // Проверяем структуру таблицы постов
-        const { data: columns, error: columnsError } = await supabase
-          .from('posts')
-          .select('styling')
-          .limit(1);
-        
-        hasStylingColumn = !columnsError;
-      } catch (columnsError) {
-        console.log('Колонка styling отсутствует в таблице posts:', columnsError);
-      }
-
-      // Вычисляем смещение на основе страницы и лимита
       const offset = (page - 1) * limit;
-      
-      // Получаем посты с пагинацией
+
+      // 1. Получаем посты
       const { data: posts, error: postsError, count } = await supabase
         .from('posts')
         .select('*', { count: 'exact' })
-        .order('is_pinned', { ascending: false }) // Сначала закрепленные
-        .order('created_at', { ascending: false }) // Затем по дате создания
-        .range(offset, offset + limit - 1); // Используем range для пагинации
-      
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
       if (postsError) throw postsError;
-
-      // Подготавливаем массив для обогащенных данных
-      const enrichedPosts = [];
-
-      // Для каждого поста получаем дополнительную информацию
-      for (const post of posts) {
-        try {
-          // Получаем профиль автора через userProfileService
-          const authorProfile = await userProfileService.getUserProfile(post.user_id);
-          
-          // Получаем перки пользователя из таблицы profiles
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('perks, active_perk')
-            .eq('id', post.user_id)
-            .single();
-            
-          const perks = profileData?.perks || [];
-          const activePerk = profileData?.active_perk || perks[0] || 'user';
-          
-          // Получаем количество лайков
-          const { count: likesCount } = await supabase
-            .from('post_likes')
-            .select('*', { count: 'exact', head: true })
-            .eq('post_id', post.id);
-            
-          // Получаем количество комментариев (включая ответы)
-          const { count: commentsCount } = await supabase
-            .from('post_comments')
-            .select('*', { count: 'exact', head: true })
-            .eq('post_id', post.id);
-          
-          // Проверяем, есть ли у поста связанный опрос
-          let poll = null;
-          if (post.poll_data) {
-            console.log('Poll data from DB:', post.poll_data);
-            poll = post.poll_data;
-          }
-
-          // Добавляем пост с дополнительной информацией
-          enrichedPosts.push({
-            id: post.id,
-            title: post.title || null,
-            content: post.content,
-            image_url: post.image_url,
-            image_urls: post.image_urls || null,
-            created_at: post.created_at,
-            user_id: post.user_id,
-            author: {
-              displayName: authorProfile.displayName,
-              avatar: authorProfile.avatar,
-              perks: perks,
-              activePerk: activePerk,
-              id: post.user_id
-            },
-            styling: hasStylingColumn ? (post.styling || null) : null,
-            likes_count: likesCount || 0,
-            comments_count: commentsCount || 0,
-            poll_data: poll,
-            is_pinned: post.is_pinned || false
-          });
-        } catch (error) {
-          console.error('Ошибка при обогащении поста данными:', error);
-          // Добавляем пост с минимальными данными в случае ошибки
-          enrichedPosts.push({
-            id: post.id,
-            title: post.title || null,
-            content: post.content,
-            image_url: post.image_url,
-            image_urls: post.image_urls || null,
-            created_at: post.created_at,
-            user_id: post.user_id,
-            author: {
-              displayName: 'Пользователь',
-              avatar: null,
-              perks: [],
-              activePerk: 'user',
-              id: post.user_id
-            },
-            styling: null,
-            likes_count: 0,
-            comments_count: 0,
-            poll_data: null,
-            is_pinned: post.is_pinned || false
-          });
-        }
+      if (!posts || posts.length === 0) {
+        return { posts: [], totalCount: count || 0, hasMore: false, nextPage: null };
       }
-      
-      // Возвращаем информацию о пагинации вместе с постами
+
+      const postIds = posts.map(p => p.id);
+      const userIds = posts.map(p => p.user_id);
+
+      // 2. Параллельно: профили, лайки, комменты
+      const [profilesMap, likesData, commentsData] = await Promise.all([
+        fetchProfilesBatch(userIds),
+        supabase
+          .from('post_likes')
+          .select('post_id')
+          .in('post_id', postIds),
+        supabase
+          .from('post_comments')
+          .select('post_id')
+          .in('post_id', postIds)
+      ]);
+
+      // Считаем лайки и комменты по post_id
+      const likesCountMap = new Map();
+      for (const like of (likesData.data || [])) {
+        likesCountMap.set(like.post_id, (likesCountMap.get(like.post_id) || 0) + 1);
+      }
+      const commentsCountMap = new Map();
+      for (const comment of (commentsData.data || [])) {
+        commentsCountMap.set(comment.post_id, (commentsCountMap.get(comment.post_id) || 0) + 1);
+      }
+
+      // 3. Собираем результат — без дополнительных запросов
+      const enrichedPosts = posts.map(post => {
+        const author = profilesMap.get(post.user_id) || { ...DEFAULT_AUTHOR, id: post.user_id };
+        return {
+          id: post.id,
+          title: post.title || null,
+          content: post.content,
+          image_url: post.image_url,
+          image_urls: post.image_urls || null,
+          created_at: post.created_at,
+          user_id: post.user_id,
+          author,
+          styling: post.styling || null,
+          likes_count: likesCountMap.get(post.id) || 0,
+          comments_count: commentsCountMap.get(post.id) || 0,
+          poll_data: post.poll_data || null,
+          is_pinned: post.is_pinned || false
+        };
+      });
+
       return {
         posts: enrichedPosts,
         totalCount: count || 0,
@@ -148,29 +129,10 @@ const postService = {
       
       console.log('Creating post with userId:', userId);
       
-      // Проверяем права администратора перед созданием поста
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('perks, active_perk, email')
-        .eq('id', userId)
-        .single();
-      
-      if (profileError) {
-        console.error('Ошибка при получении профиля пользователя:', profileError);
-        throw new Error('Не удалось проверить права пользователя');
-      }
-      
-      const perks = profileData?.perks || [];
-      const activePerk = profileData?.active_perk || '';
-      const email = profileData?.email || '';
-      
-      // Проверяем, является ли пользователь администратором
-      const isAdmin = 
-        email === 'igoraor79@gmail.com' || 
-        perks.includes('admin') || 
-        activePerk === 'admin';
-      
-      if (!isAdmin) {
+      // Проверяем права администратора через профиль
+      const authorProfile = await userProfileService.getUserProfile(userId);
+
+      if (!checkIsAdmin(authorProfile)) {
         throw new Error('У вас недостаточно прав для создания постов');
       }
       
@@ -232,10 +194,7 @@ const postService = {
         throw new Error('Не удалось создать пост');
       }
       
-      // Получаем профиль автора для возврата вместе с постом
-      const authorProfile = await userProfileService.getUserProfile(userId);
-      
-      // Формируем пост с данными автора
+      // Формируем пост с данными автора (authorProfile уже получен выше)
       const result = {
         ...data[0],
         title: data[0].title || null,
@@ -266,152 +225,49 @@ const postService = {
   // Получение поста по ID
   async getPostById(postId) {
     try {
-      // Проверяем, существует ли колонка styling в таблице posts
-      let hasStylingColumn = false;
-      try {
-        // Проверяем структуру таблицы постов
-        const { data: columns, error: columnsError } = await supabase
-          .from('posts')
-          .select('styling')
-          .limit(1);
-        
-        hasStylingColumn = !columnsError;
-      } catch (columnsError) {
-        console.log('Колонка styling отсутствует в таблице posts:', columnsError);
-      }
+      // Параллельно: пост, лайки, все комментарии
+      const [postResult, likesResult, commentsResult] = await Promise.all([
+        supabase.from('posts').select('*').eq('id', postId).single(),
+        supabase.from('post_likes').select('*', { count: 'exact', head: true }).eq('post_id', postId),
+        supabase.from('post_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true })
+      ]);
 
-      // Получаем данные поста
-      const { data: post, error } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('id', postId)
-        .single();
-      
-      if (error) throw error;
-      
-      // Получаем профиль автора через userProfileService
-      const authorProfile = await userProfileService.getUserProfile(post.user_id);
-      
-      // Получаем перки пользователя из таблицы profiles
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('perks, active_perk')
-        .eq('id', post.user_id)
-        .single();
-        
-      const perks = profileData?.perks || [];
-      const activePerk = profileData?.active_perk || perks[0] || 'user';
-      
-      // Получаем количество лайков
-      const { count: likesCount } = await supabase
-        .from('post_likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('post_id', post.id);
-      
-      // Получаем комментарии первого уровня (без родителя)
-      const { data: comments } = await supabase
-        .from('post_comments')
-        .select('*')
-        .eq('post_id', post.id)
-        .is('parent_id', null)
-        .order('created_at', { ascending: true });
-      
-      // Обогащаем комментарии данными профилей
-      const enrichedComments = [];
-      
-      for (const comment of comments) {
-        try {
-          // Получаем профиль автора комментария
-          const commentAuthorProfile = await userProfileService.getUserProfile(comment.user_id);
-          
-          // Получаем перки пользователя из таблицы profiles
-          const { data: commentProfileData } = await supabase
-            .from('profiles')
-            .select('perks, active_perk')
-            .eq('id', comment.user_id)
-            .single();
-            
-          const commentPerks = commentProfileData?.perks || [];
-          const commentActivePerk = commentProfileData?.active_perk || commentPerks[0] || 'user';
-          
-          // Получаем ответы на комментарий
-          const { data: replies } = await supabase
-            .from('post_comments')
-            .select('*')
-            .eq('post_id', post.id)
-            .eq('parent_id', comment.id)
-            .order('created_at', { ascending: true });
-          
-          // Обогащаем ответы данными профилей
-          const enrichedReplies = [];
-          
-          for (const reply of replies || []) {
-            try {
-              // Получаем профиль автора ответа
-              const replyAuthorProfile = await userProfileService.getUserProfile(reply.user_id);
-              
-              // Получаем перки пользователя из таблицы profiles
-              const { data: replyProfileData } = await supabase
-                .from('profiles')
-                .select('perks, active_perk')
-                .eq('id', reply.user_id)
-                .single();
-                
-              const replyPerks = replyProfileData?.perks || [];
-              const replyActivePerk = replyProfileData?.active_perk || replyPerks[0] || 'user';
-              
-              enrichedReplies.push({
-                ...reply,
-                author: {
-                  displayName: replyAuthorProfile.displayName,
-                  avatar: replyAuthorProfile.avatar,
-                  perks: replyPerks,
-                  activePerk: replyActivePerk,
-                  id: reply.user_id
-                }
-              });
-            } catch (error) {
-              console.error('Ошибка при обогащении ответа данными:', error);
-              enrichedReplies.push({
-                ...reply,
-                author: {
-                  displayName: 'Пользователь',
-                  avatar: null,
-                  perks: [],
-                  activePerk: 'user',
-                  id: reply.user_id
-                }
-              });
-            }
+      if (postResult.error) throw postResult.error;
+      const post = postResult.data;
+      const allComments = commentsResult.data || [];
+
+      // Собираем все user_id (автор поста + все комментаторы)
+      const userIds = [post.user_id, ...allComments.map(c => c.user_id)];
+      const profilesMap = await fetchProfilesBatch(userIds);
+
+      const getAuthor = (userId) => {
+        const profile = profilesMap.get(userId);
+        return profile ? { ...profile } : { ...DEFAULT_AUTHOR, id: userId };
+      };
+
+      // Разделяем комменты на корневые и ответы
+      const rootComments = [];
+      const repliesByParentId = new Map();
+      for (const comment of allComments) {
+        if (comment.parent_id === null) {
+          rootComments.push(comment);
+        } else {
+          if (!repliesByParentId.has(comment.parent_id)) {
+            repliesByParentId.set(comment.parent_id, []);
           }
-          
-          enrichedComments.push({
-            ...comment,
-            author: {
-              displayName: commentAuthorProfile.displayName,
-              avatar: commentAuthorProfile.avatar,
-              perks: commentPerks,
-              activePerk: commentActivePerk,
-              id: comment.user_id
-            },
-            replies: enrichedReplies
-          });
-        } catch (error) {
-          console.error('Ошибка при обогащении комментария данными:', error);
-          enrichedComments.push({
-            ...comment,
-            author: {
-              displayName: 'Пользователь',
-              avatar: null,
-              perks: [],
-              activePerk: 'user',
-              id: comment.user_id
-            },
-            replies: []
-          });
+          repliesByParentId.get(comment.parent_id).push(comment);
         }
       }
-      
+
+      const enrichedComments = rootComments.map(comment => ({
+        ...comment,
+        author: getAuthor(comment.user_id),
+        replies: (repliesByParentId.get(comment.id) || []).map(reply => ({
+          ...reply,
+          author: getAuthor(reply.user_id)
+        }))
+      }));
+
       return {
         id: post.id,
         content: post.content,
@@ -419,15 +275,9 @@ const postService = {
         image_urls: post.image_urls || null,
         created_at: post.created_at,
         user_id: post.user_id,
-        author: {
-          displayName: authorProfile.displayName,
-          avatar: authorProfile.avatar,
-          perks: perks,
-          activePerk: activePerk,
-          id: post.user_id
-        },
-        styling: hasStylingColumn ? (post.styling || null) : null,
-        likes_count: likesCount || 0,
+        author: getAuthor(post.user_id),
+        styling: post.styling || null,
+        likes_count: likesResult.count || 0,
         comments: enrichedComments,
         poll: post.poll_data
       };
