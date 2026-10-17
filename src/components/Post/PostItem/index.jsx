@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { 
   FiHeart, FiMessageSquare, FiClock, FiTrash2, 
@@ -9,6 +9,7 @@ import {
 import { AiOutlinePushpin } from 'react-icons/ai';
 
 import { useAuth } from '../../../contexts/AuthContext';
+import { useMediaQuery } from '../../../hooks/useMediaQuery';
 import postService from '../../../services/postService';
 import commentService from '../../../services/commentService';
 import filterBadWords from '../../../utils/filterBadWords';
@@ -76,7 +77,6 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState('');
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Check if post has title and content separately
@@ -96,22 +96,10 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
   const isContentDark = isDarkColor(contentColor);
   
   // Check if device is mobile
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   // Check if post is a poll
   const isPollPost = !!post.poll_data;
-  
-  // Update mobile status when window size changes
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-
-    handleResize(); // Check initially
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   // Update relative time every 5 minutes instead of every minute
   useEffect(() => {
@@ -525,20 +513,6 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
       setIsPinning(false);
     }
   };
-  
-  // Update theme listener
-  useEffect(() => {
-    const handleThemeChange = () => {
-      // Force re-render on theme change
-      setTimeAgo(formatRelativeTime(post.created_at, isMobile));
-    };
-    
-    window.addEventListener('themechange', handleThemeChange);
-    
-    return () => {
-      window.removeEventListener('themechange', handleThemeChange);
-    };
-  }, [post.created_at, isMobile]);
   
   // Edit post
   const handleEditPost = async (updatedPost) => {

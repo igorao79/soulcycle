@@ -1,33 +1,28 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useContext } from 'react';
 import { ThemeContext } from '../theme/ThemeContext';
 import styles from '../../styles/about/Member.module.scss';
 import team from '../../data/team';
 import { CloudinaryImage } from '../../utils/cloudinary';
 import { Link } from 'react-router-dom';
 
-const BookMember = React.memo(({ memberId, profileUrl }) => {
+// roleKey — поле team[memberId] с названием роли (bookteam / developerteam), showBio — показывать ли описание
+const TeamMember = React.memo(({ memberId, profilePath, roleKey = 'bookteam', showBio = true }) => {
   const { theme } = useContext(ThemeContext);
   
-  // Мемоизируем данные участника
-  const member = useMemo(() => team[memberId], [memberId]);
+  const member = team[memberId];
 
   if (!member) {
     return <div className={styles.member__notfound}>Участник не найден.</div>;
   }
 
-  // Мемоизируем ID для использования в классах
-  const safeId = useMemo(() => (
-    `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`
-  ), [member]);
+  const safeId = `member--${member.id.replace(/\s+/g, '-').toLowerCase()}`;
 
-  // Extract profile ID from URL if provided
-  const profilePath = profileUrl ? new URL(profileUrl).hash.replace('#', '') : null;
 
   return (
     <div className={`${styles.member} ${styles[`member--${member.id}`]}`} id={safeId}>
       <div className={styles.member__imageWrapper}>
         <div className={`${styles.member__imageContainer} ${theme === 'dark' ? styles.darkTheme : ''}`}>
-          {profileUrl ? (
+          {profilePath ? (
             <Link to={profilePath}>
               <CloudinaryImage
                 path={member.src}
@@ -53,7 +48,7 @@ const BookMember = React.memo(({ memberId, profileUrl }) => {
       <div className={styles.member__info}>
         <div className={styles.member__info__details}>
           <h3 className={styles.member__info__details__name}>
-            {profileUrl ? (
+            {profilePath ? (
               <Link to={profilePath} className={styles.member__info__details__link}>
                 {member.name}
               </Link>
@@ -61,20 +56,15 @@ const BookMember = React.memo(({ memberId, profileUrl }) => {
               member.name
             )}
           </h3>
-          <p className={styles.member__info__details__role}>{member.bookteam}</p>
+          <p className={styles.member__info__details__role}>{member[roleKey]}</p>
         </div>
-        <p className={styles.member__info__bio}>{member.bio}</p>
+        {showBio && <p className={styles.member__info__bio}>{member.bio}</p>}
       </div>
     </div>
   );
 });
 
 // Добавляем displayName для лучшей отладки
-BookMember.displayName = 'BookMember';
+TeamMember.displayName = 'TeamMember';
 
-// Добавляем проверку PropTypes если используете prop-types
-// BookMember.propTypes = {
-//   memberId: PropTypes.string.isRequired
-// };
-
-export default BookMember;
+export default TeamMember;

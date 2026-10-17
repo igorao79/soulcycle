@@ -79,11 +79,10 @@
   cursor: pointer;
   margin-top: 16px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
     background-color: var(--accent-dark);
-    transform: translateY(-2px);
   }
   
   @media (max-width: 600px) {
@@ -270,7 +269,6 @@
   
   &:hover:not(:disabled) {
     background-color: #c0392b !important;
-    transform: translateY(-3px);
     box-shadow: 0 8px 15px rgba(231, 76, 60, 0.4) !important;
   }
 }
@@ -409,12 +407,11 @@
   cursor: pointer;
   z-index: 10;
   box-shadow: var(--shadow);
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   margin: 0;
   
   &:hover {
     background: rgba(var(--accent-rgb), 0.2);
-    transform: scale(1.05);
   }
 }
 
@@ -435,7 +432,7 @@
   align-items: center;
   border: 1px solid var(--border);
   background: var(--bg-secondary);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   position: relative;
   
   &.selectedAvatar {
@@ -506,7 +503,7 @@
   border-radius: 8px;
   cursor: pointer;
   border: 1px solid var(--border);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
     transform: translateX(5px);
@@ -582,7 +579,7 @@
     background-color: var(--bg-input);
     color: var(--text-primary);
     font-size: 16px;
-    transition: all 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
     width: 100%;
     
     &:focus {
@@ -610,7 +607,7 @@
     border-radius: 10px;
     font-weight: 500;
     font-size: 16px;
-    transition: all 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -629,7 +626,6 @@
     
     &:hover:not(:disabled) {
       background-color: var(--bg-hover);
-      transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     
@@ -647,12 +643,10 @@
     
     &:hover:not(:disabled) {
       background-color: var(--accent-dark);
-      transform: translateY(-3px);
       box-shadow: 0 8px 15px rgba(var(--accent-rgb), 0.4);
     }
     
     &:active:not(:disabled) {
-      transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(var(--accent-rgb), 0.3);
     }
   }
@@ -698,7 +692,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     margin: 0;
     width: auto;
     box-shadow: none;
@@ -841,7 +835,7 @@
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
   
   &:hover {
     transform: translateY(-5px);
@@ -1048,7 +1042,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
       
       svg {
         font-size: 1rem;
@@ -1060,7 +1054,6 @@
         
         &:hover {
           background-color: #2980b9;
-          transform: translateY(-2px);
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
@@ -1080,7 +1073,6 @@
         
         &:hover {
           background-color: #c0392b;
-          transform: translateY(-2px);
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
@@ -1270,7 +1262,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   }
   
   .cancelButton {

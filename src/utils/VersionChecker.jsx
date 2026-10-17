@@ -16,15 +16,14 @@ const getBaseUrl = () => {
 const clearAppCache = () => {
   console.log('Обнаружена новая версия приложения. Очищаем кэш...');
   
-  // Очищаем весь localStorage (или можно очищать только определенные ключи)
-  const keysToPreserve = []; // Можно добавить ключи, которые не нужно удалять
-  
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!keysToPreserve.includes(key)) {
-      localStorage.removeItem(key);
-    }
-  }
+  // Сохраняем тему, формат изображений и сессию Supabase (иначе после каждого релиза
+  // пользователя разлогинивает и тема сбрасывается на светлую)
+  const shouldPreserve = (key) =>
+    key === 'theme' || key === 'browser-image-format' || key.startsWith('sb-');
+
+  Object.keys(localStorage)
+    .filter((key) => !shouldPreserve(key))
+    .forEach((key) => localStorage.removeItem(key));
 
   // Пытаемся очистить кэш браузера, если поддерживается API Cache
   if ('caches' in window) {
@@ -36,7 +35,7 @@ const clearAppCache = () => {
   }
 
   // Можно также обновить страницу для применения изменений
-  window.location.reload(true);
+  window.location.reload();
 };
 
 const VersionChecker = () => {

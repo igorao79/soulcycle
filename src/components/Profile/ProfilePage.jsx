@@ -13,7 +13,6 @@ import AccountManager from './components/AccountManager';
 import ProfileHeader from './components/ProfileHeader';
 import AdminActions from './components/AdminActions';
 import PersonalSettings from './components/PersonalSettings';
-import { formatDate, formatBanEndTime, isUserAdmin } from './components/ProfileUtils';
 
 // Import modal components
 import AvatarModal from './components/modals/AvatarModal';

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiAlertCircle, FiLoader, FiSend, FiX, FiImage, FiPlus, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
+import { FiAlertCircle, FiLoader, FiSend, FiX, FiImage, FiPlus, FiMinimize2 } from 'react-icons/fi';
 import styles from '../../Post.module.scss';
-import { getOptimizedUrl } from '../utils/helpers';
 import imageService from '../../../../utils/imageService';
 
 // Компонент для увеличения изображения

@@ -7,7 +7,7 @@
     background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     width: 60px;
     height: 60px;
     display: flex;
@@ -131,7 +131,7 @@
     height: 200%;
     background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transform: rotate(45deg);
-    transition: all 0.6s;
+    transition: background-color 0.6s, color 0.6s, border-color 0.6s, box-shadow 0.6s, transform 0.6s, opacity 0.6s;
     opacity: 0;
 }
 

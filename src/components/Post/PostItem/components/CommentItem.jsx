@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCornerDownRight, FiTrash2, FiClock, FiLoader, FiSend, FiX, FiInfo } from 'react-icons/fi';
+import { FiCornerDownRight, FiTrash2, FiClock, FiLoader, FiSend, FiX } from 'react-icons/fi';
 import { useAuth } from '../../../../contexts/AuthContext';
 import commentService from '../../../../services/commentService';
 import filterBadWords from '../../../../utils/filterBadWords';
@@ -13,7 +13,6 @@ import {
   CommentActionsDropdown, DropdownToggle, DropdownMenu, DropdownItem,
   commentResponsiveStyles, mobileCommentResponsiveStyles, slideActionStyles
 } from '../styles/CommentStyles';
-import { WarningMessage, animationVariants } from '../styles/PostStyles';
 import Notification from '../../../common/Notification';
 
 function CommentItem({ comment, onReply, onDelete }) {

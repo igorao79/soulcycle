@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiAlertCircle, FiCheck, FiX, FiLoader, FiEdit, FiUser, FiMail, FiCalendar, FiShield, FiSettings, FiSave, FiUserX, FiInfo, FiCheckCircle } from 'react-icons/fi';
+import { FiAlertCircle, FiX, FiLoader, FiUser, FiShield, FiSave, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import supabase from '../../../services/supabaseClient';
 import authService from '../../../services/authService';
 import styles from '../ProfilePage.module.scss';

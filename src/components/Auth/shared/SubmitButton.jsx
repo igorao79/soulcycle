@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { buttonVariants } from '../config/animations';
-import styles from '../../AuthForms.module.scss';
+import { buttonVariants } from './animations';
+import styles from '../AuthForms.module.scss';
 
 /**
  * Компонент кнопки отправки формы с анимацией

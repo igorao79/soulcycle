@@ -204,8 +204,7 @@ const postService = {
           id: userId,
           displayName: authorProfile.displayName,
           avatar: authorProfile.avatar,
-          activePerk: authorProfile.activePerk || 'user',
-          id: userId
+          activePerk: authorProfile.activePerk || 'user'
         },
         likes_count: 0,
         comments_count: 0,
@@ -1148,8 +1147,7 @@ const postService = {
             id: data[0].user_id,
             displayName: authorProfile.displayName,
             avatar: authorProfile.avatar,
-            activePerk: authorProfile.activePerk || 'user',
-            id: data[0].user_id
+            activePerk: authorProfile.activePerk || 'user'
           },
         };
         
@@ -1165,29 +1163,5 @@ const postService = {
     }
   }
 };
-
-// Функция для трансформации данных поста из ответа сервера
-function transformPost(post) {
-  return {
-    id: post.id,
-    title: post.title || null,
-    content: post.content,
-    image_url: post.image_url,
-    image_urls: post.image_urls || null,
-    user_id: post.user_id,
-    created_at: post.created_at,
-    updated_at: post.updated_at,
-    poll: post.poll || null,
-    styling: post.styling || null,
-    author: {
-      id: post.author?.id || post.user_id,
-      displayName: post.author?.display_name,
-      avatar: post.author?.avatar,
-      activePerk: post.author?.active_perk || 'user'
-    },
-    likes_count: post.likes_count || 0,
-    comments_count: post.comments_count || 0
-  };
-}
 
 export default postService; 

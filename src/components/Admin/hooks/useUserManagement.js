@@ -21,8 +21,6 @@ export const useUserManagement = (user, refreshUser, setTemporaryMessage) => {
       const userData = await loadProfilesDirectly();
       setUsers(userData);
       return userData;
-    } catch (err) {
-      throw err;
     } finally {
       setLoading(false);
     }

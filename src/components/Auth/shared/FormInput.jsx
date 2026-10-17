@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { inputVariants, fieldVariants } from '../config/animations';
-import styles from '../../AuthForms.module.scss';
+import { inputVariants, fieldVariants } from './animations';
+import styles from '../AuthForms.module.scss';
 
 /**
- * Компонент поля ввода с иконкой и анимацией
+ * Поле ввода форм входа и регистрации (иконка + анимация)
  */
 const FormInput = ({
   id,

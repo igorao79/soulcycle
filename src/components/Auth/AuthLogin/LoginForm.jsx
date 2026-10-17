@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
-import { containerVariants } from './config/animations';
+import { containerVariants } from '../shared/animations';
 import { useLoginForm } from './hooks/useLoginForm';
-import FormInput from './components/FormInput';
-import SubmitButton from './components/SubmitButton';
-import ErrorMessage from './components/ErrorMessage';
-import FormTitle from './components/FormTitle';
-import SwitchFormLink from './components/SwitchFormLink';
+import FormInput from '../shared/FormInput';
+import SubmitButton from '../shared/SubmitButton';
+import ErrorMessage from '../shared/ErrorMessage';
+import FormTitle from '../shared/FormTitle';
+import SwitchFormLink from '../shared/SwitchFormLink';
 import ForgotPasswordLink from './components/ForgotPasswordLink';
 import styles from '../AuthForms.module.scss';
 

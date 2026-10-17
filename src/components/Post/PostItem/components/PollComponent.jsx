@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { FiInfo } from 'react-icons/fi';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { 
   PollWrapper, PollQuestion, PollOptionsList, PollOption, PollOptionButton,
   OptionText, CheckIcon, PercentageText, ProgressBarContainer, ProgressBarFill,
   VotesCount, BarChartIcon
 } from '../styles/PollStyles';
-import { AdminViewBadge, WarningMessage, animationVariants } from '../styles/PostStyles';
+import { AdminViewBadge } from '../styles/PostStyles';
 import { declOfNum } from '../utils/helpers';
 import Notification from '../../../common/Notification';
 

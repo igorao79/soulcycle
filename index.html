@@ -19,13 +19,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://res.cloudinary.com">
     
-    <!-- Preload критических шрифтов -->
-    <link rel="preload" href="/src/fonts/GraphikLCG-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href="/src/fonts/GraphikLCG-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-    
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Poppins:wght@400;500;600&family=Raleway:wght@400;500;600&family=Roboto:wght@400;500;700&family=Source+Sans+Pro:wght@400;600&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
     
     <title>SoulCycle</title>
+
+    <!-- Применяем сохранённую тему до первой отрисовки, чтобы не было белой вспышки в тёмной теме -->
+    <script>
+      (function () {
+        var theme = 'light';
+        try { theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+        var root = document.documentElement;
+        root.setAttribute('data-theme', theme);
+        root.style.colorScheme = theme;
+        root.style.backgroundColor = theme === 'dark' ? '#1e1e1e' : '#fff';
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

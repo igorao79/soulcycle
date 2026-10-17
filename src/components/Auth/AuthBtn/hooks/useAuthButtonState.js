@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useReducer } from 'react';
 import { useAuth, useUserDisplayName } from '../../../../contexts/AuthContext';
 import { USER_UPDATED_EVENT } from '../../../../contexts/AuthContext';
-import userProfileService, { addListener, removeListener } from '../../../../services/userProfileService';
+import { addListener } from '../../../../services/userProfileService';
 
 // Функция для получения класса перка
 export const getPerkClass = (perkName, perkStyles) => {

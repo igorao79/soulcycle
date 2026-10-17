@@ -4,11 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import AuthButton from './Auth/AuthBtn/AuthButton';
 import PostsList from './Post/PostsList';
-import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/hp/HomePage.module.scss';
 import ThemeToggleButton from './theme/ThemeToggleButton';
 import { useMobileViewport } from '../hooks/useMobileViewport';
-import { isAdmin as checkIsAdmin } from '../utils/adminCheck';
 
 // Lazy-loaded route components
 const Window = React.lazy(() => import('./charblock/Window'));
@@ -20,15 +18,12 @@ const ResetPassword = React.lazy(() => import('./Auth/ResetPassword'));
 const FeedbackForm = React.lazy(() => import('./Feedback/FeedbackForm'));
 
 function HomePage() {
-  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   
-  const isAdminUser = checkIsAdmin(user);
-
   // Используем кастомный хук для работы с viewport
-  const { viewportHeight, viewportWidth, isMobile } = useMobileViewport();
+  const { isMobile, isCompact } = useMobileViewport();
   
   // Состояние для фиксированной навигации
   const [showFixedNav, setShowFixedNav] = useState(isMobile);
@@ -59,7 +54,7 @@ function HomePage() {
           setShowFixedNav(shouldScroll || isMobile);
           
           // Добавляем класс для мобильной и планшетной фиксированной навигации
-          if (isMobile || (viewportWidth <= 1024 && shouldScroll)) {
+          if (isMobile || (isCompact && shouldScroll)) {
             document.body.classList.add('mobile-fixed-nav');
           } else {
             document.body.classList.remove('mobile-fixed-nav');
@@ -88,7 +83,7 @@ function HomePage() {
       window.removeEventListener('resize', handleResize);
       document.body.classList.remove('mobile-fixed-nav');
     };
-  }, [isMobile, viewportWidth, location.pathname]);
+  }, [isMobile, isCompact, location.pathname]);
 
   // Закрываем меню при клике вне его
   useEffect(() => {
@@ -177,7 +172,7 @@ function HomePage() {
         </motion.div>
         
         {/* Кнопка бургера для мобильных и планшетов */}
-        {(isMobile || viewportWidth <= 1024) && (
+        {isCompact && (
           <div
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
             role="button"
@@ -202,7 +197,7 @@ function HomePage() {
         )}
         
         {/* Навигация для больших экранов */}
-        {viewportWidth > 1024 && (
+        {!isCompact && (
           <ul className={styles.main__nav__perexod}>
             <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
               <Link to="/">Главная</Link>
@@ -286,7 +281,7 @@ function HomePage() {
         )}
         <nav className={styles.main__nav}>
         {/* Стандартная навигация для десктопа - скрываем при скролле */}
-        {!isScrolled && viewportWidth > 1024 && (
+        {!isScrolled && !isCompact && (
           <ul className={styles.main__nav__perexod}>
             <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
               <Link to="/">Главная</Link>
@@ -301,7 +296,7 @@ function HomePage() {
         )}
         
         {/* Кнопка гамбургер-меню: на планшетах до скролла, на мобильных рендерится во fixed-nav */}
-        {!isScrolled && (viewportWidth <= 1024 && !isMobile) && (
+        {!isScrolled && (isCompact && !isMobile) && (
           <div
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
             role="button"
@@ -342,95 +337,73 @@ function HomePage() {
   );
 }
 
+const pageVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -16 },
+};
+
+// Общая анимация появления/ухода страницы
+function PageTransition({ children }) {
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function AnimatedRoutes() {
   const location = useLocation();
-  const { user } = useAuth();
-  const isAdminUser = checkIsAdmin(user);
-
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <div className={styles.homepage}>
               <PostsList />
             </div>
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/characters" element={
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <Window />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/about" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <About />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/profile" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <ProfilePage />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/profile/:userId" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <ProfilePage />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/reset-password" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <ResetPassword />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/admin" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <AdminPanel />
-          </motion.div>
+          </PageTransition>
         } />
         <Route path="/feedback" element={
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
+          <PageTransition>
             <FeedbackForm />
-          </motion.div>
+          </PageTransition>
         } />
       </Routes>
     </AnimatePresence>

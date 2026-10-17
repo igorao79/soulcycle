@@ -58,7 +58,7 @@
         box-shadow: 
             0 4px 20px rgba(0, 0, 0, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.25);
-        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: background-color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         position: relative;
         overflow: hidden;
         
@@ -85,7 +85,6 @@
         }
 
         &:hover {
-            transform: translateY(-1px);
             box-shadow: 
                 0 6px 25px rgba(0, 0, 0, 0.12),
                 inset 0 1px 0 rgba(255, 255, 255, 0.35);
@@ -116,7 +115,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
             border-radius: 50%;
             padding: 4px;
             background: rgba(255, 255, 255, 0.08);
@@ -130,7 +129,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                transition: all 0.3s ease;
+                transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
             }
 
             &.darkTheme {
@@ -143,7 +142,7 @@
             font-weight: 600;
             color: var(--text-color);
             letter-spacing: -0.01em;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
 
 
         }
@@ -163,7 +162,7 @@
         align-items: center;
         position: relative;
         padding: 5px 0;
-        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: background-color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         
         // Фиксированная навигация через портал
         &__fixed {
@@ -242,7 +241,7 @@
                 box-shadow: 
                     0 4px 20px rgba(0, 0, 0, 0.08),
                     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 min-width: 500px;
                 max-width: 800px;
                 justify-content: space-around;
@@ -260,16 +259,11 @@
                         border-radius: 15px;
                         font-size: clamp(1.5rem, 1.4vw, 1.5rem);
                         font-weight: 500;
-                        transition: all 0.3s ease;
+                        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
                         position: relative;
                         
                         &:hover {
-                            background: rgba(255, 255, 255, 0.1);
-                            transform: translateY(-2px);
-                        }
-                        
-                        [data-theme="dark"] &:hover {
-                            background: rgba(255, 255, 255, 0.05);
+                            background: var(--hover-bg);
                         }
                     }
                     
@@ -302,7 +296,7 @@
             -webkit-backdrop-filter: blur(15px);
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
             
             [data-theme="dark"] & {
                 background: rgba(20, 20, 30, 0.3);
@@ -340,7 +334,7 @@
             box-shadow: 
                 0 4px 20px rgba(0, 0, 0, 0.06),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             overflow: hidden;
             flex: 1;
@@ -353,7 +347,6 @@
             }
 
             &:hover {
-                transform: translateY(-1px);
                 box-shadow: 
                     0 6px 25px rgba(0, 0, 0, 0.1),
                     inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -375,7 +368,7 @@
 
             &__link {
                 position: relative;
-                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 
                 a {
                     color: var(--text-color);
@@ -385,7 +378,7 @@
                     font-size: clamp(1.1rem, 1.8vw, 1.3rem);
                     font-weight: 500;
                     letter-spacing: -0.01em;
-                    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                     position: relative;
                     overflow: hidden;
                     z-index: 1;
@@ -396,9 +389,7 @@
                     }
                     
                     &:hover {
-                        transform: translateY(-1px);
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
+                        background: var(--hover-bg);
                         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                         
                         &::before {
@@ -406,7 +397,6 @@
                         }
                         
                         [data-theme="dark"] & {
-                            background: rgba(255, 255, 255, 0.05);
                             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
                         }
                     }
@@ -459,7 +449,6 @@
                         }
                         
                         &:hover {
-                            transform: translateY(-2px);
                             box-shadow: 
                                 0 8px 30px rgba(0, 0, 0, 0.15),
                                 inset 0 1px 0 rgba(255, 255, 255, 0.4);
@@ -493,7 +482,7 @@
             box-shadow: 
                 0 4px 20px rgba(0, 0, 0, 0.06),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             
             &:hover {
                 transform: translateY(-1px);
@@ -529,13 +518,13 @@
             padding: 0;
             background: none;
             border: none;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
 
             &__line {
                 width: 100%;
                 height: 2px;
                 background: var(--text-color, #333);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 transform-origin: left center;
                 
                 [data-theme="light"] & {
@@ -636,7 +625,7 @@
                         font-size: 18px;
                         font-weight: 500;
                         border-radius: 20px;
-                        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                         position: relative;
                         text-align: center;
                         background: rgba(255, 255, 255, 0.08);
@@ -662,8 +651,7 @@
                         }
 
                         &:hover {
-                            transform: translateY(-3px) scale(1.02);
-                            background: rgba(255, 255, 255, 0.15);
+                            background: var(--hover-bg-strong);
                             box-shadow: 
                                 0 8px 30px rgba(0, 0, 0, 0.2),
                                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -674,7 +662,6 @@
                             }
                             
                             [data-theme="dark"] & {
-                                background: rgba(255, 255, 255, 0.1);
                                 box-shadow: 
                                     0 8px 30px rgba(0, 0, 0, 0.3),
                                     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -737,7 +724,6 @@
                             }
                             
                             &:hover {
-                                transform: translateY(-4px) scale(1.03);
                                 box-shadow: 
                                     0 10px 35px rgba(0, 0, 0, 0.25),
                                     inset 0 1px 0 rgba(255, 255, 255, 0.4);
@@ -820,7 +806,7 @@
     font-size: 22px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
     z-index: 10;
     box-shadow: var(--shadow);
     
@@ -861,12 +847,11 @@
             border: 2px solid var(--border-color);
             border-radius: 20px;
             background: var(--bg-secondary);
-            transition: all 0.4s ease;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease, opacity 0.4s ease, width 0.4s ease, height 0.4s ease, padding 0.4s ease, margin 0.4s ease, max-height 0.4s ease, filter 0.4s ease, backdrop-filter 0.4s ease;
             box-shadow: var(--shadow);
             
             &:hover {
                 background: var(--bg-highlight);
-                transform: scale(1.05);
                 border-color: var(--accent-color);
                 box-shadow: var(--shadow-hover);
             }
@@ -898,7 +883,6 @@
             }
             
             &:hover {
-                transform: scale(1.08);
                 box-shadow: 0 12px 40px rgba(var(--accent-rgb), 0.3);
             }
         }
@@ -922,7 +906,7 @@
         background: var(--bg-secondary);
         border-radius: 25px;
         border: 2px solid var(--border-color);
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
         box-shadow: var(--shadow);
         
         // ПРАВИЛЬНЫЕ СТИЛИ ДЛЯ КНОПКИ ТЕМЫ
@@ -973,7 +957,6 @@
         
         &:hover {
             background: var(--bg-highlight);
-            transform: scale(1.05);
             box-shadow: var(--shadow-hover);
         }
     }
@@ -1111,12 +1094,11 @@
                     font-size: 20px;
                     font-weight: bold;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
                     z-index: 10;
                     
                     &:hover {
                         background: rgba(255, 255, 255, 0.2);
-                        transform: scale(1.1);
                     }
                 }
                 
@@ -1146,11 +1128,10 @@
                             border: 1px solid rgba(255, 255, 255, 0.2);
                             border-radius: 15px;
                             background: rgba(255, 255, 255, 0.1);
-                            transition: all 0.3s ease;
+                            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
                             
                             &:hover {
                                 background: rgba(255, 255, 255, 0.2);
-                                transform: scale(1.05);
                             }
                         }
                     }
@@ -1173,7 +1154,7 @@
                         background: rgba(255, 255, 255, 0.15);
                         border-radius: 20px;
                         border: 1px solid rgba(255, 255, 255, 0.3);
-                        transition: all 0.3s ease;
+                        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease, max-height 0.3s ease, filter 0.3s ease, backdrop-filter 0.3s ease;
                         
                         // Переопределяем стили кнопки темы в мобильном меню
                         button {
@@ -1205,7 +1186,6 @@
                         
                         &:hover {
                             background: rgba(255, 255, 255, 0.25);
-                            transform: scale(1.05);
                         }
                     }
                 }

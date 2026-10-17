@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import supabase from '../../../services/supabaseClient';
 import { formatBanEndTime } from './ProfileUtils';
-import styles from '../ProfilePage.module.scss';
 
 const UserBanManager = (props) => {
   const { profileUser, currentUser, updateProfileUser, setAdminEditStatus } = props;

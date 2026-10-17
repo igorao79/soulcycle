@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { errorVariants } from '../config/animations';
-import styles from '../../AuthForms.module.scss';
+import { errorVariants } from './animations';
+import styles from '../AuthForms.module.scss';
 
 /**
  * Компонент для отображения сообщения об ошибке с анимацией

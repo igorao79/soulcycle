@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { AVATARS } from '../../../utils/cloudinary';
 import authService from '../../../services/authService';
 import { PROFILE_AVATARS, ADMIN_AVATARS } from './ProfileUtils';
 

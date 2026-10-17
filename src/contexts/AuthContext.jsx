@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 import authService from '../services/authService';
 import supabase from '../services/supabaseClient';
-import userProfileService, { addListener } from '../services/userProfileService';
+import { addListener } from '../services/userProfileService';
 import BanModal from '../components/Auth/Ban/BanModal';
 import translateAuthError from '../utils/authErrorTranslator';
 

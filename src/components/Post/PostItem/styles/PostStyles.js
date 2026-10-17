@@ -1,7 +1,5 @@
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiHeart } from 'react-icons/fi';
-import { AiOutlinePushpin } from 'react-icons/ai';
 
 // Animations
 const gradientBorder = keyframes`
@@ -37,7 +35,7 @@ export const PinButton = styled.button`
   cursor: pointer;
   padding: 6px 10px;
   border-radius: 4px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -183,7 +181,7 @@ export const WarningMessage = styled(motion.div)`
     font-size: 13px;
     cursor: pointer;
     margin-left: auto;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     
     &:hover {
       background-color: rgba(29, 161, 242, 0.8);

@@ -67,11 +67,6 @@ img.preview,
   }
 }
 
-/* Override any inline styles that might set height to auto */
-img[style*="height: auto"] {
-  height: 100% !important;
-}
-
 /* Fix lightbox/modal display for images */
 .lightbox-overlay img,
 .modal img,
@@ -108,14 +103,6 @@ img[src*="cloudinary.com"][src*="/image/fetch/"] {
   width: 100% !important;
   border-radius: 8px !important;
   margin: 10px 0 !important;
-}
-
-/* Fix small lightbox windows */
-[class*="lightboxContent"],
-[class*="modalContent"] {
-  min-width: 400px !important;
-  min-height: 300px !important;
-  
 }
 
 /* Additional fixes for image galleries */

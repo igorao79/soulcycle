@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiUser, FiMail, FiKey, FiShield, FiX, FiSave, FiLoader } from 'react-icons/fi';
+import { FiUser, FiMail, FiShield, FiX, FiSave, FiLoader } from 'react-icons/fi';
 import styles from '../AdminPanel.module.scss';
 
 const UserEditForm = ({ 

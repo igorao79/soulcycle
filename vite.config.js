@@ -7,7 +7,6 @@ import { exec } from 'child_process';
 import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
 import { splitVendorChunkPlugin } from 'vite';
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 // Конфигурация для React Compiler
 const ReactCompilerConfig = {
@@ -70,8 +69,6 @@ export default defineConfig({
       algorithm: 'brotliCompress',
       threshold: 1024,
     }),
-    // CSS оптимизация - внедрение CSS в JS для снижения запросов
-    cssInjectedByJsPlugin(),
     // Плагин для анализа размера бандла (только для production)
     process.env.ANALYZE && visualizer({
       filename: './dist/stats.html',
@@ -129,7 +126,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-ui': ['framer-motion', 'styled-components'],
-          'vendor-utils': ['date-fns', 'browser-image-compression'],
+          'vendor-utils': ['browser-image-compression'],
         }
       }
     }

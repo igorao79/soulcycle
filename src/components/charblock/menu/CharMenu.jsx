@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styles from '../../../styles/charblock/CharMenu.module.scss';
 import appStyles from '../../../App.module.css'; // Импортируем стили из App.module.css
 import { getAgeWord } from '../../../utils/charblock/checkage.ts';

@@ -28,12 +28,12 @@
     align-items: center;
     justify-content: center;
     left: 0.4em;
-    transition: all 0.5s;
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s, box-shadow 0.5s, transform 0.5s, opacity 0.5s;
   }
 
   .icon svg {
     margin-left: 0.1em;
-    transition: all 0.5s;
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s, box-shadow 0.5s, transform 0.5s, opacity 0.5s;
     color: var(--text-color);
     width: 2.5rem;
     height: 2.5rem;

@@ -1,5 +1,5 @@
 import supabase from '../supabaseClient';
-import userProfileService, { emitEvent } from '../userProfileService';
+import userProfileService from '../userProfileService';
 import translateAuthError from '../../utils/authErrorTranslator';
 import { triggerUserUpdate } from '../../contexts/AuthContext';
 import eventService from '../eventService';

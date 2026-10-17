@@ -1,8 +1,7 @@
 import React from 'react';
 import styles from '../../styles/about/About.module.scss';
-import BookMember from './BookMember';
+import TeamMember from './TeamMember';
 import Tgbtn from '../charblock/window/Tgbtn';
-import DeveloperMember from './DeveloperMember';
 import { motion } from 'framer-motion';
 
 function About() {
@@ -119,15 +118,15 @@ function About() {
                     variants={containerVariants}
                 >
                     <motion.div variants={cardVariants}>
-                        <BookMember 
+                        <TeamMember 
                             memberId="igor" 
-                            profileUrl="http://localhost:5173/#/profile/ca7fe23e-f263-4372-8aac-a652791e724c"
+                            profilePath="/profile/ca7fe23e-f263-4372-8aac-a652791e724c"
                         />
                     </motion.div>
                     <motion.div variants={cardVariants}>
-                        <BookMember 
+                        <TeamMember 
                             memberId="lesya" 
-                            profileUrl="http://localhost:5173/#/profile/f1ea0167-4743-4d9e-93fc-42e30a55f34f"
+                            profilePath="/profile/f1ea0167-4743-4d9e-93fc-42e30a55f34f"
                         />
                     </motion.div>
                 </motion.div>
@@ -143,9 +142,11 @@ function About() {
                     variants={containerVariants}
                 >
                     <motion.div variants={cardVariants}>
-                        <DeveloperMember 
-                            memberId="igor" 
-                            profileUrl="http://localhost:5173/#/profile/ca7fe23e-f263-4372-8aac-a652791e724c"
+                        <TeamMember 
+                            memberId="igor"
+                            roleKey="developerteam"
+                            showBio={false}
+                            profilePath="/profile/ca7fe23e-f263-4372-8aac-a652791e724c"
                         />
                     </motion.div>
                 </motion.div>

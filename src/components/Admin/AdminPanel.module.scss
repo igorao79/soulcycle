@@ -182,7 +182,7 @@
   border-radius: 10px;
   padding: 1.25rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
@@ -300,7 +300,7 @@
     justify-content: center;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     
     &:hover {
       background-color: var(--bg-hover);
@@ -398,7 +398,7 @@
     font-size: 1.05rem;
     background-color: var(--bg-input);
     color: var(--text-primary);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     height: 50px;
     
     &:focus {
@@ -516,7 +516,7 @@ table {
   cursor: pointer;
   padding: 5px;
   border-radius: 4px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   &:hover {
     background-color: var(--bg-hover);
@@ -549,7 +549,7 @@ table {
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -563,7 +563,6 @@ table {
   
   &:hover {
     background-color: var(--bg-hover);
-    transform: translateY(-2px);
   }
   
   svg {
@@ -577,7 +576,6 @@ table {
   
   &:hover {
     background: var(--accent-dark);
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
   }
   
@@ -642,7 +640,7 @@ table {
   justify-content: center;
   padding: 6px;
   border-radius: 4px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   &:hover {
     background-color: rgba(231, 76, 60, 0.1);
@@ -755,7 +753,7 @@ table {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     position: absolute;
     right: 15px;
     
@@ -868,7 +866,7 @@ table {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     
     &:disabled {
       opacity: 0.7;
@@ -903,7 +901,6 @@ table {
     
     &:hover:not(:disabled) {
       background: #c0392b;
-      transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
     }
     
@@ -927,12 +924,11 @@ table {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     margin: 0 auto;
     
     &:hover:not(:disabled) {
       background: #27ae60;
-      transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
     }
     
@@ -1046,7 +1042,7 @@ table {
   color: var(--text-primary);
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover:not(:disabled) {
     background-color: var(--bg-secondary);

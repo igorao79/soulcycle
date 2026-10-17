@@ -1,7 +1,6 @@
 import React from 'react';
 import { FiEdit, FiMail, FiCalendar } from 'react-icons/fi';
 import styles from '../ProfilePage.module.scss';
-import perkStyles from '../../../styles/Perks.module.scss';
 import OptimizedAvatar from '../../shared/OptimizedAvatar';
 import { AVATARS } from '../../../utils/cloudinary';
 import { formatDate } from './ProfileUtils';

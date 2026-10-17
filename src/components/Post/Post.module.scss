@@ -55,7 +55,7 @@
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     background: var(--bg-secondary);
     color: var(--text-secondary);
     border: 1px solid var(--border);
@@ -68,7 +68,6 @@
     
     &:hover {
       background: var(--bg-highlight);
-      transform: translateY(-2px);
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     }
     
@@ -123,7 +122,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -131,7 +130,6 @@
   
   &:hover:not(:disabled) {
     background-color: var(--accent-hover);
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
   
@@ -271,7 +269,7 @@
   border: 1px solid var(--border);
   padding: 20px;
   margin-bottom: 24px;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .createPostTitle {
@@ -487,11 +485,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
     background-color: rgba(231, 76, 60, 0.2);
-    transform: scale(1.1);
   }
   
   svg {
@@ -518,7 +515,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -562,7 +559,7 @@
   padding: 6px 12px;
   border-radius: var(--radius-md);
   background-color: var(--bg-tertiary);
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   
   &:hover {
     background-color: var(--bg-hover);
@@ -593,7 +590,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -779,7 +776,7 @@
   border-radius: 8px;
   overflow: hidden;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   aspect-ratio: 16/9;
   cursor: pointer;
   display: block;
@@ -938,7 +935,7 @@
     display: flex;
     align-items: center;
     color: var(--text-secondary);
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
     
     &:hover {
       background-color: rgba(29, 161, 242, 0.1);
@@ -992,7 +989,7 @@
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
     background-color: var(--bg-hover);
@@ -1016,7 +1013,7 @@
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   svg {
     font-size: 16px;
@@ -1024,7 +1021,6 @@
   
   &:hover {
     background-color: rgba(231, 76, 60, 0.2);
-    transform: translateY(-1px);
   }
   
   &:disabled {
@@ -1272,7 +1268,7 @@
   cursor: pointer;
   padding: 6px 10px;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   
   &:hover {
     background-color: var(--bg-hover);
@@ -1341,7 +1337,7 @@
   align-items: center;
       gap: 6px;
   cursor: pointer;
-      transition: all var(--transition-fast);
+      transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
       
       &:disabled {
         opacity: 0.7;
@@ -1524,10 +1520,9 @@ textarea {
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
-    transform: scale(1.2);
   }
   
   &.active {
@@ -1585,7 +1580,7 @@ textarea {
   cursor: pointer;
   color: var(--accent);
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover:not(:disabled) {
     background-color: rgba(29, 161, 242, 0.05);
@@ -1624,7 +1619,7 @@ textarea {
   align-items: center;
   justify-content: center;
   border: 2px solid var(--border);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover {
     transform: scale(1.1);
@@ -1721,11 +1716,10 @@ textarea {
     color: white;
     text-decoration: none;
     border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
     &:hover {
       background: var(--accent-hover);
-      transform: translateY(-1px);
     }
   }
 }
@@ -1792,7 +1786,7 @@ textarea {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   margin-right: 8px;
   
   svg {
@@ -1801,7 +1795,6 @@ textarea {
   
   &:hover {
     background-color: rgba(46, 204, 113, 0.2);
-    transform: translateY(-1px);
   }
   
   [data-theme="dark"] & {
@@ -1923,7 +1916,7 @@ textarea {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1964,7 +1957,7 @@ textarea {
   border-radius: 8px;
   overflow: hidden;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   aspect-ratio: 16/9;
   display: flex;
   align-items: center;
@@ -2269,11 +2262,10 @@ textarea {
   display: flex;
   align-items: center;
   gap: 5px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   &:hover {
     background: linear-gradient(135deg, #7a99dc 0%, #5a79cd 100%);
-    transform: translateY(-1px);
   }
   
   &:disabled {
@@ -2289,7 +2281,7 @@ textarea {
   padding: 15px;
   margin-bottom: 15px;
   text-align: center;
-  transition: all 0.3s;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   background-color: rgba(240, 242, 245, 0.5);
   
   &.highlight {

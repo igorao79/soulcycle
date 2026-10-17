@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import postService from '../../services/postService';
-import PostItem from './PostItem/index.jsx';
-import CreatePostForm from './CreatePostForm';
+import PostItem from './PostItem/index';
+import CreatePostForm from './CreatePostForm/index';
 import RulesModal from '../Rules/RulesModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { isAdmin as checkIsAdmin } from '../../utils/adminCheck';

@@ -60,7 +60,7 @@ const CloseButton = styled.button`
   color: white;
   cursor: pointer;
   z-index: 10;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   
   &:hover {
     background: rgba(255, 255, 255, 0.4);
@@ -91,7 +91,7 @@ const NavButton = styled.button`
   justify-content: center;
   cursor: pointer;
   font-size: 20px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   z-index: 10;
   
   &:hover {

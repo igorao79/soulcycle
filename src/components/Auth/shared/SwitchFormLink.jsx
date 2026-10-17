@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import styles from '../../AuthForms.module.scss';
+import styles from '../AuthForms.module.scss';
 
 /**
  * Компонент для переключения между формами авторизации и регистрации

@@ -88,7 +88,7 @@ export const commentResponsiveStyles = `
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   }
   
   .replyButton:hover,

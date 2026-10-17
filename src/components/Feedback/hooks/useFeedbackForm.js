@@ -34,11 +34,12 @@ function feedbackReducer(state, action) {
         images: [...state.images, action.payload],
         error: '' 
       };
-    case ACTIONS.REMOVE_IMAGE:
+    case ACTIONS.REMOVE_IMAGE: {
       const newImages = [...state.images];
       URL.revokeObjectURL(newImages[action.payload].url);
       newImages.splice(action.payload, 1);
       return { ...state, images: newImages };
+    }
     case ACTIONS.SET_SENDING:
       return { ...state, sending: action.payload, error: '' };
     case ACTIONS.SET_SENT:

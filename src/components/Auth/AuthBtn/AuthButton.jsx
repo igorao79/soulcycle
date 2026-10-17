@@ -1,10 +1,10 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import styles from './AuthButton.module.scss';
 import perkStyles from '../../../styles/Perks.module.scss';
 import AuthModal from '../AuthModal';
 import { ThemeContext } from '../../theme/ThemeContext';
 import { useAuthButtonState } from './hooks/useAuthButtonState';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../../contexts/AuthContext';
 
 // Импортируем подкомпоненты

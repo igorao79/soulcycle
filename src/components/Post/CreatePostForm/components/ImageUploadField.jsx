@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FiImage, FiPlus, FiX, FiMaximize2, FiMinimize2, FiUpload, FiPaperclip } from 'react-icons/fi';
+import { FiImage, FiX, FiMinimize2, FiUpload, FiPaperclip } from 'react-icons/fi';
 import styles from '../../Post.module.scss';
 import imageService from '../../../../utils/imageService';
 

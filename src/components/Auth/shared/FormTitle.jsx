@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { titleVariants } from '../config/animations';
-import styles from '../../AuthForms.module.scss';
+import { titleVariants } from './animations';
+import styles from '../AuthForms.module.scss';
 
 /**
  * Компонент заголовка формы с анимацией

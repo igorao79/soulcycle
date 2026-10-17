@@ -1,7 +1,7 @@
 /**
  * Утилиты для работы с изображениями Cloudinary
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 
 // Инлайн-стили скелетона (чтобы не зависеть от внешнего CSS-файла)
 const skeletonKeyframes = `

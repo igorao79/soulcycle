@@ -16,7 +16,7 @@
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
@@ -27,7 +27,6 @@
   letter-spacing: 0.5px;
   
   &:hover {
-    transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     background: linear-gradient(90deg, #777, #555);
   }
@@ -41,7 +40,7 @@
     height: 200%;
     background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
     transform: rotate(45deg);
-    transition: all 0.5s;
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s, box-shadow 0.5s, transform 0.5s, opacity 0.5s;
     opacity: 0;
   }
   
@@ -76,7 +75,7 @@
   padding: 6px 14px 6px 6px;
   cursor: pointer;
   border-radius: 30px;
-  transition: all 0.3s;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   backdrop-filter: blur(4px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   min-height: 54px;
@@ -109,7 +108,7 @@
   svg {
     color: #e0e0e0;
     stroke: #e0e0e0;
-    transition: all 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   }
 }
 
@@ -285,7 +284,7 @@
   color: #e0e0e0;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.25s;
+  transition: background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.25s, opacity 0.25s;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -300,13 +299,13 @@
     height: 100%;
     width: 3px;
     background: transparent;
-    transition: all 0.25s;
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.25s, opacity 0.25s;
   }
   
   svg {
     color: #8e8e9a;
     stroke-width: 2px;
-    transition: all 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   }
   
   // Add theme support for SVG icons
@@ -322,7 +321,6 @@
   
   &:hover {
     background: rgba(45, 45, 50, 0.9);
-    transform: translateY(-2px);
     
     svg {
       color: #a0a0b0;

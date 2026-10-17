@@ -19,7 +19,7 @@
     --border-color2: white;
     --border: #e1e8ed;
     
-    --accent-color: #555555;
+    --accent-color: #3498db;
     --accent: #555555;
     --accent-rgb: 32, 178, 170;
     --accent-light: rgba(32, 178, 170, 0.1);
@@ -35,6 +35,8 @@
     --info: #60a5fa;
     --info-rgb: 96, 165, 250;
     
+    --hover-bg: rgba(0, 0, 0, 0.06);
+    --hover-bg-strong: rgba(0, 0, 0, 0.1);
     --overlay-color: rgba(0, 0, 0, 0.5);
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 5px 15px rgba(0, 0, 0, 0.15);
@@ -89,12 +91,14 @@
     --border-color2: black;
     --border: rgba(255, 255, 255, 0.1);
     
-    --accent-color: #333333;
+    --accent-color: #3498db;
     --accent: #333333;
     --accent-rgb: 187, 134, 252;
     --accent-light: rgba(187, 134, 252, 0.1);
     --accent-hover: #333333;
     
+    --hover-bg: rgba(255, 255, 255, 0.08);
+    --hover-bg-strong: rgba(255, 255, 255, 0.14);
     --overlay-color: rgba(255, 255, 255, 0.5);
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 5px 15px rgba(0, 0, 0, 0.4);
@@ -152,6 +156,13 @@
     box-sizing: border-box;
 }
 
+/* Смена темы без анимации: см. applyThemeToDOM в ThemeContext */
+:global(html.theme-switching) *,
+:global(html.theme-switching) *::before,
+:global(html.theme-switching) *::after {
+    transition: none !important;
+}
+
 html, body {
     font-size: 10px;
     color: var(--text-color);
@@ -183,14 +194,22 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     margin: 0 auto;
     background-color: var(--background-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Фон на fixed-слое вместо background-attachment: fixed — тот перерисовывается при каждом
+   скролле и даёт дерганье, особенно на мобильных */
+.page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
     background-image: var(--page-bg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    position: relative;
-    transition: background-color var(--transition-slow), color var(--transition-slow);
-    overflow: hidden;
-    background-attachment: fixed
 }
 
 .bgEffectsRoot {
@@ -217,7 +236,7 @@ img {
 button {
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 a {
@@ -233,7 +252,7 @@ a {
     box-shadow: var(--shadow);
     padding: 20px;
     border: 1px solid var(--border);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .btn {
@@ -244,7 +263,7 @@ a {
     border-radius: var(--radius-md);
     font-size: 14px;
     font-weight: 500;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .btn-primary {
@@ -329,7 +348,6 @@ a {
   --viewport-height: 100vh;
 }
 
-/* Мобильная фиксированная навигация - отключено для предотвращения скачков */
 body.mobile-fixed-nav {
   overscroll-behavior: contain;
 }
