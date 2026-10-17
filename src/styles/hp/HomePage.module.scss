@@ -1409,3 +1409,44 @@
         display: none;
     }
 }
+
+// Пункты меню внутри плашки: ровные «таблетки» одного размера, активная отличается только фоном
+// (без смены толщины шрифта и без обрезания тени, иначе пункты прыгают и подсветка выглядит кривой)
+.main .main__nav__bar > .main__nav__perexod {
+    overflow: visible;
+    gap: 8px;
+    padding-left: 0;
+    padding-right: 0;
+
+    .main__nav__perexod__link a {
+        display: block;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 14px;
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        font-weight: 500;
+        overflow: visible;
+
+        &::before { display: none; }
+
+        &:hover { background: var(--hover-bg); box-shadow: none; }
+    }
+
+    .main__nav__perexod__link.active a {
+        background: var(--hover-bg-strong);
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+}
+
+// Слот профиля резервирует размер, чтобы шапка не дёргалась, когда загрузка авторизации завершается
+.main .main__nav__bar > .main__nav__auth {
+    min-width: 190px;
+    min-height: 54px;
+    justify-content: flex-end;
+}

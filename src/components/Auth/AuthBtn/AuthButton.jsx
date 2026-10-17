@@ -1,8 +1,7 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import styles from './AuthButton.module.scss';
 import perkStyles from '../../../styles/Perks.module.scss';
 import AuthModal from '../AuthModal';
-import { ThemeContext } from '../../theme/ThemeContext';
 import { useAuthButtonState } from './hooks/useAuthButtonState';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -16,8 +15,7 @@ import UserMenu from './components/UserMenu';
  * Компонент кнопки авторизации и меню пользователя
  */
 const AuthButton = () => {
-  const { theme } = useContext(ThemeContext);
-  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   
   const {
     displayName,
@@ -34,17 +32,13 @@ const AuthButton = () => {
     setUserMenuOpen
   } = useAuthButtonState(perkStyles);
 
-  const [showLoader, setShowLoader] = useState(false); // Отключаем автоматический лоадер
   const profileBtnRef = useRef(null);
 
-  // Показываем лоадер только если реально идет загрузка авторизации
+  // Пока идёт проверка авторизации, показываем заглушку размера кнопки профиля — без скачка вёрстки
   if (authLoading) {
     return (
-      <div className={styles.profileButton}>
-        <div className={styles.loader}>
-          <div className={styles.loaderSpinner}></div>
-          <span className={styles.loaderText}>Проверка...</span>
-        </div>
+      <div className={styles.authContainer}>
+        <div className={styles.authSkeleton} aria-busy="true" aria-label="Проверка авторизации" />
       </div>
     );
   }

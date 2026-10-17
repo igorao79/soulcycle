@@ -170,6 +170,19 @@
 }
 
 // Стили для лоадера
+.authSkeleton {
+  width: 170px;
+  height: 54px;
+  border-radius: 30px;
+  background: var(--hover-bg-strong);
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+}
+
 .loader {
   display: flex;
   align-items: center;
