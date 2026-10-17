@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from '../../styles/theme/ThemeToggleButton.module.css';
 import { FaSun, FaMoon } from 'react-icons/fa';
 
-const ThemeToggleButton = React.memo(() => {
+const ThemeToggleButton = React.memo(({ inline = false }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
 
@@ -14,14 +14,14 @@ const ThemeToggleButton = React.memo(() => {
 
   return (
     <button
-      className={styles.themeButton}
+      className={`${styles.themeButton} ${inline ? styles.inline : ''}`}
       onClick={handleClick}
       aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
       <motion.div
         className={styles.toggleInner}
         transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-        animate={{
+        animate={inline ? undefined : {
           background: isDark
             ? 'radial-gradient(60% 60% at 50% 50%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 100%)'
             : 'radial-gradient(60% 60% at 50% 50%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%)',
@@ -51,7 +51,7 @@ const ThemeToggleButton = React.memo(() => {
               exit={{ rotate: 90, opacity: 0, scale: 0.7 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
             >
-              <FaSun color="#000" />
+              <FaSun color={inline ? 'currentColor' : '#000'} />
             </motion.div>
           ) : (
             <motion.div
@@ -62,7 +62,7 @@ const ThemeToggleButton = React.memo(() => {
               exit={{ rotate: -90, opacity: 0, scale: 0.7 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
             >
-              <FaMoon color="#fff" />
+              <FaMoon color={inline ? 'currentColor' : '#fff'} />
             </motion.div>
           )}
         </AnimatePresence>

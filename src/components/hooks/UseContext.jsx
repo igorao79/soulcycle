@@ -43,7 +43,7 @@ const UseContext = ({ src, alt, folder = 'logo', width, height }) => {
         <img
           src={getImagePath('png')}
           alt={alt}
-          loading="lazy"
+          loading="eager"
           width={width}
           height={height}
           onError={(e) => {
@@ -83,7 +83,7 @@ const UseContext = ({ src, alt, folder = 'logo', width, height }) => {
       <img
         src={getCloudinaryUrl(imageName, { ...baseOptions, format: 'png' })}
         alt={alt}
-        loading="lazy"
+        loading="eager"
         width={width || (src === 'sclogo' ? 160 : undefined)}
         height={height}
         onError={(e) => {

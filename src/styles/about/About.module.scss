@@ -81,7 +81,7 @@
                     transition: transform 0.4s ease;
                     
                     &__main {
-                        fill: var(--accent);
+                        fill: var(--accent-text);
                         animation: wiggle 3s infinite ease-in-out;
                         
                         [data-theme="dark"] & {
@@ -90,7 +90,7 @@
                     }
                     
                     &__small {
-                        fill: var(--accent);
+                        fill: var(--accent-text);
                         opacity: 0.9;
                         animation: float 4s infinite ease-in-out;
                         
@@ -171,7 +171,7 @@
         
         &__icon {
             font-size: 1.8rem;
-            color: var(--accent);
+            color: var(--accent-text);
             animation: pulse 3s infinite ease-in-out;
         }
     }
@@ -196,7 +196,7 @@
             &::before {
                 content: "✧";
                 margin-right: 0.5rem;
-                color: var(--accent);
+                color: var(--accent-text);
                 font-size: 0.8em;
                 animation: spin 4s linear infinite;
                 display: inline-block;
@@ -242,7 +242,7 @@
             &::before {
                 content: "♥";
                 margin-right: 0.5rem;
-                color: var(--accent);
+                color: var(--accent-text);
                 font-size: 0.8em;
                 animation: pulse 2s infinite ease-in-out;
                 display: inline-block;

@@ -2,7 +2,6 @@ import React, { useEffect, useContext } from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import styles from './App.module.css';
 import HomePage from './components/HomePage';
-import ThemeToggleButton from './components/theme/ThemeToggleButton';
 import { ThemeContext } from './components/theme/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
@@ -135,9 +134,6 @@ function App() {
                 <div id="bg-effects-root" className={styles.bgEffectsRoot}></div>
                 <div className={styles.pageContent}>
                     <HomePage />
-                    <div className={styles.desktopThemeToggle}>
-                        <ThemeToggleButton />
-                    </div>
                     <VersionChecker />
                 </div>
             </div>

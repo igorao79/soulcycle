@@ -26,7 +26,7 @@
     margin: 0;
     
     svg {
-      color: var(--accent);
+      color: var(--accent-text);
     }
     
     @media (max-width: 480px) {
@@ -88,11 +88,11 @@
   
   .rulesButton {
     background: var(--accent-light);
-    color: var(--accent);
+    color: var(--accent-text);
     border: 1px solid transparent;
     
     svg {
-      color: var(--accent);
+      color: var(--accent-text);
     }
     
     &:hover {
@@ -101,12 +101,13 @@
     }
     
     [data-theme="dark"] & {
-      background-color: lightgray;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+      background-color: var(--bg-highlight);
+      color: var(--accent-text);
+      border: 1px solid var(--border);
       
       &:hover {
-        background-color: rgba(52, 152, 219, 0.3);
+        background-color: var(--hover-bg-strong);
+        opacity: 1;
       }
     }
   }
@@ -258,7 +259,7 @@
   gap: 8px;
   
   svg {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 }
 
@@ -282,7 +283,7 @@
   gap: 8px;
   
   svg {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 }
 
@@ -305,7 +306,7 @@
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px var(--accent-light);
   }
   
@@ -324,7 +325,7 @@
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
   }
   
@@ -378,7 +379,7 @@
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
   }
   
@@ -455,7 +456,7 @@
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
   }
   
@@ -511,7 +512,7 @@
   background: none;
   border: 1px dashed var(--border);
   border-radius: 8px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -523,7 +524,7 @@
   
   &:hover {
     background-color: rgba(29, 161, 242, 0.05);
-    border-color: var(--accent);
+    border-color: var(--accent-text);
   }
   
   [data-theme="dark"] & {
@@ -531,7 +532,7 @@
     
     &:hover {
       background-color: rgba(29, 161, 242, 0.1);
-      border-color: var(--accent);
+      border-color: var(--accent-text);
     }
   }
 }
@@ -665,7 +666,7 @@
     }
     
     [data-theme="dark"] & {
-      border: 2px solid var(--accent);
+      border: 2px solid var(--accent-text);
       
       &:before {
         background: linear-gradient(45deg, var(--accent), transparent 80%);
@@ -702,7 +703,7 @@
   transform: translateZ(0);
   
   &:hover {
-    color: var(--accent);
+    color: var(--accent-text);
     
     .avatar {
       transform: scale(1.05);
@@ -939,7 +940,7 @@
     
     &:hover {
       background-color: rgba(29, 161, 242, 0.1);
-      color: var(--accent);
+      color: var(--accent-text);
       
       [data-theme="dark"] & {
         background-color: rgba(29, 161, 242, 0.2);
@@ -1105,7 +1106,7 @@
     
     &:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--accent-text);
       box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
     }
     
@@ -1173,7 +1174,7 @@
 .commentItem {
   margin-bottom: 20px;
   padding-left: 10px;
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--accent-text);
   
   [data-theme="dark"] & {
     border-left-color: rgba(29, 161, 242, 0.6);
@@ -1303,7 +1304,7 @@
   background: var(--bg-comment-form);
   border-radius: var(--radius-md);
   padding: 12px;
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--accent-text);
   
   textarea {
     width: 100%;
@@ -1319,7 +1320,7 @@
     
     &:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--accent-text);
       box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
   }
 }
@@ -1491,7 +1492,7 @@ textarea {
   gap: 8px;
   
   svg {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 }
 
@@ -1526,7 +1527,7 @@ textarea {
   }
   
   &.active {
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.3);
   }
 }
@@ -1542,7 +1543,7 @@ textarea {
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
   }
   
@@ -1578,13 +1579,13 @@ textarea {
   border-radius: 8px;
   margin-top: 10px;
   cursor: pointer;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   
   &:hover:not(:disabled) {
     background-color: rgba(29, 161, 242, 0.05);
-    border-color: var(--accent);
+    border-color: var(--accent-text);
   }
   
   &:disabled {
@@ -1668,7 +1669,7 @@ textarea {
 .colorNote {
   font-size: 12px;
   margin-top: 8px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-style: italic;
   line-height: 1.4;
   padding: 5px 8px;
@@ -1738,7 +1739,7 @@ textarea {
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px rgba(76, 155, 254, 0.15);
   }
   

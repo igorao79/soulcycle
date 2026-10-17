@@ -46,7 +46,7 @@
   
   &:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-text);
     box-shadow: 0 0 0 2px var(--accent-light);
   }
   
@@ -85,14 +85,14 @@
 .textButton {
   background: none;
   border: none;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 0.875rem;
   cursor: pointer;
   padding: 0;
   
   &:hover {
     text-decoration: underline;
-    color: var(--accent-hover);
+    color: var(--accent-text);
   }
 }
 
@@ -125,12 +125,12 @@
 }
 
 .link {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   
   &:hover {
     text-decoration: underline;
-    color: var(--accent-hover);
+    color: var(--accent-text);
   }
 }
 
@@ -243,7 +243,7 @@
     
     &:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--accent-text);
       box-shadow: 0 0 0 2px var(--accent-light);
       background-color: var(--bg-highlight);
     }

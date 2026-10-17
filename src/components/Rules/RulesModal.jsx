@@ -89,10 +89,10 @@ const DialogContent = styled.div`
   }
   
   .highlight {
-    background: lightgray;
+    background: var(--hover-bg-strong);
     padding: 2px 4px;
     border-radius: 4px;
-    color: var(--accent);
+    color: var(--accent-text);
     font-weight: 500;
   }
   
@@ -129,7 +129,7 @@ const DialogTitle = styled.h2`
   gap: 12px;
 
   svg {
-    color: ${({ isDark }) => (isDark ? '#fff' : 'var(--accent)')};
+    color: ${({ isDark }) => (isDark ? '#fff' : 'var(--accent-text)')};
     transition: color 0.3s ease;
   }
 `;

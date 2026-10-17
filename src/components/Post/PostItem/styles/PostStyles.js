@@ -39,7 +39,7 @@ export const PinButton = styled.button`
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
-    color: var(--accent);
+    color: var(--accent-text);
   }
   
   svg {
@@ -79,7 +79,7 @@ export const PinnedBadge = styled.div`
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  color: var(--accent);
+  color: var(--accent-text);
   background-color: var(--accent-light);
   padding: 3px 8px;
   border-radius: 12px;
@@ -152,7 +152,7 @@ export const CommentSection = styled(motion.div)`
 // Warning Message
 export const WarningMessage = styled(motion.div)`
   background-color: rgba(255, 152, 0, 0.1);
-  border-left: 4px solid var(--accent, #1da1f2);
+  border-left: 4px solid var(--accent-text, #1da1f2);
   padding: 12px 16px;
   margin: 12px 0;
   border-radius: 4px;
@@ -162,7 +162,7 @@ export const WarningMessage = styled(motion.div)`
   overflow: hidden;
   
   svg {
-    color: var(--accent, #1da1f2);
+    color: var(--accent-text, #1da1f2);
     font-size: 20px;
     flex-shrink: 0;
   }

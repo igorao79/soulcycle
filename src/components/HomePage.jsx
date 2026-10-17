@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import UseContext from './hooks/UseContext';
 import AuthButton from './Auth/AuthBtn/AuthButton';
 import PostsList from './Post/PostsList';
 import styles from '../styles/hp/HomePage.module.scss';
@@ -9,17 +10,35 @@ import ThemeToggleButton from './theme/ThemeToggleButton';
 import { useMobileViewport } from '../hooks/useMobileViewport';
 
 // Lazy-loaded route components
-const Window = React.lazy(() => import('./charblock/Window'));
-const About = React.lazy(() => import('./about/About'));
-const UseContext = React.lazy(() => import('./hooks/UseContext'));
-const ProfilePage = React.lazy(() => import('./Profile/ProfilePage'));
-const AdminPanel = React.lazy(() => import('./Admin/AdminPanel'));
-const ResetPassword = React.lazy(() => import('./Auth/ResetPassword'));
-const FeedbackForm = React.lazy(() => import('./Feedback/FeedbackForm'));
+const importWindow = () => import('./charblock/Window');
+const importAbout = () => import('./about/About');
+const importProfile = () => import('./Profile/ProfilePage');
+const importAdmin = () => import('./Admin/AdminPanel');
+const importResetPassword = () => import('./Auth/ResetPassword');
+const importFeedback = () => import('./Feedback/FeedbackForm');
+
+const Window = React.lazy(importWindow);
+const About = React.lazy(importAbout);
+const ProfilePage = React.lazy(importProfile);
+const AdminPanel = React.lazy(importAdmin);
+const ResetPassword = React.lazy(importResetPassword);
+const FeedbackForm = React.lazy(importFeedback);
+
+// Подгружаем чанки страниц в простое: тогда переход не показывает Suspense-заглушку
+// и не схлопывает страницу (из-за этого раньше всё дёргалось)
+const preloadRoutes = () => {
+  [importWindow, importAbout, importProfile, importFeedback, importResetPassword, importAdmin]
+    .forEach((load) => load().catch(() => {}));
+};
 
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const id = window.requestIdleCallback ? window.requestIdleCallback(preloadRoutes) : setTimeout(preloadRoutes, 1500);
+    return () => (window.cancelIdleCallback ? window.cancelIdleCallback(id) : clearTimeout(id));
+  }, []);
   
   // Используем кастомный хук для работы с viewport
   const { isMobile, isCompact } = useMobileViewport();
@@ -272,20 +291,20 @@ function HomePage() {
           <div className={styles.main__nav__auth}>
             <AuthButton />
           </div>
+          {!isCompact && <ThemeToggleButton inline />}
         </nav>
         )}
-      <Suspense fallback={<div className={styles.routeArea} />}>
-        <AnimatedRoutes />
-      </Suspense>
+      <AnimatedRoutes />
     </div>
     </>
   );
 }
 
+// Только opacity: смещение по y сдвигало содержимое и давало дерганье при смене страниц
 const pageVariants = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -16 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 // Общая анимация появления/ухода страницы
@@ -296,9 +315,11 @@ function PageTransition({ children }) {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
     >
-      {children}
+      <Suspense fallback={<div className={styles.routeArea} />}>
+        {children}
+      </Suspense>
     </motion.div>
   );
 }
@@ -307,7 +328,7 @@ function AnimatedRoutes() {
   const location = useLocation();
   return (
     <div className={styles.routeArea}>
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
           <PageTransition>

@@ -21,9 +21,10 @@
     
     --accent-color: #3498db;
     --accent: #555555;
+    --accent-text: #3d3d3d;
     --accent-rgb: 32, 178, 170;
     --accent-light: rgba(32, 178, 170, 0.1);
-    --accent-hover: #555555;
+    --accent-hover: #3a3a3a;
     
     --success: #34d399;
     --success-rgb: 52, 211, 153;
@@ -92,10 +93,11 @@
     --border: rgba(255, 255, 255, 0.1);
     
     --accent-color: #3498db;
-    --accent: #333333;
+    --accent: #3a3a42;
+    --accent-text: #d0d3dd;
     --accent-rgb: 187, 134, 252;
     --accent-light: rgba(187, 134, 252, 0.1);
-    --accent-hover: #333333;
+    --accent-hover: #4f4f5a;
     
     --hover-bg: rgba(255, 255, 255, 0.08);
     --hover-bg-strong: rgba(255, 255, 255, 0.14);
@@ -248,7 +250,7 @@ button {
 
 a {
     text-decoration: none;
-    color: var(--accent);
+    color: var(--accent-text);
     transition: color var(--transition-fast);
 }
 
@@ -332,21 +334,6 @@ a {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Кнопка смены темы на десктопе */
-.desktopThemeToggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-}
-
-/* Скрываем кнопку смены темы на мобильных устройствах и планшетах */
-@media (max-width: 1024px) {
-  .desktopThemeToggle {
-    display: none;
-  }
 }
 
 /* Мобильные браузеры - решение проблем с viewport */

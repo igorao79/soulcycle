@@ -222,3 +222,36 @@
     margin: 0 !important;
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
 }
+/* Компактный вариант внутри шапки-плашки */
+.themeButton.inline {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: auto;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: var(--hover-bg);
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    color: var(--text-primary);
+}
+
+.themeButton.inline:hover {
+    background: var(--hover-bg-strong);
+    transform: none;
+    box-shadow: none;
+}
+
+.themeButton.inline::before {
+    display: none;
+}
+
+.themeButton.inline .icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: inherit;
+}

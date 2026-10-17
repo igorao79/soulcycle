@@ -112,7 +112,7 @@ export const OptionText = styled.span`
 `;
 
 export const CheckIcon = styled(FiCheck)`
-  color: var(--accent, #1da1f2);
+  color: var(--accent-text, #1da1f2);
   margin-right: 10px;
   
   [data-theme="dark"] & {
@@ -122,7 +122,7 @@ export const CheckIcon = styled(FiCheck)`
 `;
 
 export const PercentageText = styled.span`
-  color: var(--accent, #1da1f2);
+  color: var(--accent-text, #1da1f2);
   font-weight: 600;
   font-size: 14px;
   margin-left: auto;
