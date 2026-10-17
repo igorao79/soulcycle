@@ -268,20 +268,16 @@ function HomePage() {
       {renderFixedNav()}
       {renderMobileMenu()}
       <div className={`${styles.main} ${isScrolled ? styles.scrolled : ''}`}>
+        {/* Шапка в одну строку: логотип — навигация — профиль. При скролле её заменяет fixed-навигация;
+            блок остаётся в потоке (visibility), чтобы страница не прыгала по высоте */}
+        <nav className={`${styles.main__nav} ${isScrolled ? styles.main__nav__idle : ''}`}>
         {!isMobile && (
-          <header className={`${styles.main__header} ${isScrolled ? styles.hidden : ''}`}>
-            <Link to="/">
-              <UseContext 
-                src="sclogo" 
-                alt="Логотип"
-              />
-            </Link>
-            <h1 className={styles.main__header__title}>Цикл Душ</h1>
-          </header>
+          <Link to="/" className={styles.main__header} aria-label="Цикл Душ — на главную">
+            <UseContext src="sclogo" alt="Логотип" />
+            <span className={styles.main__header__title}>Цикл Душ</span>
+          </Link>
         )}
-        <nav className={styles.main__nav}>
-        {/* Стандартная навигация для десктопа - скрываем при скролле */}
-        {!isScrolled && !isCompact && (
+        {!isCompact && (
           <ul className={styles.main__nav__perexod}>
             <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
               <Link to="/">Главная</Link>
@@ -296,7 +292,7 @@ function HomePage() {
         )}
         
         {/* Кнопка гамбургер-меню: на планшетах до скролла, на мобильных рендерится во fixed-nav */}
-        {!isScrolled && (isCompact && !isMobile) && (
+        {isCompact && !isMobile && (
           <div
             className={`${styles.main__nav__burger} ${menuOpen ? styles.open : ''}`}
             role="button"
@@ -323,13 +319,13 @@ function HomePage() {
         {/* Мобильное меню рендерится через портал */}
         
         {/* Кнопка авторизации - скрываем при скролле и не дублируем на мобильных */}
-        {!isScrolled && !isMobile && (
+        {!isMobile && (
           <div className={styles.main__nav__auth}>
             <AuthButton />
           </div>
         )}
       </nav>
-      <Suspense fallback={<div className={styles.homepage} style={{ minHeight: '50vh' }} />}>
+      <Suspense fallback={<div className={styles.routeArea} />}>
         <AnimatedRoutes />
       </Suspense>
     </div>
@@ -361,6 +357,7 @@ function PageTransition({ children }) {
 function AnimatedRoutes() {
   const location = useLocation();
   return (
+    <div className={styles.routeArea}>
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
@@ -407,6 +404,7 @@ function AnimatedRoutes() {
         } />
       </Routes>
     </AnimatePresence>
+    </div>
   );
 }
 

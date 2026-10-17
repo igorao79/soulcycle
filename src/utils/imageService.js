@@ -9,26 +9,15 @@ async function sha1Hex(message) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-console.log('[imageService] Attempting to load VITE_CLOUDINARY_API_SECRET directly from import.meta.env:', import.meta.env.VITE_CLOUDINARY_API_SECRET);
-
 // Cloudinary settings
 const CLOUDINARY_API_KEY = '417482147356551';
 const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET; // This should be stored securely
 // Поддержка как локального, так и production сервера
 const CLOUDINARY_API_SERVER = import.meta.env.VITE_CLOUDINARY_API_SERVER || 'https://cloudinary-api-uapz.onrender.com';
 
-console.log('Using Cloudinary API server:', CLOUDINARY_API_SERVER);
-
 // Оптимизированные настройки для изображений
 const CLOUDINARY_OPTIMIZED_PARAMS = 'f_auto,q_auto:eco,dpr_auto,w_auto,c_limit';
 const DEFAULT_MAX_WIDTH = 800;
-
-// Validate required credentials
-if (!CLOUDINARY_API_SECRET) {
-  console.error('[imageService] CRITICAL: Cloudinary API Secret is MISSING or undefined AFTER assignment. Ensure VITE_CLOUDINARY_API_SECRET is in your .env file and the server was restarted.');
-} else {
-  console.log('[imageService] Cloudinary API Secret loaded (first 5 chars for verification):', CLOUDINARY_API_SECRET.substring(0, 5));
-}
 
 /**
  * Оптимизирует URL изображения Cloudinary

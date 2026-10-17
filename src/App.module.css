@@ -163,6 +163,12 @@
     transition: none !important;
 }
 
+html {
+    /* Резервируем место под скроллбар: ширина страницы не меняется при смене вкладок */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
 html, body {
     font-size: 10px;
     color: var(--text-color);
