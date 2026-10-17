@@ -19,15 +19,11 @@ const FeedbackForm = React.lazy(() => import('./Feedback/FeedbackForm'));
 
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   
   // Используем кастомный хук для работы с viewport
   const { isMobile, isCompact } = useMobileViewport();
   
-  // Состояние для фиксированной навигации
-  const [showFixedNav, setShowFixedNav] = useState(isMobile);
-
   // Функция для определения активности пункта меню
   const isActiveLink = (path) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -35,55 +31,11 @@ function HomePage() {
     return false;
   };
 
-  // Обработчик скролла для анимации навигации
+  // Фиксированная навигация только на мобильных; на остальных экранах шапка — единая sticky-плашка
   useEffect(() => {
-    let ticking = false;
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const scrollPosition = window.scrollY;
-          
-          // Используем разный порог в зависимости от страницы
-          const isCharactersPage = location.pathname === '/characters';
-          const threshold = isCharactersPage ? 5 : 70; // Минимальный порог для страницы персонажей
-          const shouldScroll = scrollPosition > threshold;
-          // На мобильных не применяем состояние скролла для скрытия хедера
-          setIsScrolled(!isMobile && shouldScroll);
-          // На мобильных фиксированная навигация всегда включена
-          setShowFixedNav(shouldScroll || isMobile);
-          
-          // Добавляем класс для мобильной и планшетной фиксированной навигации
-          if (isMobile || (isCompact && shouldScroll)) {
-            document.body.classList.add('mobile-fixed-nav');
-          } else {
-            document.body.classList.remove('mobile-fixed-nav');
-          }
-          
-          ticking = false;
-        });
-        
-        ticking = true;
-      }
-    };
-
-    const handleResize = () => {
-      // При изменении размера окна пересчитываем
-      handleScroll();
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    
-    // Проверяем сразу при загрузке
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-      document.body.classList.remove('mobile-fixed-nav');
-    };
-  }, [isMobile, isCompact, location.pathname]);
+    document.body.classList.toggle('mobile-fixed-nav', isMobile);
+    return () => document.body.classList.remove('mobile-fixed-nav');
+  }, [isMobile]);
 
   // Закрываем меню при клике вне его
   useEffect(() => {
@@ -145,7 +97,7 @@ function HomePage() {
 
   // Рендер фиксированной навигации через портал
   const renderFixedNav = () => {
-    if (!showFixedNav) return null;
+    if (!isMobile) return null;
     
     return createPortal(
       <nav
@@ -267,16 +219,14 @@ function HomePage() {
     <>
       {renderFixedNav()}
       {renderMobileMenu()}
-      <div className={`${styles.main} ${isScrolled ? styles.scrolled : ''}`}>
-        {/* Шапка в одну строку: логотип — навигация — профиль. При скролле её заменяет fixed-навигация;
-            блок остаётся в потоке (visibility), чтобы страница не прыгала по высоте */}
-        <nav className={`${styles.main__nav} ${isScrolled ? styles.main__nav__idle : ''}`}>
+      <div className={styles.main}>
+        {/* Единая sticky-плашка: логотип — навигация — профиль (на мобильных вместо неё fixed-навигация) */}
         {!isMobile && (
+        <nav className={`${styles.main__nav} ${styles.main__nav__bar}`}>
           <Link to="/" className={styles.main__header} aria-label="Цикл Душ — на главную">
             <UseContext src="sclogo" alt="Логотип" />
             <span className={styles.main__header__title}>Цикл Душ</span>
           </Link>
-        )}
         {!isCompact && (
           <ul className={styles.main__nav__perexod}>
             <li className={`${styles.main__nav__perexod__link} ${isActiveLink('/') ? styles.active : ''}`}>
@@ -319,12 +269,11 @@ function HomePage() {
         {/* Мобильное меню рендерится через портал */}
         
         {/* Кнопка авторизации - скрываем при скролле и не дублируем на мобильных */}
-        {!isMobile && (
           <div className={styles.main__nav__auth}>
             <AuthButton />
           </div>
+        </nav>
         )}
-      </nav>
       <Suspense fallback={<div className={styles.routeArea} />}>
         <AnimatedRoutes />
       </Suspense>

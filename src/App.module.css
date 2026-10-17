@@ -201,7 +201,8 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto;
     background-color: var(--background-color);
     position: relative;
-    overflow: hidden;
+    /* clip, а не hidden: hidden создаёт scroll-контейнер и ломает position: sticky у шапки */
+    overflow: clip;
 }
 
 /* Фон на fixed-слое вместо background-attachment: fixed — тот перерисовывается при каждом
