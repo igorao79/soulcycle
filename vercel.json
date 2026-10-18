@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/gist/:path*",
+      "destination": "https://gist.githubusercontent.com/:path*"
+    }
+  ]
+}

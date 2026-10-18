@@ -15,7 +15,7 @@ SoulCycle - это социальная платформа, которая по�
 - **Backend API**: 
   - Основной API: https://scapi-dj82ynavq-igors-projects-f86e1b8f.vercel.app
   - Cloudinary API: https://cloudinary-api-uapz.onrender.com
-- **Deployment**: GitHub Pages
+- **Deployment**: Vercel
 
 ## Интеграция с Cloudinary
 
@@ -78,8 +78,7 @@ npm run dev
 # Сборка для продакшена
 npm run build
 
-# Деплой на GitHub Pages
-npm run deploy
+# Деплой: пуш в master — Vercel собирает и публикует сам
 ```
 
 ## Структура API сервиса

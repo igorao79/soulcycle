@@ -10,41 +10,6 @@ const MIN_REQUEST_INTERVAL = 2000;
 // Для отслеживания времени последнего запроса
 const lastRequestTime = {};
 
-// Определяем, запущено ли приложение на GitHub Pages
-const isGitHubPages = window.location.hostname.includes('github.io');
-
-// Извлекаем информацию из Gist URL
-const parseGistUrl = (url) => {
-  if (url.startsWith('/gist/')) {
-    const parts = url.split('/');
-    return {
-      username: parts[2],
-      gistId: parts[3],
-      filename: parts[parts.length - 1]
-    };
-  }
-  return null;
-};
-
-// Получаем настоящий URL для GitHub Gist в обход CORS
-const getGistUrl = (url) => {
-  // Если это локальный запрос к Gist через прокси
-  if (url.startsWith('/gist/')) {
-    // Если мы на продакшене (GitHub Pages), используем альтернативный подход
-    if (isGitHubPages) {
-      // Извлекаем идентификаторы из URL
-      const gistInfo = parseGistUrl(url);
-      
-      // Используем GitHub API для получения контента Gist
-      // Этот API поддерживает CORS и не требует прокси
-      return `https://api.github.com/gists/${gistInfo.gistId}`;
-    }
-  }
-  
-  // Для других URL или в режиме разработки возвращаем как есть
-  return url;
-};
-
 // Функция для работы с localStorage, с обработкой ошибок
 const localStorageHelper = {
   get: (key) => {
@@ -76,51 +41,10 @@ const localStorageHelper = {
   }
 };
 
-// Обработка ответа от GitHub API для извлечения содержимого нужного файла
-const processGistResponse = (gistData, originalUrl) => {
-  try {
-    const gistInfo = parseGistUrl(originalUrl);
-    if (!gistInfo || !gistData.files) {
-      return null;
-    }
-    
-    // Ищем нужный файл в ответе Gist API
-    const targetFilename = gistInfo.filename;
-    
-    // Перебираем все файлы и ищем тот, что нам нужен
-    for (const filename in gistData.files) {
-      if (filename === targetFilename || filename.endsWith(`/${targetFilename}`)) {
-        // Если содержимое файла представлено в виде строки, пытаемся распарсить JSON
-        const content = gistData.files[filename].content;
-        if (content) {
-          return JSON.parse(content);
-        }
-      }
-    }
-    
-    // Если конкретный файл не найден, но есть какой-то файл JSON, используем его
-    for (const filename in gistData.files) {
-      if (filename.endsWith('.json')) {
-        const content = gistData.files[filename].content;
-        if (content) {
-          return JSON.parse(content);
-        }
-      }
-    }
-    
-    // Если ничего не нашли, возвращаем все данные Gist
-    return gistData;
-  } catch (error) {
-    console.error('Error processing Gist response:', error);
-    return null;
-  }
-};
-
 // Функция для предварительной загрузки данных с защитой от слишком частых запросов
 const preloadData = async (url, skipCache = false) => {
   // Создаем ключ для кэширования, удаляя параметр времени из URL
   const cacheKey = `data_${url.split('?v=')[0]}`;
-  const isGistUrl = url.startsWith('/gist/');
   
   // Проверяем кэш в localStorage, если не нужно пропускать кэш
   if (!skipCache) {
@@ -160,12 +84,8 @@ const preloadData = async (url, skipCache = false) => {
   lastRequestTime[url] = now;
 
   try {
-    // Получаем правильный URL с учетом среды выполнения
-    const fetchUrl = getGistUrl(url);
-    const originalUrl = url; // Сохраняем оригинальный URL для обработки ответа Gist API
-    console.log(`Fetching data from: ${fetchUrl}`);
-    
-    const response = await fetch(fetchUrl, {
+    // /gist/* проксируется на gist.githubusercontent.com (vite proxy в dev, rewrite в vercel.json)
+    const response = await fetch(url, {
       cache: skipCache ? 'no-cache' : 'default'
     });
     
@@ -186,12 +106,8 @@ const preloadData = async (url, skipCache = false) => {
     
     const json = await response.json();
     
-    // Если это ответ от GitHub API, извлекаем нужный файл
-    let processedData = json;
-    if (isGistUrl && isGitHubPages) {
-      processedData = processGistResponse(json, originalUrl);
-    }
-    
+    const processedData = json;
+
     // Сохраняем в оба кэша
     const cacheEntry = { 
       data: processedData, 

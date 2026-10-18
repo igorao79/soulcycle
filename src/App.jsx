@@ -5,7 +5,6 @@ import HomePage from './components/HomePage';
 import { ThemeContext } from './components/theme/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { getCloudinaryUrl } from './utils/cloudinary.jsx';
-import VersionChecker from './utils/VersionChecker';
 
 // Кэш для фоновых изображений
 let backgroundCache = {};
@@ -134,7 +133,6 @@ function App() {
                 <div id="bg-effects-root" className={styles.bgEffectsRoot}></div>
                 <div className={styles.pageContent}>
                     <HomePage />
-                    <VersionChecker />
                 </div>
             </div>
         </Router>

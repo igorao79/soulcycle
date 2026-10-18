@@ -1,7 +1,6 @@
 /**
  * Файл с конфигурацией переменных окружения
- * В production используются значения из window.env (файл public/env.js)
- * В development используются значения из import.meta.env
+ * Значения берутся из переменных окружения Vite (VITE_*), которые Vercel подставляет при сборке
  */
 
 // Функция для безопасного получения переменных окружения
@@ -9,12 +8,6 @@ const getEnvVar = (key, defaultValue = '') => {
   // Префикс для Vite переменных окружения
   const viteKey = `VITE_${key}`;
   
-  // В production используем window.env
-  if (typeof window !== 'undefined' && window.env && window.env[viteKey] && window.env[viteKey] !== '') {
-    return window.env[viteKey];
-  }
-  
-  // В development используем import.meta.env
   return import.meta.env[viteKey] || defaultValue;
 };
 
