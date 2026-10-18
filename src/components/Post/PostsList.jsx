@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import postService from '../../services/postService';
+import { PostSkeleton } from '../shared/Skeleton';
 import PostItem from './PostItem/index';
 import CreatePostForm from './CreatePostForm/index';
 import RulesModal from '../Rules/RulesModal';
@@ -246,8 +247,10 @@ const PostsList = () => {
       )}
       
       {loading && page === 1 ? (
-        <div className={styles.loading}>
-          <FiLoader /> Загрузка постов...
+        <div className={styles.postsList}>
+          <PostSkeleton />
+          <PostSkeleton />
+          <PostSkeleton />
         </div>
       ) : posts.length > 0 ? (
         <>
@@ -267,9 +270,7 @@ const PostsList = () => {
           {/* Loader at the bottom for infinite scrolling */}
           <div ref={loaderRef} className={styles.loadMoreContainer}>
             {loadingMore && (
-              <div className={styles.loadMoreSpinner}>
-                <FiLoader /> Загрузка старых постов...
-              </div>
+              <PostSkeleton />
             )}
             {!hasMore && posts.length >= totalCount && (
               <div className={styles.noMorePosts}>

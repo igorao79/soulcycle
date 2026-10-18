@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, useUserDisplayName } from '../../contexts/AuthContext';
 import authService from '../../services/authService';
+import { ProfileSkeleton } from '../shared/Skeleton';
 import styles from './ProfilePage.module.scss';
 import perkStyles from '../../styles/Perks.module.scss';
 
@@ -207,7 +208,7 @@ const ProfilePage = () => {
   
   // Если данные еще не загружены, показываем индикатор загрузки
   if (loading || !profileUser) {
-    return <div className={styles.loading}>Загрузка профиля...</div>;
+    return <ProfileSkeleton />;
   }
   
   // Если возникла ошибка, показываем сообщение об ошибке

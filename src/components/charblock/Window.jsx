@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { CharactersSkeleton } from '../shared/Skeleton';
 import styles from '../../styles/charblock/Window.module.scss';
 import AnimatedContent from '../../utils/charblock/AnimatedContent';
 import CharMenu from './menu/CharMenu';
@@ -83,7 +84,7 @@ function Window() {
       )}
       
       {loading ? (
-        <div className={styles.loading}>Загрузка...</div>
+        <CharactersSkeleton />
       ) : error ? (
         <div className={styles.error}>
           Ошибка загрузки данных. {!loading && <button onClick={refresh}>Повторить</button>}

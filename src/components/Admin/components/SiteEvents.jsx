@@ -1,5 +1,6 @@
 import React from 'react';
-import { FiCalendar, FiLoader, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiCalendar, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { ListRowSkeleton } from '../../shared/Skeleton';
 import styles from '../AdminPanel.module.scss';
 
 const SiteEvents = ({ 
@@ -14,8 +15,9 @@ const SiteEvents = ({
       </h2>
       
       {eventsLoading ? (
-        <div className={styles.loader}>
-          <FiLoader size={24} /> Загрузка настроек событий...
+        <div role="status" aria-label="Загрузка настроек событий">
+          <ListRowSkeleton avatar={false} />
+          <ListRowSkeleton avatar={false} />
         </div>
       ) : (
         <div className={styles.eventsList}>

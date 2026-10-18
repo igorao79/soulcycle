@@ -10,6 +10,7 @@ import { AiOutlinePushpin } from 'react-icons/ai';
 
 import { useAuth } from '../../../contexts/AuthContext';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
+import Skeleton, { CommentSkeleton } from '../../shared/Skeleton';
 import postService from '../../../services/postService';
 import commentService from '../../../services/commentService';
 import filterBadWords from '../../../utils/filterBadWords';
@@ -41,6 +42,8 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
   // Basic State
   const { user, isAuthenticated } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
+  // Пока не узнали, лайкнул ли пользователь пост, вместо сердца показываем скелетон
+  const [isCheckingLike, setIsCheckingLike] = useState(() => !!(isAuthenticated && user));
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
   const [showComments, setShowComments] = useState(fullView);
   const [isPinned, setIsPinned] = useState(post.is_pinned || false);
@@ -123,10 +126,15 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
           setIsLiked(liked);
         } catch (error) {
           console.error('Ошибка при проверке статуса лайка:', error);
+        } finally {
+          setIsCheckingLike(false);
         }
+      } else {
+        setIsCheckingLike(false);
       }
     };
     
+    setIsCheckingLike(!!(isAuthenticated && user));
     checkLikeStatus();
   }, [post.id, user, isAuthenticated]);
   
@@ -734,7 +742,7 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
           className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
           onClick={handleLikeClick}
         >
-          <FiHeart /> <span className={styles.likeCount}>{likesCount}</span>
+          {isCheckingLike ? <Skeleton circle width={16} /> : <FiHeart />} <span className={styles.likeCount}>{likesCount}</span>
         </button>
         
         <button 
@@ -819,8 +827,10 @@ const PostItem = ({ post, onLikeToggle, fullView = false, onDelete, onPinChange,
             </h4>
             
             {isLoadingComments ? (
-              <div className={styles.loadingComments}>
-                <FiLoader /> Загрузка комментариев...
+              <div className={styles.loadingComments} role="status" aria-label="Загрузка комментариев">
+                <CommentSkeleton />
+                <CommentSkeleton />
+                <CommentSkeleton />
               </div>
             ) : (
               <>

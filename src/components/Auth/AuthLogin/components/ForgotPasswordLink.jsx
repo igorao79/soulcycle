@@ -21,15 +21,14 @@ const ForgotPasswordLink = ({
   
   return (
     <div className={styles.forgotPassword}>
-      <motion.button
-        className={styles.switchButton}
+      <button
+        type="button"
+        className={styles.forgotButton}
         onClick={handleClick}
         disabled={disabled}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.98 }}
       >
         {buttonText}
-      </motion.button>
+      </button>
       
       <AnimatePresence>
         {showMessage && (

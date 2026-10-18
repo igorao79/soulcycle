@@ -64,6 +64,9 @@ const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
           required
           autoComplete="current-password"
         />
+
+        {/* Восстановление пароля — сразу под полем пароля */}
+        <ForgotPasswordLink disabled={loading} />
         
         {/* Кнопка отправки формы */}
         <SubmitButton 
@@ -79,10 +82,9 @@ const LoginForm = ({ onSuccess, onSwitchToRegister }) => {
       <SwitchFormLink
         onClick={onSwitchToRegister}
         disabled={loading}
+        message="Еще нет аккаунта?"
+        buttonText="Зарегистрироваться"
       />
-      
-      {/* Ссылка для восстановления пароля */}
-      <ForgotPasswordLink disabled={loading} />
     </div>
   );
 };

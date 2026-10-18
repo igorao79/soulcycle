@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getOptimizedUrl } from '../utils/helpers';
+import Skeleton from '../../../shared/Skeleton';
 import styles from '../../Post.module.scss';
 
 const OptimizedImage = ({ src, alt, className, style }) => {
@@ -61,7 +62,7 @@ const OptimizedImage = ({ src, alt, className, style }) => {
   
   return (
     <div className={`${className || ''} ${styles.imageContainer}`} style={style}>
-      {isLoading && <div className={styles.imageLoading}>Загрузка изображения...</div>}
+      {isLoading && <Skeleton height="100%" radius={8} style={{ position: 'absolute', inset: 0, minHeight: 120 }} />}
       {error && <div className={styles.imageError}>Ошибка загрузки</div>}
       <img 
         src={useFallback ? originalSrc : displaySrc} 

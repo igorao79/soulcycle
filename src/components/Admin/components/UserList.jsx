@@ -1,6 +1,7 @@
 import React from 'react';
+import { ListRowSkeleton } from '../../shared/Skeleton';
 import styles from '../AdminPanel.module.scss';
-import { FiUser, FiEdit, FiLock, FiUnlock, FiLoader } from 'react-icons/fi';
+import { FiUser, FiEdit, FiLock, FiUnlock } from 'react-icons/fi';
 import { Avatar } from '../../../utils/cloudinary';
 
 const UserList = ({
@@ -35,8 +36,8 @@ const UserList = ({
   return (
     <div className={styles.userList}>
       {loading ? (
-        <div className={styles.loader}>
-          <FiLoader size={24} /> Загрузка пользователей...
+        <div role="status" aria-label="Загрузка пользователей">
+          {Array.from({ length: 6 }, (_, i) => <ListRowSkeleton key={i} />)}
         </div>
       ) : (
         <>

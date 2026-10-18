@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ListRowSkeleton } from '../shared/Skeleton';
 import styles from './AdminPanel.module.scss';
 import { FiSettings, FiUsers, FiEdit, FiUser, FiLoader } from 'react-icons/fi';
 import { SUPER_ADMIN_EMAIL } from '../../services/auth/authCore';
@@ -191,8 +192,9 @@ const AdminPanel = () => {
           ) : (
             <div className={styles.noUserSelected}>
               {usersLoading ? (
-                <div className={styles.loader}>
-                  <FiLoader size={24} /> Загрузка данных...
+                <div role="status" aria-label="Загрузка данных">
+                  <ListRowSkeleton />
+                  <ListRowSkeleton />
                 </div>
               ) : (
                 <p>
