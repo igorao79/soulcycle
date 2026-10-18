@@ -28,6 +28,14 @@ drop function if exists public.admin_get_user_profiles();
 drop function if exists public.admin_reset_password(uuid, text);
 drop function if exists public.admin_update_user(uuid, jsonb);
 
+-- STATUS (2026-10-18): everything EXCEPT destructive statements (DROP / DELETE, sections 1, the
+-- "drop trigger/function _safe" part of 2, the policy rewrite in 7, sections 8 and the DROP INDEX
+-- lines of 9) has been applied statement by statement. Those wait for explicit confirmation.
+-- Also applied: is_admin() fixed ('admin' = ANY(perks) is invalid for jsonb and always raised):
+--   create or replace function public.is_admin() returns boolean language plpgsql security definer
+--   set search_path = public as $$ begin return exists (select 1 from public.profiles where id = auth.uid()
+--   and (email = 'igoraor79@gmail.com' or active_perk = 'admin' or perks ? 'admin')); end; $$;
+
 -- 2. Signup: single trigger, never trust client metadata for role/perks --------
 drop trigger if exists on_auth_user_created_safe on auth.users;
 drop function if exists public.handle_new_user_safe();
