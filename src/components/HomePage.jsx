@@ -106,14 +106,6 @@ function HomePage() {
     setMenuOpen(false);
   };
 
-  // Обработчик смены темы без закрытия меню
-  const handleThemeToggle = (e) => {
-    e.stopPropagation();
-    // Здесь не закрываем меню
-  };
-
-
-
   // Рендер фиксированной навигации через портал
   const renderFixedNav = () => {
     if (!isMobile) return null;
@@ -135,10 +127,7 @@ function HomePage() {
               src="sclogo" 
               alt="Логотип"
             />
-            {/* Показываем текст только на планшетах и больше */}
-            {!isMobile && (
-              <span className={styles.main__nav__logo__text}>Цикл Душ</span>
-            )}
+            <span className={styles.main__nav__logo__text}>Цикл Душ</span>
           </Link>
         </motion.div>
         
@@ -184,6 +173,7 @@ function HomePage() {
 
         {/* Профиль - используем то же состояние AuthButton */}
         <motion.div 
+          className={styles.main__nav__authSlot}
           key="fixed-auth" // Уникальный ключ для фиксированного профиля
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -224,9 +214,7 @@ function HomePage() {
             <Link to="/about" onClick={handleNavLinkClick}>О нас</Link>
           </li>
           <li className={styles.mobileMenuTheme}>
-            <div onClick={handleThemeToggle}>
-              <ThemeToggleButton />
-            </div>
+            <ThemeToggleButton inline size="lg" />
           </li>
         </ul>
       </div>,

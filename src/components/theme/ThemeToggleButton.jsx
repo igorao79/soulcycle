@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from '../../styles/theme/ThemeToggleButton.module.css';
 import { FaSun, FaMoon } from 'react-icons/fa';
 
-const ThemeToggleButton = React.memo(({ inline = false }) => {
+const ThemeToggleButton = React.memo(({ inline = false, size = 'md' }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
 
@@ -14,7 +14,7 @@ const ThemeToggleButton = React.memo(({ inline = false }) => {
 
   return (
     <button
-      className={`${styles.themeButton} ${inline ? styles.inline : ''}`}
+      className={`${styles.themeButton} ${inline ? styles.inline : ''} ${inline && size === 'lg' ? styles.inlineLg : ''}`}
       onClick={handleClick}
       aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >

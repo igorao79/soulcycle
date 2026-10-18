@@ -5,6 +5,12 @@
 .authContainer {
   position: relative;
   z-index: 10;
+  // Слот профиля всегда одного размера: вход, загрузка и профиль не двигают шапку
+  width: 100%;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .loginButton {
@@ -23,8 +29,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+ gap: 8px;
   letter-spacing: 0.5px;
+  height: 46px;
   
   &:hover {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
@@ -65,6 +72,7 @@
   position: relative;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .profileButton {
@@ -78,8 +86,10 @@
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s, opacity 0.3s;
   backdrop-filter: blur(4px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  min-height: 54px;
-  min-width: 120px;
+  width: 100%;
+  height: 54px;
+  box-sizing: border-box;
+  min-width: 0;
   
   &:hover {
     background: rgba(60, 60, 65, 0.8);
@@ -133,6 +143,11 @@
   font-weight: 500;
   margin-right: 5px;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
@@ -171,7 +186,7 @@
 
 // Стили для лоадера
 .authSkeleton {
-  width: 170px;
+  width: 100%;
   height: 54px;
   border-radius: 30px;
   background: var(--hover-bg-strong);
@@ -608,3 +623,21 @@
     }
   }
 } 
+// Мобильная фиксированная шапка: компактный слот профиля
+@media (max-width: 768px) {
+  .authContainer,
+  .profileButton,
+  .authSkeleton {
+    height: 46px;
+  }
+
+  .avatar {
+    width: 34px !important;
+    height: 34px !important;
+    margin-right: 6px;
+  }
+
+  .username {
+    font-size: 1rem;
+  }
+}

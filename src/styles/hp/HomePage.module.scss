@@ -1371,7 +1371,8 @@
     z-index: 100;
     padding: 8px 16px;
     gap: 16px;
-    min-height: 72px;
+    height: 72px;
+    box-sizing: border-box;
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(16px);
@@ -1445,9 +1446,59 @@
     }
 }
 
-// Слот профиля резервирует размер, чтобы шапка не дёргалась, когда загрузка авторизации завершается
+// Слот профиля: фиксированный размер при любом состоянии (гость / загрузка / вошёл)
 .main .main__nav__bar > .main__nav__auth {
-    min-width: 190px;
-    min-height: 54px;
+    flex: 0 0 200px;
+    width: 200px;
+    height: 54px;
+    padding: 0;
+    display: flex;
+    align-items: center;
     justify-content: flex-end;
+}
+
+// Мобильная фиксированная шапка: фиксированная высота, логотип слева, профиль и бургер справа
+.main__nav__authSlot {
+    flex: 0 0 150px;
+    width: 150px;
+    height: 46px;
+}
+
+@media (max-width: 768px) {
+    .main__nav__fixed {
+        height: 62px;
+        box-sizing: border-box;
+        padding: 0 12px !important;
+        gap: 8px;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.92);
+        top: max(10px, env(safe-area-inset-top)) !important;
+
+        [data-theme="dark"] & {
+            background: rgba(24, 24, 34, 0.94) !important;
+        }
+
+        .main__nav__logo {
+            margin-right: auto;
+            min-width: 0;
+            padding: 0;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        .main__nav__logo__text {
+            display: none;
+            white-space: nowrap;
+        }
+
+        .main__nav__authSlot { order: 2; }
+        .main__nav__burger { order: 3; margin: 0 !important; flex: 0 0 44px; width: 44px; height: 44px; box-sizing: border-box; padding: 14px 10px; }
+    }
+}
+
+@media (max-width: 768px) and (min-width: 400px) {
+    .main__nav__fixed .main__nav__logo__text { display: inline; }
 }
