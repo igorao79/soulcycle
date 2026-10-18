@@ -14,10 +14,10 @@ const ReactCompilerConfig = {
   target: '19'
 };
 
-// Determine the base path based on environment
-const baseConfig = process.env.NODE_ENV === 'production' 
-  ? '/soulcycle/' 
-  : '/';
+// Base path: на GitHub Pages сайт живёт в /soulcycle/, на Vercel (переменная VERCEL=1) — в корне
+const baseConfig = process.env.VERCEL || process.env.NODE_ENV !== 'production'
+  ? '/'
+  : '/soulcycle/';
 
 export default defineConfig({
   plugins: [
