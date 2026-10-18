@@ -637,7 +637,22 @@
     margin-right: 6px;
   }
 
+  // На телефоне профиль = аватар + стрелка, без ника: тот же размер, что у «Войти»
   .username {
-    font-size: 1rem;
+    display: none;
+  }
+
+  .profileButton {
+    justify-content: space-between;
+    padding: 4px 12px 4px 4px;
+  }
+
+  .avatar {
+    margin-right: 0;
+  }
+
+  .loginButton {
+    width: 100%;
+    padding: 0;
   }
 }

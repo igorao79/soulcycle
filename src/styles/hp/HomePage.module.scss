@@ -1448,8 +1448,8 @@
 
 // Слот профиля: фиксированный размер при любом состоянии (гость / загрузка / вошёл)
 .main .main__nav__bar > .main__nav__auth {
-    flex: 0 0 200px;
-    width: 200px;
+    flex: 0 0 168px;
+    width: 168px;
     height: 54px;
     padding: 0;
     display: flex;
@@ -1459,8 +1459,9 @@
 
 // Мобильная фиксированная шапка: фиксированная высота, логотип слева, профиль и бургер справа
 .main__nav__authSlot {
-    flex: 0 0 150px;
-    width: 150px;
+    // на телефоне гость («Войти»), загрузка и профиль (аватар + стрелка) — один и тот же размер
+    flex: 0 0 104px;
+    width: 104px;
     height: 46px;
 }
 
@@ -1492,6 +1493,9 @@
         .main__nav__logo__text {
             display: none;
             white-space: nowrap;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-bold);
         }
 
         .main__nav__authSlot { order: 2; }
@@ -1499,6 +1503,6 @@
     }
 }
 
-@media (max-width: 768px) and (min-width: 400px) {
-    .main__nav__fixed .main__nav__logo__text { display: inline; }
+@media (max-width: 768px) and (min-width: 340px) {
+    .main__nav__fixed .main__nav__logo .main__nav__logo__text { display: inline !important; }
 }
